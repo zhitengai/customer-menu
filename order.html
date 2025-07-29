@@ -1413,13 +1413,13 @@
       loadMenuData();
       
       // Listen for storage changes from other tabs
-      window.addEventListener('storage', (event) => {
-        if (event.key === 'menu' || event.key === 'menu_updated') {
-          loadMenuData();
-          renderCategories();
-          renderProducts();
-        }
-      });
+    // Modify the checkForCustomerOrders to listen for storage events
+window.addEventListener('storage', (event) => {
+  if (event.key === 'orderUpdated') {
+    const customerOrder = localStorage.getItem('customerOrder');
+    if (customerOrder) processCustomerOrder(customerOrder);
+  }
+});
       
       // Fallback polling for browsers that don't fire storage events properly
       let lastMenuUpdate = localStorage.getItem('menu_updated') || 0;
