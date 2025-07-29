@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Sales Dashboard & Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --light-color: #ecf0f1;
+            --dark-color: #333;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --bg-color: #f4f7f9;
+            --white-color: #ffffff;
+            --text-muted: #6c757d;
+            --warning-color: #f39c12;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--dark-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            background-color: var(--white-color);
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .report-header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .report-controls {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .control-group input,
+        .control-group select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background-color: #fdfdfd;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background-color: var(--secondary-color); }
+        .btn-primary:hover { background-color: #2980b9; }
+        .btn-success { background-color: var(--success-color); }
+        .btn-success:hover { background-color: #219653; }
+        .btn-warning { background-color: var(--warning-color); }
+        .btn-warning:hover { background-color: #e67e22; }
+        
+        .report-section {
+            margin-bottom: 25px;
+        }
+
+        .report-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background-color: var(--white-color);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .summary-card .icon {
+            font-size: 2rem;
+            padding: 15px;
+            border-radius: 50%;
+            color: var(--white-color);
+        }
+        .summary-card .icon.sales { background-color: var(--success-color); }
+        .summary-card .icon.trans { background-color: var(--secondary-color); }
+        .summary-card .icon.void-amt { background-color: var(--accent-color); }
+        .summary-card .icon.void-trans { background-color: #f39c12; }
+        .summary-card .icon.tax { background-color: #9b59b6; }
+
+        .summary-card .details .label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .summary-card .details .value {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .top-items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .top-item-card {
+            background: var(--white-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-item-card .rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            min-width: 30px;
+            text-align: center;
+        }
+        .top-item-card .rank.gold { color: #ffd700; }
+        .top-item-card .rank.silver { color: #c0c0c0; }
+        .top-item-card .rank.bronze { color: #cd7f32; }
+
+        .top-item-card .item-details .name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .top-item-card .item-details .stats {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .tabs-container {
+            background: var(--white-color);
+            border-radius: 12px;
+            padding: 20px 30px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-btn.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        thead th {
+            background-color: #f5f7fa;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        tbody tr:nth-child(even) { background-color: #fdfdfd; }
+        tbody tr:hover { background-color: #f0f8ff; }
+
+        .text-right { text-align: right; }
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+            font-style: italic;
+            background-color: var(--white-color);
+            border-radius: 12px;
+        }
+
+        .pos-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .pos-link:hover { text-decoration: underline; }
+
+        .tax-report-section {
+            background-color: var(--white-color);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .tax-report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tax-report-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .tax-report-period {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .tax-report-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tax-summary-card {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .tax-summary-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .tax-summary-card p {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .tax-summary-card .tax-amount {
+            color: var(--accent-color);
+        }
+
+        .tax-details-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tax-certificate {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .tax-certificate h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .tax-certificate p {
+            margin-bottom: 10px;
+        }
+
+        .tax-certificate .signature-area {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .tax-certificate .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            text-align: center;
+            padding-top: 5px;
+        }
+
+        @media print {
+            body { padding: 0; background-color: #fff; }
+            .container, .report-header, .summary-card, .top-item-card, .tabs-container, .tax-report-section { 
+                box-shadow: none; 
+                border: 1px solid #ccc; 
+            }
+            .report-controls, .pos-link, .tab-buttons { display: none; }
+            .report-header { flex-direction: column; text-align: center; }
+            table, .dashboard-grid, .top-items-grid, .tax-report-summary { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            h2 { page-break-after: avoid; }
+            .tab-content { display: block !important; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="report-header">
+            <h1>Sales Dashboard & Tax Reports</h1>
+            <div class="report-controls">
+                <div class="control-group">
+                    <label for="reportType">Report Period</label>
+                    <select id="reportType">
+                        <option value="daily">Today</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly">This Month</option>
+                        <option value="yearly">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <div class="control-group" id="dateRangePicker" style="display: none;">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="control-group" id="dateRangePicker2" style="display: none;">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <button id="generateReportBtn" class="btn btn-primary">Generate</button>
+                <button onclick="window.print()" class="btn btn-success"><i class="fas fa-print"></i> Print</button>
+                <button id="generateTaxReportBtn" class="btn btn-warning"><i class="fas fa-file-invoice-dollar"></i> Tax Report</button>
+            </div>
+        </div>
+
+        <div id="reportOutput">
+            <p class="no-data">Select a report period and click "Generate" to view data.</p>
+        </div>
+        
+        <a href="order.html" class="pos-link"><i class="fas fa-arrow-left"></i> Back to POS</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const getEl = (id) => document.getElementById(id);
+
+            const reportTypeSelect = getEl('reportType');
+            const dateRangePicker = getEl('dateRangePicker');
+            const dateRangePicker2 = getEl('dateRangePicker2');
+            const generateReportBtn = getEl('generateReportBtn');
+            const generateTaxReportBtn = getEl('generateTaxReportBtn');
+            const reportOutput = getEl('reportOutput');
+            const startDateInput = getEl('startDate');
+            const endDateInput = getEl('endDate');
+
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.value = today;
+            endDateInput.value = today;
+
+            reportTypeSelect.addEventListener('change', () => {
+                const isCustom = reportTypeSelect.value === 'custom';
+                dateRangePicker.style.display = isCustom ? 'flex' : 'none';
+                dateRangePicker2.style.display = isCustom ? 'flex' : 'none';
+            });
+
+            generateReportBtn.addEventListener('click', () => {
+                generateReport(false);
+            });
+
+            generateTaxReportBtn.addEventListener('click', () => {
+                generateReport(true);
+            });
+
+            function generateReport(isTaxReport) {
+                const allOrders = JSON.parse(localStorage.getItem('restaurantOrders') || '[]');
+                if (allOrders.length === 0) {
+                    reportOutput.innerHTML = '<p class="no-data">No order data found. Please make some sales in the POS system first.</p>';
+                    return;
+                }
+                
+                const { startDate, endDate } = getReportDateRange();
+                const filteredOrders = allOrders.filter(order => {
+                    const orderDate = new Date(order.paymentTimestamp || order.voidTimestamp || order.timestamp);
+                    return orderDate >= startDate && orderDate <= endDate;
+                });
+
+                if (isTaxReport) {
+                    generateTaxReport(filteredOrders, startDate, endDate);
+                } else {
+                    generateDashboardReport(filteredOrders);
+                }
+            }
+
+            function getReportDateRange() {
+                const type = reportTypeSelect.value;
+                const now = new Date();
+                let startDate = new Date();
+                let endDate = new Date();
+
+                switch (type) {
+                    case 'daily':
+                        startDate.setHours(0, 0, 0, 0);
+                        endDate.setHours(23, 59, 59, 999);
+                        break;
+                    case 'weekly':
+                        const dayOfWeek = now.getDay();
+                        const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // adjust when day is sunday
+                        startDate = new Date(now.setDate(diff));
+                        startDate.setHours(0, 0, 0, 0);
+                        endDate = new Date(startDate);
+                        endDate.setDate(startDate.getDate() + 6);
+                        endDate.setHours(23, 59, 59, 999);
+                        break;
+                    case 'monthly':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                        endDate.setHours(23, 59, 59, 999);
+                        break;
+                    case 'yearly':
+                        startDate = new Date(now.getFullYear(), 0, 1);
+                        endDate = new Date(now.getFullYear(), 11, 31);
+                        endDate.setHours(23, 59, 59, 999);
+                        break;
+                    case 'custom':
+                        startDate = new Date(startDateInput.value);
+                        startDate.setHours(0, 0, 0, 0);
+                        endDate = new Date(endDateInput.value);
+                        endDate.setHours(23, 59, 59, 999);
+                        break;
+                }
+                return { startDate, endDate };
+            }
+
+            function generateDashboardReport(orders) {
+                if (orders.length === 0) {
+                    reportOutput.innerHTML = '<p class="no-data">No data available for the selected period.</p>';
+                    return;
+                }
+                const paidOrders = orders.filter(o => o.status === 'paid');
+                const voidedOrders = orders.filter(o => o.status === 'voided');
+
+                const totalSales = paidOrders.reduce((sum, o) => sum + o.total, 0);
+                const totalVoided = voidedOrders.reduce((sum, o) => sum + o.total, 0);
+                
+                const itemSales = {};
+                paidOrders.forEach(order => {
+                    order.items.forEach(item => {
+                        if (!itemSales[item.name]) {
+                            itemSales[item.name] = { quantity: 0, totalValue: 0 };
+                        }
+                        itemSales[item.name].quantity += item.quantity;
+                        itemSales[item.name].totalValue += item.quantity * item.price;
+                    });
+                });
+
+                const topItems = Object.entries(itemSales)
+                    .sort(([, a], [, b]) => b.totalValue - a.totalValue)
+                    .slice(0, 3);
+
+                let outputHTML = `
+                    ${generateDashboardSection(totalSales, paidOrders.length, totalVoided, voidedOrders.length, topItems)}
+                    ${generateDetailedLogsSection(paidOrders, voidedOrders)}
+                `;
+                reportOutput.innerHTML = outputHTML;
+                setupTabEvents();
+            }
+
+            function generateDashboardSection(totalSales, paidCount, totalVoided, voidedCount, topItems) {
+                return `
+                <div class="report-section">
+                    <div class="dashboard-grid">
+                        <div class="summary-card">
+                            <div class="icon sales"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="details">
+                                <div class="label">Nett Sales</div>
+                                <div class="value">RM ${totalSales.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="icon trans"><i class="fas fa-receipt"></i></div>
+                            <div class="details">
+                                <div class="label">Transactions</div>
+                                <div class="value">${paidCount}</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="icon void-amt"><i class="fas fa-exclamation-circle"></i></div>
+                            <div class="details">
+                                <div class="label">Voided Amount</div>
+                                <div class="value">RM ${totalVoided.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="icon void-trans"><i class="fas fa-times-circle"></i></div>
+                            <div class="details">
+                                <div class="label">Voided Trans.</div>
+                                <div class="value">${voidedCount}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="report-section">
+                    <h2>Top 3 Best Sellers</h2>
+                    <div class="top-items-grid">
+                        ${topItems.length > 0 ? topItems.map(([name, data], index) => generateTopItemCard(name, data, index)).join('') : '<div class="no-data" style="grid-column: 1 / -1;">Not enough data for top performers.</div>'}
+                    </div>
+                </div>
+                `;
+            }
+
+            function generateTopItemCard(name, data, index) {
+                const rankClasses = ['gold', 'silver', 'bronze'];
+                return `
+                <div class="top-item-card">
+                    <div class="rank ${rankClasses[index] || ''}">#${index + 1}</div>
+                    <div class="item-details">
+                        <div class="name">${name}</div>
+                        <div class="stats">
+                            <strong>${data.quantity}</strong> units sold | <strong>RM ${data.totalValue.toFixed(2)}</strong> revenue
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            function generateDetailedLogsSection(paidOrders, voidedOrders) {
+                return `
+                <div class="report-section">
+                    <div class="tabs-container">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" data-tab="sales">All Sales (${paidOrders.length})</button>
+                            <button class="tab-btn" data-tab="voids">Voided Orders (${voidedOrders.length})</button>
+                        </div>
+                        <div id="sales" class="tab-content active">
+                            ${generateSalesLogTable(paidOrders)}
+                        </div>
+                        <div id="voids" class="tab-content">
+                            ${generateVoidLogTable(voidedOrders)}
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            function generateSalesLogTable(paidOrders) {
+                if (paidOrders.length === 0) return '<div class="no-data">No sales in this period.</div>';
+                return `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th><th>Order ID</th><th>Type</th><th>Table</th>
+                            <th class="text-right">Total (RM)</th><th>Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${paidOrders.map(order => `
+                            <tr>
+                                <td>${new Date(order.paymentTimestamp).toLocaleString()}</td>
+                                <td>${order.id}</td><td>${order.type}</td><td>${order.table || '-'}</td>
+                                <td class="text-right">${order.total.toFixed(2)}</td><td>${order.paymentMethod}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+            }
+            
+            function generateVoidLogTable(voidedOrders) {
+                if (voidedOrders.length === 0) return '<div class="no-data">No voided orders in this period.</div>';
+                return `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th><th>Order ID</th><th>Reason</th>
+                            <th>Voided By</th><th class="text-right">Amount (RM)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${voidedOrders.map(order => `
+                            <tr>
+                                <td>${new Date(order.voidTimestamp).toLocaleString()}</td><td>${order.id}</td>
+                                <td>${order.voidReason || 'N/A'}</td><td>${order.voidedBy || 'N/A'}</td>
+                                <td class="text-right">${order.total.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+            }
+
+            function generateTaxReport(orders, startDate, endDate) {
+                const paidOrders = orders.filter(o => o.status === 'paid');
+                const voidedOrders = orders.filter(o => o.status === 'voided');
+                
+                if (paidOrders.length === 0) {
+                    reportOutput.innerHTML = '<p class="no-data">No sales data available for tax reporting in this period.</p>';
+                    return;
+                }
+
+                // Calculate tax report values (using example 6% SST for Malaysia)
+                const totalSales = paidOrders.reduce((sum, o) => sum + o.total, 0);
+                const totalVoided = voidedOrders.reduce((sum, o) => sum + o.total, 0);
+                const taxableAmount = totalSales;
+                const taxRate = 0.06; // 6% SST
+                const taxAmount = taxableAmount * taxRate;
+                const netAmount = totalSales - taxAmount;
+
+                // Group sales by payment method
+                const paymentMethods = {};
+                paidOrders.forEach(order => {
+                    if (!paymentMethods[order.paymentMethod]) {
+                        paymentMethods[order.paymentMethod] = 0;
+                    }
+                    paymentMethods[order.paymentMethod] += order.total;
+                });
+
+                // Format date range for display
+                const startDateStr = startDate.toLocaleDateString();
+                const endDateStr = endDate.toLocaleDateString();
+                const periodStr = startDateStr === endDateStr ? startDateStr : `${startDateStr} to ${endDateStr}`;
+
+                // Generate tax report HTML
+                const outputHTML = `
+                <div class="tax-report-section">
+                    <div class="tax-report-header">
+                        <h2 class="tax-report-title">Malaysia Sales & Service Tax (SST) Report</h2>
+                        <div class="tax-report-period">Period: ${periodStr}</div>
+                    </div>
+                    
+                    <div class="tax-report-summary">
+                        <div class="tax-summary-card">
+                            <h3>Total Sales (RM)</h3>
+                            <p>${totalSales.toFixed(2)}</p>
+                        </div>
+                        <div class="tax-summary-card">
+                            <h3>Taxable Amount (RM)</h3>
+                            <p>${taxableAmount.toFixed(2)}</p>
+                        </div>
+                        <div class="tax-summary-card">
+                            <h3>Tax Rate</h3>
+                            <p>${(taxRate * 100).toFixed(0)}% SST</p>
+                        </div>
+                        <div class="tax-summary-card">
+                            <h3>Tax Amount (RM)</h3>
+                            <p class="tax-amount">${taxAmount.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    
+                    <h3>Sales Breakdown by Payment Method</h3>
+                    <table class="tax-details-table">
+                        <thead>
+                            <tr>
+                                <th>Payment Method</th>
+                                <th class="text-right">Amount (RM)</th>
+                                <th class="text-right">Tax Amount (RM)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(paymentMethods).map(([method, amount]) => `
+                                <tr>
+                                    <td>${method}</td>
+                                    <td class="text-right">${amount.toFixed(2)}</td>
+                                    <td class="text-right">${(amount * taxRate).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                            <tr style="font-weight: bold; background-color: #f8f9fa;">
+                                <td>TOTAL</td>
+                                <td class="text-right">${totalSales.toFixed(2)}</td>
+                                <td class="text-right">${taxAmount.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="tax-certificate">
+                        <h3>Tax Certificate</h3>
+                        <p>This document certifies that the above sales and tax information is accurate for the period stated.</p>
+                        <p>Business Name: <strong>YOUR RESTAURANT NAME</strong></p>
+                        <p>Business Registration Number: <strong>YOUR COMPANY REGISTRATION</strong></p>
+                        <p>Tax Identification Number: <strong>YOUR TAX ID</strong></p>
+                        
+                        <div class="signature-area">
+                            <div>
+                                <div class="signature-line"></div>
+                                <p>Prepared by</p>
+                            </div>
+                            <div>
+                                <div class="signature-line"></div>
+                                <p>Approved by</p>
+                            </div>
+                            <div>
+                                <div class="signature-line"></div>
+                                <p>Date</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="no-print" style="margin-top: 30px; text-align: center;">
+                        <button onclick="window.print()" class="btn btn-success"><i class="fas fa-print"></i> Print Tax Report</button>
+                    </div>
+                </div>
+                `;
+                
+                reportOutput.innerHTML = outputHTML;
+            }
+
+            function setupTabEvents() {
+                const tabButtons = document.querySelectorAll('.tab-btn');
+                const tabContents = document.querySelectorAll('.tab-content');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        getEl(button.dataset.tab).classList.add('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Restaurant POS System - Professional</title>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #2c3e50;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --info-color: #3498db;
+      --unpaid-color: #f8d7da;
+      --selected-unpaid-color: #f5c6cb;
+      --merged-color: #d4edff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 60% 40%;
+      grid-template-areas:
+        "header header"
+        "products order"
+        "footer footer";
+      overflow: hidden;
+    }
+
+    header {
+      grid-area: header;
+      background: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { font-size: 1.3rem; font-weight: bold; }
+    .order-info { display: flex; gap: 10px; align-items: center; }
+    .order-type { display: flex; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; }
+    .order-type-btn { padding: 6px 12px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+    .order-type-btn.selected { background: var(--secondary-color); font-weight: bold; }
+    .table-number { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+    .table-buttons { display: flex; flex-wrap: wrap; gap: 8px; max-width: 400px; margin-left: 10px; }
+
+    .table-btn {
+      width: 55px; height: 55px; border-radius: 12px; border: 2px solid #ddd;
+      background: white; color: var(--dark-color); display: flex;
+      align-items: center; justify-content: center; cursor: pointer;
+      font-size: 1.2rem; font-weight: bold; transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .table-btn:hover { background: var(--light-color); transform: translateY(-1px); }
+    .table-btn.selected { background: var(--secondary-color); color: white; border-color: var(--secondary-color); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .table-btn.unpaid { background: var(--unpaid-color); border-color: var(--accent-color); color: var(--dark-color); position: relative; }
+    .table-btn.unpaid::after { content: '●'; position: absolute; top: 5px; right: 5px; font-size: 0.8em; color: var(--accent-color); }
+    .table-btn.merged { background: var(--merged-color); border: 2px dashed var(--secondary-color); }
+    .table-btn.unpaid.selected { background: var(--selected-unpaid-color); border-color: var(--accent-color); color: var(--dark-color); }
+    .datetime { font-size: 0.85rem; opacity: 0.8; }
+    
+    /* Language Selector */
+    .language-selector {
+      position: relative;
+      margin-left: 15px;
+    }
+    .language-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .language-btn i {
+      font-size: 0.8em;
+    }
+    .language-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 100;
+      min-width: 120px;
+    }
+    .language-dropdown.show {
+      display: block;
+    }
+    .language-option {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--dark-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .language-option:hover {
+      background: var(--light-color);
+    }
+    .language-flag {
+      width: 16px;
+      height: 12px;
+      object-fit: cover;
+    }
+
+    .products-section { grid-area: products; display: flex; flex-direction: column; background: white; border-right: 1px solid #ddd; overflow: hidden; }
+    .category-tabs { display: flex; background: var(--light-color); border-bottom: 1px solid #ddd; overflow-x: auto; padding: 0 10px; }
+    .category-tab { padding: 10px 15px; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.3s; font-size: 0.9rem; }
+    .category-tab.selected { background: white; border-bottom: 3px solid var(--secondary-color); font-weight: bold; }
+    .products-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; padding: 10px; overflow-y: auto; }
+    
+    .product-card {
+      background: white; border-radius: 6px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;
+      transition: all 0.2s; display: flex; flex-direction: column;
+      border: 1px solid #eee; height: 130px;
+    }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    .product-image { width: 100%; height: 70px; object-fit: cover; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.7rem; }
+    .product-details { padding: 8px; flex: 1; display: flex; flex-direction: column; }
+    .product-name { font-weight: bold; margin-bottom: 3px; font-size: 0.8rem; line-height: 1.2; }
+    .product-price { color: var(--accent-color); font-weight: bold; margin-top: auto; font-size: 0.85rem; }
+
+    .order-section { grid-area: order; display: flex; flex-direction: column; background: white; border-left: 1px solid #ddd; }
+    .order-header { padding: 12px 15px; border-bottom: 1px solid #ddd; font-weight: bold; font-size: 1rem; background: var(--light-color); }
+    .order-items { flex: 1; overflow-y: auto; padding: 10px; }
+    .order-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; margin-bottom: 6px; background: #f9f9f9; border-radius: 4px; font-size: 0.9rem; }
+    .order-item-info { flex: 1; min-width: 0; margin-right: 10px; }
+    .order-item-name { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .order-item-qty { color: #777; font-size: 0.8rem; }
+    .order-item-price { font-weight: bold; min-width: 70px; text-align: right; padding-left: 5px; }
+    .order-item-actions { display: flex; align-items: center; gap: 4px; margin-left: 5px; }
+    .qty-btn { width: 26px; height: 26px; border: none; border-radius: 50%; background: var(--secondary-color); color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: background-color 0.2s; }
+    .qty-btn:hover { opacity: 0.9; }
+    .qty-btn.remove { background: var(--accent-color); }
+
+    .order-summary { padding: 12px 15px; border-top: 1px solid #ddd; background: var(--light-color); font-size: 0.95rem; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .summary-total { font-weight: bold; font-size: 1.1rem; color: var(--primary-color); }
+
+    .action-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 15px; }
+    .action-buttons .btn-payment { grid-column: 1 / -1; }
+    .btn { padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+    .btn-primary { background: var(--secondary-color); color: white; }
+    .btn-primary:hover { background: #2980b9; }
+    .btn-success { background: var(--success-color); color: white; }
+    .btn-success:hover { background: #219653; }
+    .btn-warning { background: var(--warning-color); color: white; }
+    .btn-warning:hover { background: #e67e22; }
+    .btn-danger { background: var(--accent-color); color: white; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-info { background: var(--info-color); color: white; }
+    .btn-info:hover { background: #2980b9; }
+
+    footer {
+      grid-area: footer;
+      background: var(--primary-color);
+      color: white;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.7rem;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 450px;
+      max-width: 90%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    }
+    .modal.active .modal-content {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .modal-title {
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: var(--primary-color);
+      text-align: center;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .payment-method {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    .payment-method.selected {
+      border-color: var(--secondary-color);
+      background-color: #e6f2ff;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+    .payment-method i {
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+      display: block;
+    }
+    .amount-tendered {
+      margin: 15px 0;
+    }
+    .amount-tendered label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    .amount-tendered input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      text-align: right;
+    }
+    .amount-tendered input:read-only {
+      background-color: #f5f5f5;
+      color: #555;
+    }
+    
+    .sales-report-modal .modal-content,
+    .customer-receipt-modal .modal-content {
+      width: 800px;
+      max-width: 95%;
+    }
+    .report-content,
+    .receipt-content {
+      max-height: 60vh;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      padding: 15px;
+    }
+    .report-content table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .report-content th,
+    .report-content td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .report-content th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .sales-summary {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: var(--light-color);
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    .sales-summary .summary-row:last-child {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      border-top: 1px dashed #bbb;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
+    }
+
+    .tables-to-merge {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .table-select-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      background: white;
+      color: var(--dark-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .table-select-btn.selected {
+      background: var(--secondary-color);
+      color: white;
+      border-color: var(--secondary-color);
+    }
+    .table-select-btn.unpaid {
+      background: var(--unpaid-color);
+      border-color: var(--accent-color);
+    }
+
+    .receipt-preview {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    .receipt-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .receipt-info {
+      margin-bottom: 10px;
+    }
+    .receipt-title {
+      text-align: center;
+      font-size: 16px;
+      margin: 10px 0;
+      font-weight: bold;
+      border-top: 1px dashed #000;
+      border-bottom: 1px dashed #000;
+      padding: 5px 0;
+    }
+    .receipt-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 2px 0;
+    }
+    .receipt-item-name {
+      flex-grow: 1;
+    }
+    .receipt-item-total {
+      min-width: 70px;
+      text-align: right;
+    }
+    .receipt-divider {
+      border-top: 1px dashed #000;
+      margin: 10px 0;
+    }
+    .receipt-summary-row {
+      display: flex;
+      justify-content: space-between;
+    }
+    .receipt-total {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .receipt-footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+    }
+
+    /* Notification Toast */
+    .notification-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(-50px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .notification-toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .notification-toast.success {
+      background-color: var(--success-color);
+    }
+    .notification-toast.error {
+      background-color: var(--accent-color);
+    }
+    .notification-toast.info {
+      background-color: var(--info-color);
+    }
+
+    @media (max-width: 1200px) {
+        body {
+          grid-template-columns: 55% 45%;
+        }
+        .table-buttons {
+          max-width: 300px;
+        }
+        .table-btn {
+          width: 50px;
+          height: 50px;
+          font-size: 1.1rem;
+        }
+    }
+    @media (max-width: 768px) {
+      body {
+        grid-template-rows: auto auto 1fr auto;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "order"
+          "products"
+          "footer";
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+      .products-section {
+        border-right: none;
+        border-top: 1px solid #ddd;
+      }
+      .order-section {
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+      }
+      .header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .order-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .table-buttons {
+        max-width: 100%;
+        justify-content: flex-start;
+      }
+      .action-buttons {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .action-buttons .btn-payment {
+        grid-column: span 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="notification-toast" id="notificationToast"></div>
+
+  <header>
+    <div class="header-left">
+      <div class="logo">RESTAURANT POS</div>
+      <div class="order-info">
+        <div class="order-type">
+          <div id="btnDineIn" class="order-type-btn selected">DINE IN</div>
+          <div id="btnTakeAway" class="order-type-btn">TAKE AWAY</div>
+        </div>
+        <div class="table-number" id="tableNumberGroup">
+          <span>Table:</span>
+          <div class="table-buttons" id="tableButtons"></div>
+        </div>
+      </div>
+    </div>
+    <div class="datetime" id="datetime"></div>
+    <div class="language-selector">
+      <button class="language-btn" id="languageBtn">
+        <img src="https://flagcdn.com/w20/gb.png" class="language-flag" id="currentFlag">
+        <span id="currentLanguage">English</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="language-dropdown" id="languageDropdown">
+        <div class="language-option" data-lang="en">
+          <img src="https://flagcdn.com/w20/gb.png" class="language-flag">
+          <span>English</span>
+        </div>
+        <div class="language-option" data-lang="zh-CN">
+          <img src="https://flagcdn.com/w20/cn.png" class="language-flag">
+          <span>简体中文 (Simplified Chinese)</span>
+        </div>
+        <div class="language-option" data-lang="zh-TW">
+          <img src="https://flagcdn.com/w20/tw.png" class="language-flag">
+          <span>繁體中文 (Traditional Chinese)</span>
+        </div>
+        <div class="language-option" data-lang="ms">
+          <img src="https://flagcdn.com/w20/my.png" class="language-flag">
+          <span>Bahasa Melayu (Malaysia)</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="products-section">
+    <div class="category-tabs" id="categoryTabs"></div>
+    <div class="products-grid" id="productsGrid"></div>
+  </section>
+
+  <section class="order-section">
+    <div class="order-header">
+      <span id="currentOrderTitle">Current Order</span> <span id="currentTableDisplay" style="font-weight: normal; font-size: 0.9em; color: #555;"></span>
+    </div>
+    <div class="order-items" id="orderItems"></div>
+    <div class="order-summary">
+      <div class="summary-row">
+        <span id="subtotalLabel">Subtotal:</span>
+        <span id="subtotal">RM 0.00</span>
+      </div>
+      <div class="summary-row">
+        <span id="taxLabel">SST (0%):</span>
+        <span id="tax">RM 0.00</span>
+      </div>
+      <div class="summary-row">
+        <span id="serviceChargeLabel">Service Charge (0%):</span>
+        <span id="serviceCharge">RM 0.00</span>
+      </div>
+      <div class="summary-row summary-total">
+        <span id="totalLabel">Total:</span>
+        <span id="total">RM 0.00</span>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-danger" id="clearOrder"></button>
+      <button class="btn btn-danger" id="voidOrderBtn"></button>
+      <button class="btn btn-warning" id="holdOrder"></button>
+      <button class="btn btn-primary" id="mergeTables"></button>
+      <button class="btn btn-info" id="reprintReceipt"></button>
+      <button class="btn btn-info" id="endDayReport"></button>
+      <button class="btn btn-success btn-payment" id="processPayment"></button>
+    </div>
+  </section>
+
+  <footer>
+    Restaurant POS System &copy; 2024 | Version 4.0 Professional
+  </footer>
+
+  <!-- MODALS -->
+  <div class="modal" id="cashierModal">
+    <div class="modal-content">
+      <div class="modal-title" id="paymentModalTitle">Process Payment</div>
+      <div class="summary-row">
+        <span id="totalDueLabel">Total Due:</span>
+        <span id="paymentModalTotal" style="font-weight: bold;">RM 0.00</span>
+      </div>
+      <div class="payment-methods">
+        <div class="payment-method" data-method="cash"><i class="fas fa-money-bill-wave"></i><span id="cashLabel">Cash</span></div>
+        <div class="payment-method" data-method="tng" data-auto-amount="true"><i class="fas fa-wallet"></i><span id="tngLabel">Touch N Go</span></div>
+        <div class="payment-method" data-method="duitnow" data-auto-amount="true"><i class="fas fa-mobile-alt"></i><span id="duitnowLabel">DuitNow</span></div>
+        <div class="payment-method" data-method="visa" data-auto-amount="true"><i class="fab fa-cc-visa"></i><span id="visaLabel">Visa</span></div>
+        <div class="payment-method" data-method="mastercard" data-auto-amount="true"><i class="fab fa-cc-mastercard"></i><span id="mastercardLabel">Mastercard</span></div>
+      </div>
+      <div class="amount-tendered">
+        <label for="amountInput" id="amountTenderedLabel">Amount Tendered:</label>
+        <input type="number" id="amountInput" min="0" step="0.01" placeholder="Enter amount">
+      </div>
+      <div class="summary-row">
+        <span id="changeLabel">Change:</span>
+        <span id="changeAmount">RM 0.00</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="cancelPayment"></button>
+        <button class="btn btn-success" id="completePayment"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal sales-report-modal" id="salesReportModal">
+    <div class="modal-content">
+      <div class="modal-title" id="salesReportTitle">Daily Sales Report</div>
+      <div class="report-content" id="salesReportContent"></div>
+      <div class="sales-summary" id="salesSummary"></div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="printSalesReport"></button>
+        <button class="btn btn-warning" id="closeSalesReport"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal manager-modal" id="managerModal">
+    <div class="modal-content">
+      <div class="modal-title" id="managerModalTitle">Manager Access (F2)</div>
+      <div class="form-group">
+        <label for="managerUsername" id="usernameLabel">Username:</label>
+        <input type="text" id="managerUsername" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="managerPassword" id="passwordLabel">Password:</label>
+        <input type="password" id="managerPassword" placeholder="Enter password">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="cancelManager"></button>
+        <button class="btn btn-success" id="loginManager"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal void-order-modal" id="voidOrderModal">
+    <div class="modal-content">
+      <div class="modal-title" id="voidOrderTitle">Void Order</div>
+      <div class="form-group">
+        <label for="voidOrderId" id="orderIdLabel">Order ID:</label>
+        <input type="text" id="voidOrderId" placeholder="Enter Order ID to void (e.g., ORD-12345)">
+      </div>
+      <div class="form-group">
+        <label for="voidReason" id="reasonLabel">Reason:</label>
+        <input type="text" id="voidReason" placeholder="Reason for voiding (required)">
+      </div>
+      <div class="form-group">
+        <label for="voidManagerPassword" id="managerPassLabel">Manager Password:</label>
+        <input type="password" id="voidManagerPassword" placeholder="Enter password to confirm void">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="cancelVoid"></button>
+        <button class="btn btn-danger" id="confirmVoid"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal day-start-modal" id="dayStartModal">
+    <div class="modal-content">
+      <div class="modal-title" id="dayStartTitle">Start Day / Key In Starting Cash</div>
+      <div class="form-group">
+        <label for="startAmount" id="startAmountLabel">Starting Cash Amount (RM):</label>
+        <input type="number" id="startAmount" min="0" step="0.01" value="">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="cancelDayStart"></button>
+        <button class="btn btn-success" id="confirmDayStart"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal merge-tables-modal" id="mergeTablesModal">
+    <div class="modal-content">
+      <div class="modal-title" id="mergeTablesTitle">Merge Tables</div>
+      <p id="mergeTablesDesc">Select 2 or 3 unpaid tables to merge into one bill:</p>
+      <div class="tables-to-merge" id="tablesToMerge"></div>
+      <div class="form-group">
+        <label for="targetTable" id="targetTableLabel">Merge to Table:</label>
+        <select id="targetTable" class="form-group"></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="cancelMerge"></button>
+        <button class="btn btn-success" id="confirmMerge"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal reprint-modal" id="reprintModal">
+    <div class="modal-content">
+      <div class="modal-title" id="reprintTitle">Reprint Receipt</div>
+      <div class="form-group">
+        <label for="reprintOrderId" id="reprintOrderIdLabel">Order ID:</label>
+        <input type="text" id="reprintOrderId" placeholder="Enter Order ID to reprint">
+      </div>
+      <div class="receipt-content" id="reprintPreview"></div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="cancelReprint"></button>
+        <button class="btn btn-primary" id="confirmReprint"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal customer-receipt-modal" id="customerReceiptModal">
+    <div class="modal-content">
+      <div class="modal-title" id="customerReceiptTitle">Payment Successful - Customer Receipt</div>
+      <div class="receipt-content" id="customerReceiptContent"></div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="printCustomerReceipt"></button>
+        <button class="btn btn-warning" id="closeCustomerReceipt"></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- LANGUAGE TRANSLATIONS ---
+    const translations = {
+      en: {
+        // Header
+        dineIn: "DINE IN",
+        takeAway: "TAKE AWAY",
+        table: "Table:",
+        currentOrder: "Current Order",
+        selectTable: "(Select Table)",
+        
+        // Buttons
+        clear: "Clear",
+        voidOrder: "Void Order",
+        updateOrder: "Update Order",
+        mergeTables: "Merge Tables",
+        reprint: "Reprint",
+        endDay: "End Day (F1)",
+        processPayment: "Process Payment",
+        
+        // Order Summary
+        subtotal: "Subtotal:",
+        tax: "SST (0%):",
+        serviceCharge: "Service Charge (0%):",
+        total: "Total:",
+        
+        // Payment Modal
+        paymentTitle: "Process Payment",
+        totalDue: "Total Due:",
+        cash: "Cash",
+        tng: "Touch N Go",
+        duitnow: "DuitNow",
+        visa: "Visa",
+        mastercard: "Mastercard",
+        amountTendered: "Amount Tendered:",
+        change: "Change:",
+        cancel: "Cancel",
+        completePayment: "Complete Payment",
+        
+        // Manager Modal
+        managerAccess: "Manager Access (F2)",
+        username: "Username:",
+        password: "Password:",
+        login: "Login",
+        
+        // Void Order Modal
+        voidOrder: "Void Order",
+        orderId: "Order ID:",
+        reason: "Reason:",
+        managerPassword: "Manager Password:",
+        confirmVoid: "Void Order",
+        
+        // Day Start Modal
+        dayStart: "Start Day / Key In Starting Cash",
+        startAmount: "Starting Cash Amount (RM):",
+        startDay: "Start Day",
+        
+        // Merge Tables Modal
+        mergeTables: "Merge Tables",
+        mergeDesc: "Select 2 or 3 unpaid tables to merge into one bill:",
+        targetTable: "Merge to Table:",
+        confirmMerge: "Merge Tables",
+        
+        // Reprint Modal
+        reprint: "Reprint Receipt",
+        reprintOrderId: "Order ID:",
+        confirmReprint: "Reprint",
+        
+        // Customer Receipt Modal
+        paymentSuccess: "Payment Successful - Customer Receipt",
+        printReceipt: "Print",
+        close: "Close",
+        
+        // Sales Report
+        salesReport: "Daily Sales Report",
+        printReport: "Print",
+        
+        // Notifications
+        emptyOrder: "Cannot save an empty order.",
+        selectTable: "Please select a table to save the order.",
+        orderSaved: "Order for Table {table} has been saved!",
+        paymentMethodRequired: "Please select a payment method.",
+        insufficientAmount: "Amount tendered is insufficient.",
+        paymentSuccess: "Payment successful! Change: RM {change}",
+        managerRequired: "Manager login required.",
+        invalidCredentials: "Invalid username or password.",
+        managerLoginSuccess: "Manager login successful!",
+        voidSuccess: "Order {orderId} has been voided.",
+        orderNotFound: "Order ID \"{orderId}\" not found or already voided.",
+        dayStarted: "Day started with RM {amount}",
+        invalidStartAmount: "Please enter a valid starting amount.",
+        mergeSuccess: "Tables merged into Table {table}.",
+        selectTablesToMerge: "Please select at least 2 tables.",
+        selectTargetTable: "Please select a target table.",
+        maxTablesMerge: "Maximum 3 tables can be merged.",
+        reprintSent: "Receipt {orderId} sent to printer.",
+        orderNotFoundReprint: "Order not found.",
+        orderReceived: "New order received for Table {table}"
+      },
+      "zh-CN": {
+        // Header
+        dineIn: "堂食",
+        takeAway: "外卖",
+        table: "桌号:",
+        currentOrder: "当前订单",
+        selectTable: "(选择桌号)",
+        
+        // Buttons
+        clear: "清空",
+        voidOrder: "作废订单",
+        updateOrder: "更新订单",
+        mergeTables: "合并餐桌",
+        reprint: "重打印",
+        endDay: "结束营业 (F1)",
+        processPayment: "处理付款",
+        
+        // Order Summary
+        subtotal: "小计:",
+        tax: "消费税 (0%):",
+        serviceCharge: "服务费 (0%):",
+        total: "总计:",
+        
+        // Payment Modal
+        paymentTitle: "处理付款",
+        totalDue: "应付总额:",
+        cash: "现金",
+        tng: "Touch N Go",
+        duitnow: "DuitNow",
+        visa: "Visa",
+        mastercard: "Mastercard",
+        amountTendered: "支付金额:",
+        change: "找零:",
+        cancel: "取消",
+        completePayment: "完成付款",
+        
+        // Manager Modal
+        managerAccess: "管理员权限 (F2)",
+        username: "用户名:",
+        password: "密码:",
+        login: "登录",
+        
+        // Void Order Modal
+        voidOrder: "作废订单",
+        orderId: "订单编号:",
+        reason: "原因:",
+        managerPassword: "管理员密码:",
+        confirmVoid: "作废订单",
+        
+        // Day Start Modal
+        dayStart: "开始营业 / 输入起始现金",
+        startAmount: "起始现金金额 (RM):",
+        startDay: "开始营业",
+        
+        // Merge Tables Modal
+        mergeTables: "合并餐桌",
+        mergeDesc: "选择2-3个未付款餐桌合并为一个账单:",
+        targetTable: "合并到餐桌:",
+        confirmMerge: "合并餐桌",
+        
+        // Reprint Modal
+        reprint: "重打印收据",
+        reprintOrderId: "订单编号:",
+        confirmReprint: "重打印",
+        
+        // Customer Receipt Modal
+        paymentSuccess: "付款成功 - 顾客收据",
+        printReceipt: "打印",
+        close: "关闭",
+        
+        // Sales Report
+        salesReport: "每日销售报告",
+        printReport: "打印",
+        
+        // Notifications
+        emptyOrder: "无法保存空订单。",
+        selectTable: "请选择餐桌保存订单。",
+        orderSaved: "餐桌{table}的订单已保存!",
+        paymentMethodRequired: "请选择付款方式。",
+        insufficientAmount: "支付金额不足。",
+        paymentSuccess: "付款成功! 找零: RM {change}",
+        managerRequired: "需要管理员登录。",
+        invalidCredentials: "用户名或密码错误。",
+        managerLoginSuccess: "管理员登录成功!",
+        voidSuccess: "订单{orderId}已作废。",
+        orderNotFound: "未找到订单\"{orderId}\"或已作废。",
+        dayStarted: "营业开始，起始现金RM {amount}",
+        invalidStartAmount: "请输入有效的起始金额。",
+        mergeSuccess: "餐桌已合并到{table}号桌。",
+        selectTablesToMerge: "请至少选择2个餐桌。",
+        selectTargetTable: "请选择目标餐桌。",
+        maxTablesMerge: "最多可合并3个餐桌。",
+        reprintSent: "收据{orderId}已发送到打印机。",
+        orderNotFoundReprint: "未找到订单。",
+        orderReceived: "收到{table}号桌的新订单"
+      },
+      "zh-TW": {
+        // Header
+        dineIn: "內用",
+        takeAway: "外帶",
+        table: "桌號:",
+        currentOrder: "當前訂單",
+        selectTable: "(選擇桌號)",
+        
+        // Buttons
+        clear: "清空",
+        voidOrder: "作廢訂單",
+        updateOrder: "更新訂單",
+        mergeTables: "合併餐桌",
+        reprint: "重印",
+        endDay: "結束營業 (F1)",
+        processPayment: "處理付款",
+        
+        // Order Summary
+        subtotal: "小計:",
+        tax: "消費稅 (0%):",
+        serviceCharge: "服務費 (0%):",
+        total: "總計:",
+        
+        // Payment Modal
+        paymentTitle: "處理付款",
+        totalDue: "應付總額:",
+        cash: "現金",
+        tng: "Touch N Go",
+        duitnow: "DuitNow",
+        visa: "Visa",
+        mastercard: "Mastercard",
+        amountTendered: "支付金額:",
+        change: "找零:",
+        cancel: "取消",
+        completePayment: "完成付款",
+        
+        // Manager Modal
+        managerAccess: "管理員權限 (F2)",
+        username: "用戶名:",
+        password: "密碼:",
+        login: "登錄",
+        
+        // Void Order Modal
+        voidOrder: "作廢訂單",
+        orderId: "訂單編號:",
+        reason: "原因:",
+        managerPassword: "管理員密碼:",
+        confirmVoid: "作廢訂單",
+        
+        // Day Start Modal
+        dayStart: "開始營業 / 輸入起始現金",
+        startAmount: "起始現金金額 (RM):",
+        startDay: "開始營業",
+        
+        // Merge Tables Modal
+        mergeTables: "合併餐桌",
+        mergeDesc: "選擇2-3個未付款餐桌合併為一個賬單:",
+        targetTable: "合併到餐桌:",
+        confirmMerge: "合併餐桌",
+        
+        // Reprint Modal
+        reprint: "重印收據",
+        reprintOrderId: "訂單編號:",
+        confirmReprint: "重印",
+        
+        // Customer Receipt Modal
+        paymentSuccess: "付款成功 - 顧客收據",
+        printReceipt: "列印",
+        close: "關閉",
+        
+        // Sales Report
+        salesReport: "每日銷售報告",
+        printReport: "列印",
+        
+        // Notifications
+        emptyOrder: "無法保存空訂單。",
+        selectTable: "請選擇餐桌保存訂單。",
+        orderSaved: "餐桌{table}的訂單已保存!",
+        paymentMethodRequired: "請選擇付款方式。",
+        insufficientAmount: "支付金額不足。",
+        paymentSuccess: "付款成功! 找零: RM {change}",
+        managerRequired: "需要管理員登錄。",
+        invalidCredentials: "用戶名或密碼錯誤。",
+        managerLoginSuccess: "管理員登錄成功!",
+        voidSuccess: "訂單{orderId}已作廢。",
+        orderNotFound: "未找到訂單\"{orderId}\"或已作廢。",
+        dayStarted: "營業開始，起始現金RM {amount}",
+        invalidStartAmount: "請輸入有效的起始金額。",
+        mergeSuccess: "餐桌已合併到{table}號桌。",
+        selectTablesToMerge: "請至少選擇2個餐桌。",
+        selectTargetTable: "請選擇目標餐桌。",
+        maxTablesMerge: "最多可合併3個餐桌。",
+        reprintSent: "收據{orderId}已發送到打印機。",
+        orderNotFoundReprint: "未找到訂單。",
+        orderReceived: "收到{table}號桌的新訂單"
+      },
+      ms: {
+        // Header
+        dineIn: "MAKAN DI TEMPAT",
+        takeAway: "BAWA BALIK",
+        table: "Meja:",
+        currentOrder: "Pesanan Semasa",
+        selectTable: "(Pilih Meja)",
+        
+        // Buttons
+        clear: "Kosongkan",
+        voidOrder: "Batalkan Pesanan",
+        updateOrder: "Kemaskini Pesanan",
+        mergeTables: "Gabung Meja",
+        reprint: "Cetak Semula",
+        endDay: "Tutup Hari (F1)",
+        processPayment: "Proses Pembayaran",
+        
+        // Order Summary
+        subtotal: "Subjumlah:",
+        tax: "SST (0%):",
+        serviceCharge: "Caj Perkhidmatan (0%):",
+        total: "Jumlah:",
+        
+        // Payment Modal
+        paymentTitle: "Proses Pembayaran",
+        totalDue: "Jumlah Terhutang:",
+        cash: "Tunai",
+        tng: "Touch N Go",
+        duitnow: "DuitNow",
+        visa: "Visa",
+        mastercard: "Mastercard",
+        amountTendered: "Jumlah Dibayar:",
+        change: "Baki:",
+        cancel: "Batal",
+        completePayment: "Selesai Pembayaran",
+        
+        // Manager Modal
+        managerAccess: "Akses Pengurus (F2)",
+        username: "Nama Pengguna:",
+        password: "Kata Laluan:",
+        login: "Log Masuk",
+        
+        // Void Order Modal
+        voidOrder: "Batalkan Pesanan",
+        orderId: "ID Pesanan:",
+        reason: "Sebab:",
+        managerPassword: "Kata Laluan Pengurus:",
+        confirmVoid: "Batalkan Pesanan",
+        
+        // Day Start Modal
+        dayStart: "Mulakan Hari / Masukkan Wang Tunai Awal",
+        startAmount: "Jumlah Wang Tunai Awal (RM):",
+        startDay: "Mulakan Hari",
+        
+        // Merge Tables Modal
+        mergeTables: "Gabung Meja",
+        mergeDesc: "Pilih 2 atau 3 meja yang belum dibayar untuk digabungkan:",
+        targetTable: "Gabung ke Meja:",
+        confirmMerge: "Gabung Meja",
+        
+        // Reprint Modal
+        reprint: "Cetak Semula Resit",
+        reprintOrderId: "ID Pesanan:",
+        confirmReprint: "Cetak Semula",
+        
+        // Customer Receipt Modal
+        paymentSuccess: "Pembayaran Berjaya - Resit Pelanggan",
+        printReceipt: "Cetak",
+        close: "Tutup",
+        
+        // Sales Report
+        salesReport: "Laporan Jualan Harian",
+        printReport: "Cetak",
+        
+        // Notifications
+        emptyOrder: "Tidak boleh menyimpan pesanan kosong.",
+        selectTable: "Sila pilih meja untuk menyimpan pesanan.",
+        orderSaved: "Pesanan untuk Meja {table} telah disimpan!",
+        paymentMethodRequired: "Sila pilih kaedah pembayaran.",
+        insufficientAmount: "Jumlah pembayaran tidak mencukupi.",
+        paymentSuccess: "Pembayaran berjaya! Baki: RM {change}",
+        managerRequired: "Log masuk pengurus diperlukan.",
+        invalidCredentials: "Nama pengguna atau kata laluan tidak sah.",
+        managerLoginSuccess: "Log masuk pengurus berjaya!",
+        voidSuccess: "Pesanan {orderId} telah dibatalkan.",
+        orderNotFound: "ID Pesanan \"{orderId}\" tidak dijumpai atau telah dibatalkan.",
+        dayStarted: "Hari bermula dengan RM {amount}",
+        invalidStartAmount: "Sila masukkan jumlah permulaan yang sah.",
+        mergeSuccess: "Meja digabungkan ke Meja {table}.",
+        selectTablesToMerge: "Sila pilih sekurang-kurangnya 2 meja.",
+        selectTargetTable: "Sila pilih meja sasaran.",
+        maxTablesMerge: "Maksimum 3 meja boleh digabungkan.",
+        reprintSent: "Resit {orderId} dihantar ke pencetak.",
+        orderNotFoundReprint: "Pesanan tidak dijumpai.",
+        orderReceived: "Pesanan baru diterima untuk Meja {table}"
+      }
+    };
+
+    // Current language (default to English)
+    let currentLanguage = 'en';
+    
+    // Function to update UI with current language
+    function updateLanguage() {
+      const lang = translations[currentLanguage];
+      
+      // Header
+      getEl('btnDineIn').textContent = lang.dineIn;
+      getEl('btnTakeAway').textContent = lang.takeAway;
+      document.querySelector('#tableNumberGroup span').textContent = lang.table;
+      getEl('currentOrderTitle').textContent = lang.currentOrder;
+      
+      // Buttons
+      getEl('clearOrder').textContent = lang.clear;
+      getEl('voidOrderBtn').textContent = lang.voidOrder;
+      getEl('holdOrder').textContent = lang.updateOrder;
+      getEl('mergeTables').textContent = lang.mergeTables;
+      getEl('reprintReceipt').textContent = lang.reprint;
+      getEl('endDayReport').textContent = lang.endDay;
+      getEl('processPayment').textContent = lang.processPayment;
+      
+      // Order Summary
+      getEl('subtotalLabel').textContent = lang.subtotal;
+      getEl('taxLabel').textContent = lang.tax;
+      getEl('serviceChargeLabel').textContent = lang.serviceCharge;
+      getEl('totalLabel').textContent = lang.total;
+      
+      // Payment Modal
+      getEl('paymentModalTitle').textContent = lang.paymentTitle;
+      getEl('totalDueLabel').textContent = lang.totalDue;
+      getEl('cashLabel').textContent = lang.cash;
+      getEl('tngLabel').textContent = lang.tng;
+      getEl('duitnowLabel').textContent = lang.duitnow;
+      getEl('visaLabel').textContent = lang.visa;
+      getEl('mastercardLabel').textContent = lang.mastercard;
+      getEl('amountTenderedLabel').textContent = lang.amountTendered;
+      getEl('changeLabel').textContent = lang.change;
+      getEl('cancelPayment').textContent = lang.cancel;
+      getEl('completePayment').textContent = lang.completePayment;
+      
+      // Manager Modal
+      getEl('managerModalTitle').textContent = lang.managerAccess;
+      getEl('usernameLabel').textContent = lang.username;
+      getEl('passwordLabel').textContent = lang.password;
+      getEl('loginManager').textContent = lang.login;
+      getEl('cancelManager').textContent = lang.cancel;
+      
+      // Void Order Modal
+      getEl('voidOrderTitle').textContent = lang.voidOrder;
+      getEl('orderIdLabel').textContent = lang.orderId;
+      getEl('reasonLabel').textContent = lang.reason;
+      getEl('managerPassLabel').textContent = lang.managerPassword;
+      getEl('confirmVoid').textContent = lang.confirmVoid;
+      getEl('cancelVoid').textContent = lang.cancel;
+      
+      // Day Start Modal
+      getEl('dayStartTitle').textContent = lang.dayStart;
+      getEl('startAmountLabel').textContent = lang.startAmount;
+      getEl('confirmDayStart').textContent = lang.startDay;
+      getEl('cancelDayStart').textContent = lang.cancel;
+      
+      // Merge Tables Modal
+      getEl('mergeTablesTitle').textContent = lang.mergeTables;
+      getEl('mergeTablesDesc').textContent = lang.mergeDesc;
+      getEl('targetTableLabel').textContent = lang.targetTable;
+      getEl('confirmMerge').textContent = lang.confirmMerge;
+      getEl('cancelMerge').textContent = lang.cancel;
+      
+      // Reprint Modal
+      getEl('reprintTitle').textContent = lang.reprint;
+      getEl('reprintOrderIdLabel').textContent = lang.reprintOrderId;
+      getEl('confirmReprint').textContent = lang.confirmReprint;
+      getEl('cancelReprint').textContent = lang.cancel;
+      
+      // Customer Receipt Modal
+      getEl('customerReceiptTitle').textContent = lang.paymentSuccess;
+      getEl('printCustomerReceipt').textContent = lang.printReceipt;
+      getEl('closeCustomerReceipt').textContent = lang.close;
+      
+      // Sales Report
+      getEl('salesReportTitle').textContent = lang.salesReport;
+      getEl('printSalesReport').textContent = lang.printReport;
+      getEl('closeSalesReport').textContent = lang.close;
+      
+      // Update current language display
+      getEl('currentLanguage').textContent = {
+        'en': 'English',
+        'zh-CN': '简体中文',
+        'zh-TW': '繁體中文',
+        'ms': 'Bahasa Melayu'
+      }[currentLanguage];
+      
+      // Update flag
+      getEl('currentFlag').src = {
+        'en': 'https://flagcdn.com/w20/gb.png',
+        'zh-CN': 'https://flagcdn.com/w20/cn.png',
+        'zh-TW': 'https://flagcdn.com/w20/tw.png',
+        'ms': 'https://flagcdn.com/w20/my.png'
+      }[currentLanguage];
+      
+      // Update table display if empty
+      if (!state.selectedTable && state.orderType === 'Dine In') {
+        getEl('currentTableDisplay').textContent = lang.selectTable;
+      }
+    }
+    
+    // --- CONFIGURATION & CONSTANTS ---
+    const CONFIG = {
+        SST_RATE: 0.00,
+        SERVICE_CHARGE_RATE: 0.00,
+        MANAGER_USERNAME: 'admin',
+        MANAGER_PASSWORD: 'password',
+        RESTAURANT_NAME: "Delicious Restaurant",
+        RESTAURANT_ADDRESS: "123 Food Street, Kuala Lumpur",
+        RESTAURANT_PHONE: "03-1234 5678",
+        RESTAURANT_FOOTER: "Thank You & Come Again!",
+        KITCHEN_PRINTERS: {
+            KITCHEN: { name: 'Main Kitchen Printer', ip: '192.168.1.101' },
+            BAR: { name: 'Bar Printer', ip: '192.168.1.102' },
+            SNACKS: { name: 'Snacks/Fryer Printer', ip: '192.168.1.103' }
+        }
+    };
+
+    // --- DOM ELEMENT CACHING ---
+    const getEl = (id) => document.getElementById(id);
+    const querySel = (selector) => document.querySelector(selector);
+    const querySelAll = (selector) => document.querySelectorAll(selector);
+
+    const DOM = {
+        datetime: getEl('datetime'),
+        btnDineIn: getEl('btnDineIn'),
+        btnTakeAway: getEl('btnTakeAway'),
+        tableButtons: getEl('tableButtons'),
+        categoryTabs: getEl('categoryTabs'),
+        productsGrid: getEl('productsGrid'),
+        orderItems: getEl('orderItems'),
+        subtotal: getEl('subtotal'),
+        tax: getEl('tax'),
+        serviceCharge: getEl('serviceCharge'),
+        total: getEl('total'),
+        currentTableDisplay: getEl('currentTableDisplay'),
+        notificationToast: getEl('notificationToast'),
+        // Action Buttons
+        clearOrderBtn: getEl('clearOrder'),
+        holdOrderBtn: getEl('holdOrder'),
+        processPaymentBtn: getEl('processPayment'),
+        mergeTablesBtn: getEl('mergeTables'),
+        reprintReceiptBtn: getEl('reprintReceipt'),
+        endDayReportBtn: getEl('endDayReport'),
+        voidOrderBtn: getEl('voidOrderBtn'),
+        // Modals
+        cashierModal: getEl('cashierModal'),
+        salesReportModal: getEl('salesReportModal'),
+        managerModal: getEl('managerModal'),
+        voidOrderModal: getEl('voidOrderModal'),
+        dayStartModal: getEl('dayStartModal'),
+        mergeTablesModal: getEl('mergeTablesModal'),
+        reprintModal: getEl('reprintModal'),
+        customerReceiptModal: getEl('customerReceiptModal'),
+        salesReportContent: getEl('salesReportContent'),
+        salesSummary: getEl('salesSummary'),
+        // Language elements
+        languageBtn: getEl('languageBtn'),
+        languageDropdown: getEl('languageDropdown'),
+        currentLanguage: getEl('currentLanguage'),
+        currentFlag: getEl('currentFlag')
+    };
+
+    // --- APPLICATION STATE ---
+    let state = {
+        currentOrderItems: [],
+        orderType: 'Dine In',
+        selectedPaymentMethod: null,
+        categories: [],
+        products: [],
+        currentOrderTotal: 0,
+        selectedTable: null,
+        allOrders: [],
+        isManagerLoggedIn: false,
+        dayStartData: null,
+        currentOrderId: null,
+        lastPrintedOrder: null,
+        tablesToMergeSelection: [],
+        mergedTables: {},
+    };
+
+    // --- INITIALIZATION ---
+    function init() {
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        loadStateFromStorage();
+        setupMenuSync(); // Initialize menu synchronization
+        setupEventListeners();
+        
+        renderTableButtons();
+        renderCategories();
+        renderProducts();
+        updateOrderDisplay();
+        updateLanguage();
+        
+        // Add this line to start checking for customer orders
+        checkForCustomerOrders();
+
+        if (!state.dayStartData) {
+            setTimeout(() => showModal(DOM.dayStartModal), 500);
+        }
+    }
+
+    // --- CUSTOMER ORDER SYNC ---
+    function checkForCustomerOrders() {
+        // Check for customer orders every 2 seconds
+        setInterval(() => {
+            const customerOrder = localStorage.getItem('customerOrder');
+            if (customerOrder) {
+                try {
+                    const order = JSON.parse(customerOrder);
+                    
+                    // Convert customer order items to POS format
+                    const posItems = order.items.map(item => ({
+                        id: item.id,
+                        nameEn: item.name,
+                        nameCn: '', // Can be enhanced to include Chinese names
+                        price: item.price,
+                        category: 'Customer Order', // Default category
+                        printer: 'KITCHEN', // Default printer
+                        quantity: item.quantity
+                    }));
+                    
+                    // Add to main orders array
+                    state.allOrders.push({
+                        id: order.id,
+                        type: 'Dine In',
+                        table: order.table,
+                        items: posItems,
+                        total: order.total,
+                        status: 'unpaid',
+                        timestamp: order.timestamp,
+                        source: 'customer' // Mark as from customer menu
+                    });
+                    
+                    // Save updated orders
+                    saveStateToStorage();
+                    
+                    // Remove the customer order
+                    localStorage.removeItem('customerOrder');
+                    
+                    // Update UI
+                    renderTableButtons();
+                    
+                    // Show notification
+                    const lang = translations[currentLanguage];
+                    showNotification(lang.orderReceived.replace('{table}', order.table), 'success');
+                    
+                    // Print to kitchen
+                    printToKitchen(posItems, order.table);
+                    
+                } catch (e) {
+                    console.error('Error processing customer order:', e);
+                }
+            }
+        }, 2000); // Check every 2 seconds
+    }
+
+    // --- MENU SYNC SYSTEM ---
+    function setupMenuSync() {
+      // Load initial menu
+      loadMenuData();
+      
+      // Listen for storage changes from other tabs
+      window.addEventListener('storage', (event) => {
+        if (event.key === 'menu' || event.key === 'menu_updated') {
+          loadMenuData();
+          renderCategories();
+          renderProducts();
+        }
+      });
+      
+      // Fallback polling for browsers that don't fire storage events properly
+      let lastMenuUpdate = localStorage.getItem('menu_updated') || 0;
+      setInterval(() => {
+        const currentUpdate = localStorage.getItem('menu_updated') || 0;
+        if (currentUpdate > lastMenuUpdate) {
+          lastMenuUpdate = currentUpdate;
+          loadMenuData();
+          renderCategories();
+          renderProducts();
+        }
+      }, 2000); // Check every 2 seconds
+    }
+
+    // --- STATE MANAGEMENT ---
+    function loadStateFromStorage() {
+        const savedOrders = localStorage.getItem('restaurantOrders');
+        state.allOrders = savedOrders ? JSON.parse(savedOrders) : [];
+
+        const savedMerged = localStorage.getItem('mergedTables');
+        state.mergedTables = savedMerged ? JSON.parse(savedMerged) : {};
+
+        const savedDayStart = localStorage.getItem('dayStartData');
+        if (savedDayStart) {
+            const parsedDayStart = JSON.parse(savedDayStart);
+            const today = new Date().toISOString().split('T')[0];
+            if (parsedDayStart.date === today) {
+                state.dayStartData = parsedDayStart;
+            } else {
+                localStorage.removeItem('dayStartData'); // Expired
+            }
+        }
+        
+        // Load saved language preference
+        const savedLanguage = localStorage.getItem('posLanguage');
+        if (savedLanguage && translations[savedLanguage]) {
+            currentLanguage = savedLanguage;
+        }
+    }
+
+    function saveStateToStorage() {
+        localStorage.setItem('restaurantOrders', JSON.stringify(state.allOrders));
+        localStorage.setItem('mergedTables', JSON.stringify(state.mergedTables));
+        localStorage.setItem('posLanguage', currentLanguage);
+    }
+    
+    // --- UI & NOTIFICATIONS ---
+    function showNotification(message, type = 'info', duration = 3000) {
+        DOM.notificationToast.textContent = message;
+        DOM.notificationToast.className = `notification-toast show ${type}`;
+        setTimeout(() => {
+            DOM.notificationToast.classList.remove('show');
+        }, duration);
+    }
+
+    function showModal(modalElement) {
+        modalElement.classList.add('active');
+    }
+
+    function hideModal(modalElement) {
+        modalElement.classList.remove('active');
+    }
+
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        DOM.datetime.textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // --- MENU & ORDER LOGIC ---
+   function loadMenuData() {
+  try {
+    const savedMenu = localStorage.getItem('menu');
+    if (savedMenu) {
+      const menuData = JSON.parse(savedMenu);
+      state.products = menuData.map(item => ({
+        id: item.code || item.id,
+        nameEn: item.nameEn || item.name || 'Unnamed Item',
+        nameCn: item.nameCn || '',
+        price: parseFloat(item.price) || 0,
+        category: item.category || 'Uncategorized',
+        printer: item.printer || 'KITCHEN',
+        image: item.image || 'https://placehold.co/150x150/f0f0f0/333?text=No+Image'
+      }));
+      state.categories = [...new Set(state.products.map(p => p.category))];
+    } else {
+      // Default items with bilingual support
+      state.products = [
+        { id: 1, nameEn: "Nasi Lemak Egg", nameCn: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
+        { id: 2, nameEn: "Nasi Lemak HotDog Egg", nameCn: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
+        { id: 3, nameEn: "Soup Mee Hun Kulin", nameCn: "古林米粉汤", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
+        { id: 4, nameEn: "French Fries", nameCn: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
+        { id: 5, nameEn: "Chicken Nuggets (6pcs)", nameCn: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
+        { id: 6, nameEn: "Iced Lemon Tea", nameCn: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
+        { id: 7, nameEn: "Coke", nameCn: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
+        { id: 8, nameEn: "Extra Egg", nameCn: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
+      ];
+      state.categories = [...new Set(state.products.map(p => p.category))];
+      localStorage.setItem('menu', JSON.stringify(state.products));
+    }
+  } catch (e) {
+    console.error('Error loading menu:', e);
+  }
+}
+
+    function renderCategories() {
+        DOM.categoryTabs.innerHTML = '';
+        state.categories.forEach(category => {
+            const tab = document.createElement('div');
+            tab.className = 'category-tab';
+            tab.textContent = category;
+            tab.dataset.category = category;
+            tab.addEventListener('click', () => {
+                querySelAll('.category-tab').forEach(t => t.classList.remove('selected'));
+                tab.classList.add('selected');
+                renderProducts(category);
+            });
+            DOM.categoryTabs.appendChild(tab);
+        });
+        if (state.categories.length > 0) {
+            DOM.categoryTabs.querySelector('.category-tab').classList.add('selected');
+            renderProducts(state.categories[0]);
+        }
+    }
+
+    function renderProducts(category = state.categories[0]) {
+        DOM.productsGrid.innerHTML = '';
+        const filteredProducts = state.products.filter(p => !category || p.category === category);
+        filteredProducts.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://placehold.co/150x150?text=Img+Error';">
+                <div class="product-details">
+                    <div class="product-name">${product.nameEn} <br><span style="font-size: 14px; color: #777;">${product.nameCn}</span></div>
+                    <div class="product-price">RM ${product.price.toFixed(2)}</div>
+                </div>`;
+            card.addEventListener('click', () => addProductToOrder(product));
+            DOM.productsGrid.appendChild(card);
+        });
+    }
+
+    function addProductToOrder(product) {
+        const existingItem = state.currentOrderItems.find(item => item.id === product.id);
+        if (existingItem) {
+            existingItem.quantity++;
+        } else {
+            state.currentOrderItems.push({ ...product, quantity: 1 });
+        }
+        updateOrderDisplay();
+    }
+
+    function updateOrderItemQuantity(id, action) {
+        const itemIndex = state.currentOrderItems.findIndex(i => i.id === id);
+        if (itemIndex === -1) return;
+
+        const item = state.currentOrderItems[itemIndex];
+        if (action === 'increase') {
+            item.quantity++;
+        } else if (action === 'decrease') {
+            item.quantity--;
+            if (item.quantity <= 0) {
+                state.currentOrderItems.splice(itemIndex, 1);
+            }
+        } else if (action === 'remove') {
+            state.currentOrderItems.splice(itemIndex, 1);
+        }
+        updateOrderDisplay();
+    }
+
+    function updateOrderDisplay() {
+        DOM.orderItems.innerHTML = '';
+        if (state.currentOrderItems.length === 0) {
+            const lang = translations[currentLanguage];
+            DOM.orderItems.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">' + lang.emptyOrder + '</p>';
+        } else {
+            state.currentOrderItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'order-item';
+                itemElement.innerHTML = `
+                    <div class="order-item-info">
+                       <div class="order-item-name">${item.nameEn} <br><span style="font-size: 14px; color: #777;">${item.nameCn}</span></div>
+                        <div class="order-item-qty">${translations[currentLanguage].qty || 'Qty'}: ${item.quantity}</div>
+                    </div>
+                    <div class="order-item-price">RM ${(item.price * item.quantity).toFixed(2)}</div>
+                    <div class="order-item-actions">
+                        <button class="qty-btn" data-action="decrease" data-id="${item.id}">-</button>
+                        <button class="qty-btn" data-action="increase" data-id="${item.id}">+</button>
+                        <button class="qty-btn remove" data-action="remove" data-id="${item.id}">x</button>
+                    </div>`;
+                DOM.orderItems.appendChild(itemElement);
+            });
+        }
+        updateOrderSummary();
+    }
+
+    function updateOrderSummary() {
+        let subtotal = state.currentOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        let tax = subtotal * CONFIG.SST_RATE;
+        let serviceCharge = subtotal * CONFIG.SERVICE_CHARGE_RATE;
+        state.currentOrderTotal = subtotal + tax + serviceCharge;
+
+        DOM.subtotal.textContent = `RM ${subtotal.toFixed(2)}`;
+        DOM.tax.textContent = `RM ${tax.toFixed(2)}`;
+        DOM.serviceCharge.textContent = `RM ${serviceCharge.toFixed(2)}`;
+        DOM.total.textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
+
+        if (DOM.cashierModal.classList.contains('active')) {
+            getEl('paymentModalTotal').textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
+            calculateChange();
+        }
+    }
+
+    function clearOrder(clearTableSelection = true) {
+        state.currentOrderItems = [];
+        state.currentOrderId = null;
+        if (clearTableSelection) {
+            state.selectedTable = null;
+            DOM.currentTableDisplay.textContent = translations[currentLanguage].selectTable || '(Select Table)';
+            querySelAll('.table-btn.selected').forEach(b => b.classList.remove('selected'));
+        }
+        updateOrderDisplay();
+    }
+
+    // --- TABLE & ORDER TYPE LOGIC ---
+    function renderTableButtons() {
+        DOM.tableButtons.innerHTML = '';
+        const unpaidTables = new Set(state.allOrders.filter(o => o.status === 'unpaid').map(o => o.table));
+        
+        for (let i = 1; i <= 30; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'table-btn';
+            btn.textContent = i;
+            btn.dataset.table = i;
+
+            if (unpaidTables.has(i)) btn.classList.add('unpaid');
+            if (state.mergedTables[i]) {
+                btn.classList.add('merged');
+                btn.title = `Merged from: ${state.mergedTables[i].join(', ')}`;
+            }
+            if (state.selectedTable === i) btn.classList.add('selected');
+
+            btn.addEventListener('click', () => selectTable(i));
+            DOM.tableButtons.appendChild(btn);
+        }
+    }
+    
+    function selectTable(tableNum) {
+        if (state.orderType === 'Take Away') {
+            setOrderType('Dine In');
+        }
+        if (state.selectedTable !== tableNum) {
+            clearOrder(false);
+        }
+        querySelAll('.table-btn.selected').forEach(b => b.classList.remove('selected'));
+        querySel(`.table-btn[data-table="${tableNum}"]`).classList.add('selected');
+        state.selectedTable = tableNum;
+        loadOrderForTable(tableNum);
+        DOM.currentTableDisplay.textContent = `(${translations[currentLanguage].table || 'Table'} ${state.selectedTable})`;
+    }
+
+    function setOrderType(type) {
+        state.orderType = type;
+        if (type === 'Dine In') {
+            DOM.btnDineIn.classList.add('selected');
+            DOM.btnTakeAway.classList.remove('selected');
+            DOM.currentTableDisplay.textContent = state.selectedTable ? 
+                `(${translations[currentLanguage].table || 'Table'} ${state.selectedTable})` : 
+                `(${translations[currentLanguage].selectTable || 'Select Table'})`;
+        } else {
+            DOM.btnTakeAway.classList.add('selected');
+            DOM.btnDineIn.classList.remove('selected');
+            DOM.currentTableDisplay.textContent = `(${translations[currentLanguage].takeAway || 'Take Away'})`;
+            clearOrder(true);
+        }
+    }
+
+    function loadOrderForTable(tableNumber) {
+        const existingOrder = state.allOrders.find(o => o.table === tableNumber && o.status === 'unpaid');
+        if (existingOrder) {
+            state.currentOrderItems = JSON.parse(JSON.stringify(existingOrder.items));
+            state.currentOrderId = existingOrder.id;
+        } else {
+            state.currentOrderItems = [];
+            state.currentOrderId = null;
+        }
+        updateOrderDisplay();
+    }
+    
+    // --- CORE ACTIONS ---
+    function holdOrder() {
+        const lang = translations[currentLanguage];
+        
+        if (state.currentOrderItems.length === 0) {
+            showNotification(lang.emptyOrder, 'error');
+            return;
+        }
+        if (state.orderType === 'Dine In' && !state.selectedTable) {
+            showNotification(lang.selectTable, 'error');
+            return;
+        }
+
+        let existingOrder = state.allOrders.find(o => o.id === state.currentOrderId);
+        let itemsToPrint = [];
+
+        if (existingOrder) { // Updating an existing order
+            const oldItemsMap = new Map(existingOrder.items.map(item => [item.id, item.quantity]));
+            const newItemsMap = new Map(state.currentOrderItems.map(item => [item.id, item.quantity]));
+            
+            newItemsMap.forEach((newQty, id) => {
+                const oldQty = oldItemsMap.get(id) || 0;
+                if (newQty > oldQty) {
+                    const product = state.products.find(p => p.id === id);
+                    itemsToPrint.push({ ...product, quantity: newQty - oldQty });
+                }
+            });
+
+            existingOrder.items = JSON.parse(JSON.stringify(state.currentOrderItems));
+            existingOrder.total = state.currentOrderTotal;
+            existingOrder.timestamp = new Date().toISOString();
+        } else { // Creating a new order
+            const newOrder = {
+                id: `ORD-${Date.now()}`,
+                type: state.orderType,
+                table: state.selectedTable,
+                items: JSON.parse(JSON.stringify(state.currentOrderItems)),
+                total: state.currentOrderTotal,
+                status: 'unpaid',
+                timestamp: new Date().toISOString(),
+            };
+            state.allOrders.push(newOrder);
+            state.currentOrderId = newOrder.id;
+            itemsToPrint = newOrder.items; // Print all items for a new order
+        }
+        
+        if (itemsToPrint.length > 0) {
+            printToKitchen(itemsToPrint, state.selectedTable || 'Take Away');
+        } else {
+            showNotification('Order updated locally. No new items to send to kitchen.', 'info');
+        }
+
+        saveStateToStorage();
+        renderTableButtons();
+        showNotification(lang.orderSaved.replace('{table}', state.selectedTable), 'success');
+    }
+
+    function openCashierModal() {
+        const lang = translations[currentLanguage];
+        
+        if (state.currentOrderItems.length === 0) {
+            showNotification(lang.emptyOrder, 'error');
+            return;
+        }
+        if (state.orderType === 'Dine In' && !state.selectedTable) {
+            showNotification(lang.selectTable, 'error');
+            return;
+        }
+        getEl('paymentModalTotal').textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
+        getEl('amountInput').value = '';
+        getEl('changeAmount').textContent = 'RM 0.00';
+        state.selectedPaymentMethod = null;
+        querySelAll('.payment-method').forEach(m => m.classList.remove('selected'));
+        getEl('amountInput').readOnly = false;
+        showModal(DOM.cashierModal);
+        getEl('amountInput').focus();
+    }
+
+    function calculateChange() {
+        const tendered = parseFloat(getEl('amountInput').value) || 0;
+        const change = tendered - state.currentOrderTotal;
+        getEl('changeAmount').textContent = `RM ${Math.max(0, change).toFixed(2)}`;
+    }
+
+    function completePayment() {
+        const lang = translations[currentLanguage];
+        
+        if (!state.selectedPaymentMethod) {
+            showNotification(lang.paymentMethodRequired, 'error');
+            return;
+        }
+        const tendered = parseFloat(getEl('amountInput').value);
+        if (isNaN(tendered) || tendered < state.currentOrderTotal) {
+            showNotification(lang.insufficientAmount, 'error');
+            return;
+        }
+
+        let orderToPay = state.allOrders.find(o => o.id === state.currentOrderId);
+        if (!orderToPay) { // Handle case for walk-in payments not held before
+            orderToPay = {
+                id: `ORD-${Date.now()}`,
+                type: state.orderType,
+                table: state.selectedTable,
+                items: JSON.parse(JSON.stringify(state.currentOrderItems)),
+                timestamp: new Date().toISOString(),
+            };
+            state.allOrders.push(orderToPay);
+        }
+
+        // Update order details
+        orderToPay.status = 'paid';
+        orderToPay.paymentMethod = state.selectedPaymentMethod;
+        orderToPay.total = state.currentOrderTotal;
+        orderToPay.amountTendered = tendered;
+        orderToPay.changeGiven = Math.max(0, tendered - state.currentOrderTotal);
+        orderToPay.paymentTimestamp = new Date().toISOString();
+        
+        // --- FIX: Clean up merged tables ---
+        if (orderToPay.mergedFrom) {
+            const targetTable = orderToPay.table;
+            // The tables that were merged into the target table
+            const sourceTables = orderToPay.mergedFrom.filter(t => t !== targetTable);
+            
+            // Remove the merged status from the target table
+            delete state.mergedTables[targetTable];
+            
+            // Mark the source orders as fully resolved (optional, but good practice)
+            state.allOrders.forEach(o => {
+                if (o.mergedTo === targetTable) {
+                    o.status = 'paid_merged';
+                }
+            });
+        }
+
+        saveStateToStorage();
+        hideModal(DOM.cashierModal);
+        showNotification(lang.paymentSuccess.replace('{change}', orderToPay.changeGiven.toFixed(2)), 'success');
+        
+        // --- FIX: Show customer receipt ---
+        showCustomerReceipt(orderToPay);
+
+        clearOrder(true);
+        renderTableButtons();
+    }
+
+    // --- PRINTING & RECEIPTS ---
+    function printToKitchen(items, tableIdentifier) {
+        const printJobs = {}; // Group items by printer
+        items.forEach(item => {
+            const printerKey = item.printer || 'KITCHEN'; // Default to KITCHEN
+            if (!printJobs[printerKey]) {
+                printJobs[printerKey] = [];
+            }
+            printJobs[printerKey].push({ name: item.name, quantity: item.quantity });
+        });
+
+        console.log(`--- KITCHEN ORDER TICKET ---`);
+        console.log(`Table / Order: ${tableIdentifier}`);
+        console.log(`Time: ${new Date().toLocaleTimeString()}`);
+        console.log(`----------------------------`);
+
+        for (const printerKey in printJobs) {
+            const printer = CONFIG.KITCHEN_PRINTERS[printerKey];
+            const jobItems = printJobs[printerKey];
+            
+            console.log(`\n>> Sending to: ${printer.name} (${printer.ip})`);
+            jobItems.forEach(item => {
+                console.log(`  - ${item.name} x ${item.quantity}`);
+            });
+        }
+        console.log(`\n--- END OF TICKET ---`);
+        showNotification('Order sent to kitchen printers.', 'success');
+    }
+
+    function generateReceiptHTML(order, type = 'customer') {
+        const receiptDate = new Date(order.paymentTimestamp || order.timestamp);
+        let itemsHTML = '';
+        order.items.forEach(item => {
+            itemsHTML += `
+            <div class="receipt-item">
+                <div class="receipt-item-name">${item.quantity}x ${item.name}</div>
+                <div class="receipt-item-total">${(item.price * item.quantity).toFixed(2)}</div>
+            </div>`;
+        });
+
+        const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const tax = subtotal * CONFIG.SST_RATE;
+        const serviceCharge = subtotal * CONFIG.SERVICE_CHARGE_RATE;
+
+        return `
+        <div class="receipt-preview">
+            <div class="receipt-header">${CONFIG.RESTAURANT_NAME}</div>
+            <div style="text-align:center; font-size:12px;">${CONFIG.RESTAURANT_ADDRESS}<br>Tel: ${CONFIG.RESTAURANT_PHONE}</div>
+            <div class="receipt-info">
+                <div>Date: ${receiptDate.toLocaleDateString()} ${receiptDate.toLocaleTimeString()}</div>
+                <div>Order ID: ${order.id}</div>
+                <div>Table: ${order.table || 'Take Away'}</div>
+            </div>
+            <div class="receipt-title">${type === 'customer' ? 'OFFICIAL RECEIPT' : 'ORDER PREVIEW'}</div>
+            ${itemsHTML}
+            <div class="receipt-divider"></div>
+            <div class="receipt-summary">
+                <div class="receipt-summary-row"><span>Subtotal:</span> <span>${subtotal.toFixed(2)}</span></div>
+                <div class="receipt-summary-row"><span>SST (${CONFIG.SST_RATE*100}%):</span> <span>${tax.toFixed(2)}</span></div>
+                <div class="receipt-summary-row"><span>Service (${CONFIG.SERVICE_CHARGE_RATE*100}%):</span> <span>${serviceCharge.toFixed(2)}</span></div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-summary-row receipt-total"><span>TOTAL:</span> <span>RM ${order.total.toFixed(2)}</span></div>
+                ${type === 'customer' ? `
+                <div class="receipt-divider"></div>
+                <div class="receipt-summary-row"><span>Payment:</span> <span>${order.paymentMethod}</span></div>
+                <div class="receipt-summary-row"><span>Tendered:</span> <span>${order.amountTendered.toFixed(2)}</span></div>
+                <div class="receipt-summary-row"><span>Change:</span> <span>${order.changeGiven.toFixed(2)}</span></div>
+                ` : ''}
+            </div>
+            <div class="receipt-footer">${CONFIG.RESTAURANT_FOOTER}</div>
+        </div>
+        `;
+    }
+
+    function showCustomerReceipt(order) {
+        getEl('customerReceiptContent').innerHTML = generateReceiptHTML(order, 'customer');
+        state.lastPrintedOrder = order;
+        showModal(DOM.customerReceiptModal);
+    }
+
+    function openReprintModal() {
+        const lang = translations[currentLanguage];
+        const reprintInput = getEl('reprintOrderId');
+        reprintInput.value = state.lastPrintedOrder ? state.lastPrintedOrder.id : '';
+        if (reprintInput.value) {
+            previewReceiptForReprint();
+        } else {
+            getEl('reprintPreview').innerHTML = `<p>${lang.reprintOrderIdLabel || 'Enter an Order ID'} to preview.</p>`;
+        }
+        showModal(DOM.reprintModal);
+    }
+    
+    function previewReceiptForReprint() {
+        const lang = translations[currentLanguage];
+        const orderId = getEl('reprintOrderId').value.trim();
+        if (!orderId) {
+            getEl('reprintPreview').innerHTML = `<p>${lang.reprintOrderIdLabel || 'Enter an Order ID'} to preview.</p>`;
+            return;
+        }
+        const order = state.allOrders.find(o => o.id === orderId);
+        getEl('reprintPreview').innerHTML = order ? generateReceiptHTML(order, 'customer') : `<p>${lang.orderNotFoundReprint || 'Order not found'}</p>`;
+    }
+
+    function reprintReceipt() {
+        const lang = translations[currentLanguage];
+        const orderId = getEl('reprintOrderId').value.trim();
+        const order = state.allOrders.find(o => o.id === orderId);
+        if (order) {
+            // In a real app, this would call a hardware print function
+            console.log("--- REPRINTING RECEIPT ---", order);
+            showNotification(lang.reprintSent.replace('{orderId}', orderId), 'info');
+            hideModal(DOM.reprintModal);
+        } else {
+            showNotification(lang.orderNotFoundReprint, 'error');
+        }
+    }
+
+    // --- MANAGER & ADVANCED FEATURES ---
+    function openMergeTablesModal() {
+        const lang = translations[currentLanguage];
+        
+        if (!state.isManagerLoggedIn) {
+            showNotification(lang.managerRequired, 'error');
+            showModal(DOM.managerModal);
+            return;
+        }
+        state.tablesToMergeSelection = [];
+        const tablesToMergeContainer = getEl('tablesToMerge');
+        tablesToMergeContainer.innerHTML = '';
+        const targetTableSelect = getEl('targetTable');
+        targetTableSelect.innerHTML = '';
+        
+        const unpaidTables = [...new Set(state.allOrders
+            .filter(o => o.status === 'unpaid' && !Object.values(state.mergedTables).flat().includes(o.table))
+            .map(o => o.table)
+        )];
+
+        if (unpaidTables.length < 2) {
+            showNotification('Fewer than 2 unpaid tables available to merge.', 'info');
+            return;
+        }
+
+        unpaidTables.forEach(tableNum => {
+            const btn = document.createElement('button');
+            btn.className = 'table-select-btn unpaid';
+            btn.textContent = tableNum;
+            btn.dataset.table = tableNum;
+            btn.addEventListener('click', () => toggleMergeTableSelection(btn, tableNum));
+            tablesToMergeContainer.appendChild(btn);
+        });
+        showModal(DOM.mergeTablesModal);
+    }
+
+    function toggleMergeTableSelection(btn, tableNum) {
+        const lang = translations[currentLanguage];
+        const index = state.tablesToMergeSelection.indexOf(tableNum);
+        if (index > -1) {
+            state.tablesToMergeSelection.splice(index, 1);
+            btn.classList.remove('selected');
+        } else {
+            if (state.tablesToMergeSelection.length < 3) {
+                state.tablesToMergeSelection.push(tableNum);
+                btn.classList.add('selected');
+            } else {
+                showNotification(lang.maxTablesMerge, 'warning');
+            }
+        }
+        updateTargetTableOptions();
+    }
+
+    function updateTargetTableOptions() {
+        const targetTableSelect = getEl('targetTable');
+        targetTableSelect.innerHTML = '';
+        state.tablesToMergeSelection.forEach(tableNum => {
+            const option = document.createElement('option');
+            option.value = tableNum;
+            option.textContent = `${translations[currentLanguage].table || 'Table'} ${tableNum}`;
+            targetTableSelect.appendChild(option);
+        });
+    }
+
+    function mergeTables() {
+        const lang = translations[currentLanguage];
+        
+        if (state.tablesToMergeSelection.length < 2) {
+            showNotification(lang.selectTablesToMerge, 'error');
+            return;
+        }
+        const targetTableNum = parseInt(getEl('targetTable').value);
+        if (!targetTableNum) {
+            showNotification(lang.selectTargetTable, 'error');
+            return;
+        }
+
+        const ordersToMerge = state.allOrders.filter(o => state.tablesToMergeSelection.includes(o.table) && o.status === 'unpaid');
+        const mergedItemsMap = new Map();
+
+        ordersToMerge.forEach(order => {
+            order.items.forEach(item => {
+                const existing = mergedItemsMap.get(item.id);
+                if (existing) {
+                    existing.quantity += item.quantity;
+                } else {
+                    mergedItemsMap.set(item.id, { ...item });
+                }
+            });
+            order.status = 'merged';
+            order.mergedTo = targetTableNum;
+        });
+
+        const newItems = Array.from(mergedItemsMap.values());
+        const subtotal = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const total = subtotal * (1 + CONFIG.SST_RATE + CONFIG.SERVICE_CHARGE_RATE);
+
+        const newMergedOrder = {
+            id: `ORD-${Date.now()}`,
+            type: 'Dine In',
+            table: targetTableNum,
+            items: newItems,
+            total: total,
+            status: 'unpaid',
+            timestamp: new Date().toISOString(),
+            mergedFrom: [...state.tablesToMergeSelection]
+        };
+
+        state.allOrders.push(newMergedOrder);
+        state.mergedTables[targetTableNum] = [...state.tablesToMergeSelection];
+        
+        saveStateToStorage();
+        hideModal(DOM.mergeTablesModal);
+        showNotification(lang.mergeSuccess.replace('{table}', targetTableNum), 'success');
+
+        selectTable(targetTableNum); // Automatically select and load the new merged order
+        renderTableButtons();
+    }
+    
+    function voidOrder() {
+        const lang = translations[currentLanguage];
+        const orderToVoidId = getEl('voidOrderId').value.trim();
+        const reason = getEl('voidReason').value.trim();
+        const password = getEl('voidManagerPassword').value;
+
+        if (!orderToVoidId || !reason) {
+            showNotification(lang.reason + ' ' + (lang.orderId || 'and Order ID') + ' ' + (lang.required || 'are required'), 'error'); 
+            return;
+        }
+        if (password !== CONFIG.MANAGER_PASSWORD) {
+            showNotification(lang.invalidCredentials, 'error'); 
+            return;
+        }
+
+        const orderIndex = state.allOrders.findIndex(o => o.id === orderToVoidId && o.status !== 'voided');
+        if (orderIndex !== -1) {
+            const order = state.allOrders[orderIndex];
+            order.status = 'voided';
+            order.voidedBy = CONFIG.MANAGER_USERNAME;
+            order.voidReason = reason;
+            order.voidTimestamp = new Date().toISOString();
+            
+            saveStateToStorage();
+            renderTableButtons();
+            showNotification(lang.voidSuccess.replace('{orderId}', orderToVoidId), 'success');
+            hideModal(DOM.voidOrderModal);
+            // Clear inputs
+            getEl('voidOrderId').value = '';
+            getEl('voidReason').value = '';
+            getEl('voidManagerPassword').value = '';
+        } else {
+            showNotification(lang.orderNotFound.replace('{orderId}', orderToVoidId), 'error');
+        }
+    }
+
+    // --- DAY START/END ---
+    function startNewDay() {
+        const lang = translations[currentLanguage];
+        const amount = parseFloat(getEl('startAmount').value);
+        if (isNaN(amount) || amount < 0) {
+            showNotification(lang.invalidStartAmount, 'error');
+            return;
+        }
+        const today = new Date().toISOString().split('T')[0];
+        state.dayStartData = {
+            date: today,
+            startAmount: amount,
+            startTime: new Date().toISOString()
+        };
+        localStorage.setItem('dayStartData', JSON.stringify(state.dayStartData));
+        showNotification(lang.dayStarted.replace('{amount}', amount.toFixed(2)), 'success');
+        hideModal(DOM.dayStartModal);
+    }
+    
+    function generateSalesReport() {
+        const lang = translations[currentLanguage];
+        
+        if (!state.dayStartData) {
+            showNotification(lang.dayStartRequired || 'Please start the day first.', 'error');
+            showModal(DOM.dayStartModal);
+            return;
+        }
+
+        const unpaidOrders = state.allOrders.filter(o => o.status === 'unpaid');
+        if (unpaidOrders.length > 0) {
+            showNotification(`Cannot end day! There are ${unpaidOrders.length} unpaid tables.`, 'error');
+            return;
+        }
+
+        const today = state.dayStartData.date;
+        const salesForToday = state.allOrders.filter(o => o.status === 'paid' && new Date(o.paymentTimestamp).toISOString().split('T')[0] === today);
+        const voidedForToday = state.allOrders.filter(o => o.status === 'voided' && new Date(o.voidTimestamp).toISOString().split('T')[0] === today);
+
+        let reportHtml = `
+            <p><strong>Report Date:</strong> ${today}</p>
+            <p><strong>Day Started:</strong> ${new Date(state.dayStartData.startTime).toLocaleTimeString()}</p>
+            <p><strong>Starting Cash:</strong> RM ${state.dayStartData.startAmount.toFixed(2)}</p>
+            <h3 style="margin-top: 15px;">Paid Orders:</h3>
+            <table>
+            <thead><tr><th>ID</th><th>Time</th><th>Type</th><th>Table</th><th>Items</th><th>Total</th><th>Payment</th></tr></thead>
+            <tbody>`;
+
+        let totalCollection = 0;
+        const totalItemsSold = {};
+
+        if (salesForToday.length === 0) {
+            reportHtml += `<tr><td colspan="7" style="text-align: center;">No paid orders for today.</td></tr>`;
+        } else {
+            salesForToday.forEach(order => {
+                totalCollection += order.total;
+                const itemsList = order.items.map(item => {
+                    totalItemsSold[item.name] = (totalItemsSold[item.name] || 0) + item.quantity;
+                    return `${item.name} x${item.quantity}`;
+                }).join('<br>');
+                reportHtml += `<tr><td>${order.id}</td><td>${new Date(order.paymentTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td><td>${order.type}</td><td>${order.table || '-'}</td><td>${itemsList}</td><td>RM ${order.total.toFixed(2)}</td><td>${order.paymentMethod}</td></tr>`;
+            });
+        }
+        reportHtml += `</tbody></table>`;
+
+        reportHtml += `<h3 style="margin-top: 20px;">Voided Orders:</h3>
+            <table>
+            <thead><tr><th>ID</th><th>Void Time</th><th>Reason</th><th>Total</th></tr></thead>
+            <tbody>`;
+        
+        if (voidedForToday.length === 0) {
+            reportHtml += `<tr><td colspan="4" style="text-align: center;">No voided orders for today.</td></tr>`;
+        } else {
+            voidedForToday.forEach(order => {
+                reportHtml += `<tr><td>${order.id}</td><td>${new Date(order.voidTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td><td>${order.voidReason || 'N/A'}</td><td>RM ${order.total.toFixed(2)}</td></tr>`;
+            });
+        }
+        reportHtml += `</tbody></table>`;
+        DOM.salesReportContent.innerHTML = reportHtml;
+
+        let itemsSummaryHtml = '<h4>Menu Item Sales:</h4><ul>';
+        Object.entries(totalItemsSold).sort((a, b) => b[1] - a[1]).forEach(([name, qty]) => {
+            itemsSummaryHtml += `<li>${name}: ${qty} units</li>`;
+        });
+        itemsSummaryHtml += '</ul>';
+
+        const totalVoidedAmount = voidedForToday.reduce((sum, order) => sum + order.total, 0);
+        DOM.salesSummary.innerHTML = `
+            <div class="summary-row"><span>Total Paid Orders:</span><span>${salesForToday.length}</span></div>
+            <div class="summary-row"><span>Total Voided Orders:</span><span>${voidedForToday.length}</span></div>
+            <div class="summary-row"><span>Gross Collection:</span><span>RM ${totalCollection.toFixed(2)}</span></div>
+            <div class="summary-row"><span>Total Voided Amount:</span><span style="color: var(--accent-color);">- RM ${totalVoidedAmount.toFixed(2)}</span></div>
+            <div class="summary-row summary-total"><span>Cash at Hand (Gross + Start):</span><span>RM ${(totalCollection + state.dayStartData.startAmount).toFixed(2)}</span></div>
+            ${itemsSummaryHtml}
+        `;
+
+        showModal(DOM.salesReportModal);
+    }
+
+    // --- EVENT LISTENERS ---
+    function setupEventListeners() {
+        // Order Type
+        DOM.btnDineIn.addEventListener('click', () => setOrderType('Dine In'));
+        DOM.btnTakeAway.addEventListener('click', () => setOrderType('Take Away'));
+
+        // Main Actions
+        DOM.clearOrderBtn.addEventListener('click', () => clearOrder(true));
+        DOM.holdOrderBtn.addEventListener('click', holdOrder);
+        DOM.processPaymentBtn.addEventListener('click', openCashierModal);
+        DOM.mergeTablesBtn.addEventListener('click', openMergeTablesModal);
+        DOM.reprintReceiptBtn.addEventListener('click', openReprintModal);
+        DOM.endDayReportBtn.addEventListener('click', generateSalesReport);
+        DOM.voidOrderBtn.addEventListener('click', () => showModal(DOM.voidOrderModal));
+
+        // Order Item Actions
+        DOM.orderItems.addEventListener('click', (e) => {
+            const button = e.target.closest('.qty-btn');
+            if (button) {
+                const id = parseInt(button.dataset.id);
+                const action = button.dataset.action;
+                updateOrderItemQuantity(id, action);
+            }
+        });
+
+        // Language selector
+        DOM.languageBtn.addEventListener('click', () => {
+            DOM.languageDropdown.classList.toggle('show');
+        });
+        
+        // Close language dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!DOM.languageBtn.contains(e.target) && !DOM.languageDropdown.contains(e.target)) {
+                DOM.languageDropdown.classList.remove('show');
+            }
+        });
+        
+        // Language selection
+        querySelAll('.language-option').forEach(option => {
+            option.addEventListener('click', () => {
+                currentLanguage = option.dataset.lang;
+                updateLanguage();
+                DOM.languageDropdown.classList.remove('show');
+                saveStateToStorage();
+            });
+        });
+
+        // Modals - Generic Close/Cancel
+        querySelAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) { // Click on backdrop
+                    hideModal(modal);
+                }
+            });
+        });
+        getEl('cancelPayment').addEventListener('click', () => hideModal(DOM.cashierModal));
+        getEl('closeSalesReport').addEventListener('click', () => hideModal(DOM.salesReportModal));
+        getEl('cancelManager').addEventListener('click', () => hideModal(DOM.managerModal));
+        getEl('cancelVoid').addEventListener('click', () => hideModal(DOM.voidOrderModal));
+        getEl('cancelDayStart').addEventListener('click', () => {
+            if (state.dayStartData) hideModal(DOM.dayStartModal);
+            else showNotification(translations[currentLanguage].dayStartRequired || 'You must start the day to use the POS.', 'error');
+        });
+        getEl('cancelMerge').addEventListener('click', () => hideModal(DOM.mergeTablesModal));
+        getEl('cancelReprint').addEventListener('click', () => hideModal(DOM.reprintModal));
+        getEl('closeCustomerReceipt').addEventListener('click', () => hideModal(DOM.customerReceiptModal));
+
+        // Modal - Confirm Actions
+        getEl('completePayment').addEventListener('click', completePayment);
+        getEl('confirmDayStart').addEventListener('click', startNewDay);
+        getEl('confirmMerge').addEventListener('click', mergeTables);
+        getEl('confirmVoid').addEventListener('click', voidOrder);
+        getEl('confirmReprint').addEventListener('click', reprintReceipt);
+        getEl('reprintOrderId').addEventListener('input', previewReceiptForReprint);
+        
+        // Cashier Modal Logic
+        querySelAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                querySelAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                method.classList.add('selected');
+                state.selectedPaymentMethod = method.dataset.method;
+                const amountInput = getEl('amountInput');
+                if (method.dataset.autoAmount === 'true') {
+                    amountInput.value = state.currentOrderTotal.toFixed(2);
+                    amountInput.readOnly = true;
+                } else {
+                    amountInput.readOnly = false;
+                    amountInput.value = '';
+                    amountInput.focus();
+                }
+                calculateChange();
+            });
+        });
+        getEl('amountInput').addEventListener('input', calculateChange);
+        
+        // Manager Login
+        getEl('loginManager').addEventListener('click', () => {
+            const lang = translations[currentLanguage];
+            if (getEl('managerUsername').value === CONFIG.MANAGER_USERNAME && getEl('managerPassword').value === CONFIG.MANAGER_PASSWORD) {
+                state.isManagerLoggedIn = true;
+                showNotification(lang.managerLoginSuccess, 'success');
+                hideModal(DOM.managerModal);
+                getEl('managerPassword').value = '';
+            } else {
+                showNotification(lang.invalidCredentials, 'error');
+            }
+        });
+
+        // Hotkeys
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F1') { e.preventDefault(); generateSalesReport(); }
+            if (e.key === 'F2') { e.preventDefault(); showModal(DOM.managerModal); }
+        });
+    }
+
+    // --- RUN APPLICATION ---
+    init();
+});
+  </script>
+</body>
+</html>
