@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -379,6 +380,9 @@
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; /* Make it a flex container */
+            flex-direction: column; /* Stack items vertically */
+            gap: 10px; /* Space between items */
         }
         
         .table-selection label {
@@ -388,12 +392,35 @@
             color: var(--dark-color);
         }
         
+        .table-input-group { /* New style for input and button grouping */
+            display: flex;
+            gap: 10px;
+        }
+
         .table-input {
-            width: 100%;
+            flex: 1; /* Allow input to grow and shrink */
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 1em;
+        }
+
+        .barcode-btn { /* Style for the new scan button */
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: flex; /* Align icon and text */
+            align-items: center;
+            gap: 8px;
+        }
+
+        .barcode-btn:hover {
+            background-color: #2980b9;
         }
         
         .empty-cart {
@@ -414,7 +441,82 @@
             z-index: 100;
             display: none;
         }
+
+        /* Scanner Modal Styles */
+        .scanner-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            display: none; /* Hidden by default */
+        }
         
+        .scanner-header {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: white;
+        }
+        
+        .scanner-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .scanner-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .scanner-close:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .scanner-video {
+            width: 90%;
+            max-width: 500px;
+            background: black;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            max-width: 300px;
+            height: 200px;
+            border: 2px solid white;
+            border-radius: 12px;
+            pointer-events: none;
+            box-shadow: 0 0 0 10000px rgba(0,0,0,0.7);
+        }
+
         @media (max-width: 480px) {
             .header {
                 font-size: 1.3em;
@@ -448,6 +550,10 @@
             .add-btn {
                 padding: 8px 15px;
             }
+
+            .table-input-group {
+                flex-direction: column; /* Stack input and button on small screens */
+            }
         }
     </style>
 </head>
@@ -463,7 +569,12 @@
         
         <div class="table-selection">
             <label for="tableNumber">Table Number:</label>
-            <input type="number" id="tableNumber" class="table-input" placeholder="Enter your table number" min="1" max="30">
+            <div class="table-input-group">
+                <input type="number" id="tableNumber" class="table-input" placeholder="Enter your table number" min="1" max="30">
+                <button class="barcode-btn" id="scanBarcodeBtn">
+                    <i class="fas fa-camera"></i> Scan QR/Barcode
+                </button>
+            </div>
         </div>
         
         <div class="categories">
@@ -475,7 +586,6 @@
             <div class="category" data-category="drinks">Drinks</div>
         </div>
         
-        <!-- Noodles Section -->
         <div class="menu-section active" id="noodles">
             <div class="menu-item">
                 <div class="item-header">
@@ -514,7 +624,6 @@
             </div>
         </div>
         
-        <!-- Tom Yam Section -->
         <div class="menu-section" id="tomyam">
             <div class="menu-item">
                 <div class="item-header">
@@ -544,7 +653,6 @@
             </div>
         </div>
         
-        <!-- Rice Meals Section -->
         <div class="menu-section" id="rice">
             <div class="menu-item">
                 <div class="item-header">
@@ -574,7 +682,6 @@
             </div>
         </div>
         
-        <!-- Nasi Lemak Section -->
         <div class="menu-section" id="nasi-lemak">
             <div class="menu-item">
                 <div class="item-header">
@@ -604,7 +711,6 @@
             </div>
         </div>
         
-        <!-- Snacks Section -->
         <div class="menu-section" id="snacks">
             <div class="menu-item">
                 <div class="item-header">
@@ -634,7 +740,6 @@
             </div>
         </div>
         
-        <!-- Drinks Section -->
         <div class="menu-section" id="drinks">
             <div class="menu-item">
                 <div class="item-header">
@@ -686,6 +791,9 @@
                 <div class="cart-title">Your Order</div>
                 <button class="close-cart">&times;</button>
             </div>
+            <div class="table-info"> <div class="table-label">Table Number:</div>
+                <div class="table-number" id="cartTableNumber">-</div>
+            </div>
             <div class="cart-items" id="cartItems">
                 <div class="empty-cart">Your cart is empty</div>
             </div>
@@ -695,6 +803,17 @@
         
         <div class="overlay" id="overlay"></div>
         <div class="notification" id="notification"></div>
+
+        <div class="scanner-container" id="scannerContainer">
+            <div class="scanner-header">
+                <div class="scanner-title">Scan Table Barcode</div>
+                <button class="scanner-close" id="scannerClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <video class="scanner-video" id="scannerVideo" playsinline></video>
+            <div class="scanner-overlay"></div>
+        </div>
     </div>
 
     <script>
@@ -702,7 +821,8 @@
         let cart = [];
         let db;
         let isOnline = navigator.onLine;
-        
+        let scannerActive = false; // Track scanner state
+
         // Initialize IndexedDB
         async function initDB() {
             return new Promise((resolve) => {
@@ -803,6 +923,24 @@
                 document.getElementById('cartSidebar').classList.remove('active');
                 document.getElementById('overlay').classList.remove('active');
             });
+
+            // Update cart table number when manual input changes
+            document.getElementById('tableNumber').addEventListener('input', function() {
+                document.getElementById('cartTableNumber').textContent = this.value || '-';
+            });
+
+            // Set up barcode scanner button
+            document.getElementById('scanBarcodeBtn').addEventListener('click', startBarcodeScanner);
+            document.getElementById('scannerClose').addEventListener('click', stopBarcodeScanner);
+
+            // Pre-fill table number if present in URL (e.g., from QR code link)
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableFromUrl = urlParams.get('table');
+            if (tableFromUrl) {
+                document.getElementById('tableNumber').value = tableFromUrl;
+                document.getElementById('cartTableNumber').textContent = tableFromUrl;
+                showNotification(`Table ${tableFromUrl} detected from QR!`);
+            }
         });
         
         // Enhanced checkout function
@@ -832,7 +970,7 @@
                 // Triple persistence method
                 // 1. LocalStorage (for active tabs)
                 localStorage.setItem('customerOrder', JSON.stringify(order));
-		localStorage.setItem('orderUpdated', Date.now()); // Add this line
+                localStorage.setItem('orderUpdated', Date.now()); // Add this line
                 localStorage.setItem('orderTimestamp', Date.now().toString());
                 
                 // 2. IndexedDB (for reliability)
@@ -1047,6 +1185,69 @@
                 }, 1000);
             });
         });
+
+        // Barcode scanner functions (simplified for demo, needs actual library like html5-qrcode for real scanning)
+        let mediaStream; // To hold the camera stream
+        let scanInterval; // To hold the interval for simulating scans
+
+        async function startBarcodeScanner() {
+            scannerActive = true;
+            document.getElementById('scannerContainer').style.display = 'flex';
+            
+            try {
+                // Request camera access
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                const video = document.getElementById('scannerVideo');
+                video.srcObject = mediaStream;
+                video.play();
+
+                // In a real application, you would integrate a QR/barcode scanning library here
+                // For demonstration, we'll simulate a scan after a delay
+                scanInterval = setTimeout(() => {
+                    if (scannerActive) {
+                        simulateBarcodeDetection();
+                    }
+                }, 2000); // Simulate scan after 2 seconds
+            } catch (err) {
+                console.error('Camera access error:', err);
+                showNotification('Failed to access camera. Please ensure permissions are granted and try again.', 'error');
+                stopBarcodeScanner(); // Close scanner on error
+            }
+        }
+        
+        function stopBarcodeScanner() {
+            scannerActive = false;
+            document.getElementById('scannerContainer').style.display = 'none';
+            
+            // Stop all video tracks
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            // Clear any pending simulated scans
+            if (scanInterval) {
+                clearTimeout(scanInterval);
+            }
+        }
+        
+        // Simulate barcode detection for demo purposes
+        function simulateBarcodeDetection() {
+            if (!scannerActive) return;
+            
+            // Generate a random table number between 1 and 30
+            const scannedTableNumber = Math.floor(Math.random() * 30) + 1;
+            
+            // Set the table number in the input and cart display
+            document.getElementById('tableNumber').value = scannedTableNumber;
+            document.getElementById('cartTableNumber').textContent = scannedTableNumber;
+            
+            showNotification(`Table ${scannedTableNumber} scanned successfully!`);
+            
+            // Close the scanner after a short delay
+            setTimeout(() => {
+                stopBarcodeScanner();
+            }, 1000);
+        }
     </script>
 </body>
 </html>
