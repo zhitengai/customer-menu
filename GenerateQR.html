@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Generator for Tables</title>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .qr-container {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .qr-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .qr-code {
+            margin: 0 auto;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .qr-container {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Table QR Codes for Restaurant Menu</h1>
+    <p class="no-print">Scanning these QR codes will open the menu and automatically set the table number.</p>
+    <button class="no-print" onclick="window.print()">Print All QR Codes</button>
+    
+    <div id="qr-codes-container"></div>
+    
+    <script>
+        // Your menu URL
+        const menuUrl = 'https://zhitengai.github.io/customer-menu/';
+        
+        // Function to generate QR codes
+        function generateQRCodes() {
+            const container = document.getElementById('qr-codes-container');
+            
+            for (let i = 1; i <= 50; i++) {
+                // Create a div for each QR code
+                const qrDiv = document.createElement('div');
+                qrDiv.className = 'qr-container';
+                
+                // Add title
+                const title = document.createElement('div');
+                title.className = 'qr-title';
+                title.textContent = `Table ${i}`;
+                qrDiv.appendChild(title);
+                
+                // Create QR code container
+                const qrCodeDiv = document.createElement('div');
+                qrCodeDiv.className = 'qr-code';
+                qrCodeDiv.id = `qr-code-${i}`;
+                qrDiv.appendChild(qrCodeDiv);
+                
+                // Add to main container
+                container.appendChild(qrDiv);
+                
+                // Add page break every 6 codes for printing
+                if (i % 6 === 0 && i !== 30) {
+                    const pageBreak = document.createElement('div');
+                    pageBreak.className = 'page-break';
+                    container.appendChild(pageBreak);
+                }
+                
+                // Generate QR code
+                new QRCode(qrCodeDiv, {
+                    text: `${menuUrl}?table=${i}`,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#2c3e50",  // Matching your menu's primary color
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        }
+        
+        // Generate all QR codes when page loads
+        window.onload = generateQRCodes;
+    </script>
+</body>
+</html>
