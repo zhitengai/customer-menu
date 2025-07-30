@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Menu with Barcode Scanning</title>
+    <title>Restaurant Order System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -27,67 +27,50 @@
         }
         
         body {
-            background-color: #f5f7fa;
+            background: #f5f7fa;
             color: var(--dark-color);
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 15px;
+        .app-container {
+            display: flex;
+            flex: 1;
         }
         
-        .header {
+        .customer-section, .pos-section {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .customer-section {
+            background: #fff;
+            border-right: 1px solid #e0e0e0;
+        }
+        
+        .pos-section {
+            background: #f8f9fa;
+        }
+        
+        .section-header {
             background: linear-gradient(135deg, var(--primary-color), #1a2530);
             color: white;
-            padding: 20px 15px;
-            text-align: center;
+            padding: 15px 20px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>');
-            opacity: 0.3;
-        }
-        
-        .header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 5px;
-            position: relative;
-        }
-        
-        .header p {
-            font-size: 1rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        .restaurant-info {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 10px;
-            position: relative;
-        }
-        
-        .info-item {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 0.9rem;
+            gap: 15px;
+        }
+        
+        .section-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .offline-status {
@@ -99,7 +82,6 @@
             text-align: center;
             margin-bottom: 15px;
             display: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .table-section {
@@ -213,9 +195,9 @@
         
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
-            margin-bottom: 80px;
+            margin-bottom: 20px;
         }
         
         .menu-section {
@@ -224,7 +206,7 @@
         
         .menu-section.active {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
             width: 100%;
         }
@@ -246,13 +228,19 @@
         }
         
         .item-image {
-            height: 180px;
+            height: 150px;
             background-size: cover;
             background-position: center;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-weight: 500;
         }
         
         .item-content {
-            padding: 20px;
+            padding: 15px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -266,7 +254,7 @@
         
         .item-name {
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--dark-color);
             flex: 1;
         }
@@ -274,57 +262,25 @@
         .item-price {
             color: var(--accent-color);
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-left: 10px;
-        }
-        
-        .item-id {
-            background-color: var(--light-color);
-            color: var(--primary-color);
-            font-size: 0.85rem;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: inline-block;
         }
         
         .item-desc {
             color: #6c757d;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             margin-bottom: 15px;
             flex: 1;
-        }
-        
-        .item-options {
-            margin-top: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .drink-option {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #dee2e6;
-            background-color: white;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        
-        .drink-option:focus {
-            border-color: var(--secondary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
         
         .add-btn {
             background: linear-gradient(to right, var(--success-color), #218838);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 500;
             transition: var(--transition);
             display: flex;
             align-items: center;
@@ -346,13 +302,13 @@
             right: 25px;
             background: linear-gradient(135deg, var(--primary-color), #1a2530);
             color: white;
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             box-shadow: 0 6px 20px rgba(0,0,0,0.2);
             cursor: pointer;
             z-index: 100;
@@ -370,10 +326,10 @@
             right: -5px;
             background-color: var(--accent-color);
             color: white;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -386,7 +342,7 @@
             top: 0;
             right: -100%;
             width: 100%;
-            max-width: 450px;
+            max-width: 400px;
             height: 100%;
             background-color: white;
             box-shadow: -5px 0 25px rgba(0,0,0,0.1);
@@ -403,14 +359,14 @@
         .cart-header {
             background: linear-gradient(135deg, var(--primary-color), #1a2530);
             color: white;
-            padding: 25px 20px;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
         .cart-title {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -500,8 +456,8 @@
         }
         
         .qty-btn {
-            width: 34px;
-            height: 34px;
+            width: 30px;
+            height: 30px;
             border: 1px solid #ddd;
             background: none;
             cursor: pointer;
@@ -511,7 +467,7 @@
             border-radius: 6px;
             font-weight: bold;
             transition: var(--transition);
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
         
         .qty-btn:hover {
@@ -531,7 +487,7 @@
             text-align: center;
             margin: 0 8px;
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 5px;
             border-radius: 6px;
             font-weight: 600;
         }
@@ -555,7 +511,7 @@
             display: flex;
             justify-content: space-between;
             font-weight: 700;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             margin-bottom: 20px;
         }
         
@@ -569,7 +525,7 @@
         
         .checkout-btn {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background: linear-gradient(to right, var(--primary-color), #1a2530);
             color: white;
             border: none;
@@ -650,137 +606,176 @@
             color: #ced4da;
         }
         
-        .scanner-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            z-index: 1001;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            display: none;
+        /* POS Table Display */
+        .pos-table-display {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
         }
         
-        .scanner-header {
-            width: 100%;
-            padding: 20px;
+        .orders-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .order-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .order-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            color: white;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
         }
         
-        .scanner-title {
-            font-size: 1.4rem;
-            font-weight: 600;
+        .order-id {
+            font-weight: 700;
+            color: var(--primary-color);
         }
         
-        .scanner-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 2rem;
-            cursor: pointer;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        
-        .scanner-close:hover {
-            background-color: rgba(255,255,255,0.2);
-        }
-        
-        .scanner-video {
-            width: 90%;
-            max-width: 500px;
-            background: black;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        .scanner-instructions {
-            color: white;
-            margin-top: 30px;
-            text-align: center;
-            padding: 0 20px;
-            max-width: 600px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-        
-        .scanner-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 70%;
-            max-width: 300px;
-            height: 200px;
-            border: 2px solid white;
-            border-radius: 12px;
-            pointer-events: none;
-            box-shadow: 0 0 0 10000px rgba(0,0,0,0.7);
-        }
-        
-        .scanner-success {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            background-color: white;
-            border-radius: 12px;
-            max-width: 400px;
-            margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .success-icon {
-            font-size: 4rem;
-            color: var(--success-color);
-            margin-bottom: 20px;
-        }
-        
-        .scanner-message {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: var(--dark-color);
-        }
-        
-        .scanner-table {
-            font-size: 2rem;
+        .order-table {
             font-weight: 700;
             color: var(--secondary-color);
-            margin: 10px 0;
+        }
+        
+        .order-time {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .order-items {
+            margin-top: 10px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .order-item-name {
+            flex: 1;
+        }
+        
+        .order-item-qty {
+            width: 30px;
+            text-align: center;
+        }
+        
+        .order-item-price {
+            width: 70px;
+            text-align: right;
+        }
+        
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+            font-weight: 700;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .order-action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .process-btn {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .process-btn:hover {
+            background: #218838;
+        }
+        
+        .cancel-btn {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .cancel-btn:hover {
+            background: #c82333;
+        }
+        
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9f7fe;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .sync-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .sync-indicator.offline {
+            background: var(--warning-color);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        @media (max-width: 1200px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .customer-section {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
         }
         
         @media (max-width: 768px) {
             .menu-grid, .menu-section.active {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
             
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .restaurant-info {
-                flex-direction: column;
-                align-items: center;
-                gap: 8px;
-            }
-            
-            .cart-sidebar {
-                max-width: 100%;
+            .section-header h2 {
+                font-size: 1.3rem;
             }
             
             .table-input-group {
@@ -792,159 +787,270 @@
                 justify-content: center;
             }
         }
-        
-        @media (max-width: 480px) {
-            .header {
-                padding: 15px;
-            }
-            
-            .header h1 {
-                font-size: 1.6rem;
-            }
-            
-            .category {
-                padding: 10px 15px;
-                font-size: 0.9rem;
-            }
-            
-            .menu-grid, .menu-section.active {
-                grid-template-columns: 1fr;
-            }
-            
-            .item-name {
-                font-size: 1.1rem;
-            }
-            
-            .item-price {
-                font-size: 1.1rem;
-            }
-            
-            .cart-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .cart-count {
-                width: 24px;
-                height: 24px;
-                font-size: 0.8rem;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-utensils"></i> Gourmet Delight Restaurant</h1>
-            <p>Authentic flavors served with passion - Scan your table barcode to get started</p>
-            <div class="restaurant-info">
-                <div class="info-item"><i class="fas fa-clock"></i> Open: 10AM - 10PM</div>
-                <div class="info-item"><i class="fas fa-phone"></i> (555) 123-4567</div>
-                <div class="info-item"><i class="fas fa-map-marker-alt"></i> 123 Food Street, Culinary City</div>
+    <div class="app-container">
+        <!-- Customer Menu Section -->
+        <div class="customer-section">
+            <div class="section-header">
+                <h2><i class="fas fa-mobile-alt"></i> Customer Menu</h2>
             </div>
-        </div>
-        
-        <div class="offline-status" id="offlineStatus">
-            <i class="fas fa-wifi"></i> Offline - Orders will sync when connection returns
-        </div>
-        
-        <div class="table-section">
-            <h2 class="section-title"><i class="fas fa-qrcode"></i> Your Table</h2>
-            <p>Please scan the barcode at your table or enter your table number below</p>
-            <div class="table-input-group">
-                <input type="number" id="tableNumber" class="table-input" placeholder="Enter table number">
-                <button class="barcode-btn" id="scanBarcodeBtn">
-                    <i class="fas fa-camera"></i> Scan Barcode
-                </button>
+            
+            <div class="offline-status" id="offlineStatus">
+                <i class="fas fa-wifi"></i> Offline - Orders will sync when connection returns
             </div>
-        </div>
-        
-        <div class="categories" id="categoriesContainer">
-            </div>
-        
-        <div class="menu-grid" id="menuGrid">
-            </div>
-        
-        <div class="cart-icon">
-            <i class="fas fa-shopping-cart"></i>
-            <div class="cart-count">0</div>
-        </div>
-        
-        <div class="cart-sidebar" id="cartSidebar">
-            <div class="cart-header">
-                <div class="cart-title"><i class="fas fa-shopping-cart"></i> Your Order</div>
-                <button class="close-cart"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="cart-body">
-                <div class="table-info">
-                    <div class="table-label">Table Number:</div>
-                    <div class="table-number" id="cartTableNumber">-</div>
+            
+            <div class="table-section">
+                <h2 class="section-title"><i class="fas fa-qrcode"></i> Your Table</h2>
+                <p>Please scan the barcode at your table or enter your table number below</p>
+                <div class="table-input-group">
+                    <input type="number" id="tableNumber" class="table-input" placeholder="Enter table number">
+                    <button class="barcode-btn" id="scanBarcodeBtn">
+                        <i class="fas fa-camera"></i> Scan Barcode
+                    </button>
                 </div>
-                <div class="cart-items" id="cartItems">
-                    <div class="empty-cart">
-                        <i class="fas fa-shopping-basket"></i>
-                        <h3>Your cart is empty</h3>
-                        <p>Add items from the menu to get started</p>
+            </div>
+            
+            <div class="categories">
+                <div class="category active" data-category="noodles">
+                    <i class="fas fa-bowl-food"></i> Noodles
+                </div>
+                <div class="category" data-category="tomyam">
+                    <i class="fas fa-pepper-hot"></i> Tom Yam
+                </div>
+                <div class="category" data-category="rice">
+                    <i class="fas fa-utensils"></i> Rice Meals
+                </div>
+                <div class="category" data-category="nasi-lemak">
+                    <i class="fas fa-egg"></i> Nasi Lemak
+                </div>
+                <div class="category" data-category="snacks">
+                    <i class="fas fa-cookie-bite"></i> Snacks
+                </div>
+                <div class="category" data-category="drinks">
+                    <i class="fas fa-glass-water"></i> Drinks
+                </div>
+            </div>
+            
+            <div class="menu-grid">
+                <!-- Noodles Section -->
+                <div class="menu-section active" id="noodles">
+                    <div class="menu-item">
+                        <div class="item-image" style="background-image: url('https://images.unsplash.com/photo-1612927601601-6638404737ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80')">Soup Mee Hun Kueh</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-name">Soup Mee Hun Kueh</span>
+                                <span class="item-price">RM 8.00</span>
+                            </div>
+                            <div class="item-desc">Handmade flat noodles in clear broth with vegetables and minced pork</div>
+                            <button class="add-btn" data-id="411" data-name="Soup Mee Hun Kueh" data-price="8.00">
+                                <i class="fas fa-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-image" style="background-image: url('https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80')">Dry Mee Hun Kueh</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-name">Dry Mee Hun Kueh</span>
+                                <span class="item-price">RM 8.00</span>
+                            </div>
+                            <div class="item-desc">Handmade flat noodles tossed in savory sauce with crispy anchovies</div>
+                            <button class="add-btn" data-id="417" data-name="Dry Mee Hun Kueh" data-price="8.00">
+                                <i class="fas fa-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-image" style="background-image: url('https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80')">Soup Pan Mee</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-name">Soup Pan Mee</span>
+                                <span class="item-price">RM 8.00</span>
+                            </div>
+                            <div class="item-desc">Hand-torn noodles in clear broth with poached egg and anchovies</div>
+                            <button class="add-btn" data-id="412" data-name="Soup Pan Mee" data-price="8.00">
+                                <i class="fas fa-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-image" style="background-image: url('https://images.unsplash.com/photo-1612927601601-6638404737ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80')">Dry Pan Mee</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-name">Dry Pan Mee</span>
+                                <span class="item-price">RM 8.00</span>
+                            </div>
+                            <div class="item-desc">Hand-torn noodles with minced pork, mushroom and crispy anchovies</div>
+                            <button class="add-btn" data-id="418" data-name="Dry Pan Mee" data-price="8.00">
+                                <i class="fas fa-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tom Yam Section -->
+                <div class="menu-section" id="tomyam">
+                    <div class="menu-item">
+                        <div class="item-image" style="background-image: url('https://images.unsplash.com/photo-1630002384811-70a68b0a7a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80')">TomYam Mee Hun Kueh</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-name">TomYam Mee Hun Kueh</span>
+                                <span class="item-price">RM 9.00</span>
+                            </div>
+                            <div class="item-desc">Spicy and sour Thai soup with handmade flat noodles</div>
+                            <button class="add-btn" data-id="422" data-name="TomYam Mee Hun Kueh" data-price="9.00">
+                                <i class="fas fa-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-image" style="background-image: url('https://images.unsplash.com/photo-1612927601601-6638404737ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80')">TomYam Pan Mee</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-name">TomYam Pan Mee</span>
+                                <span class="item-price">RM 9.00</span>
+                            </div>
+                            <div class="item-desc">Spicy and sour Thai soup with hand-torn noodles</div>
+                            <button class="add-btn" data-id="423" data-name="TomYam Pan Mee" data-price="9.00">
+                                <i class="fas fa-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-image" style="background-image: url('https://images.unsplash.com/photo-1591814461924-bb3c6d7c0d1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80')">TomYam You Mee</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-name">TomYam You Mee</span>
+                                <span class="item-price">RM 9.00</span>
+                            </div>
+                            <div class="item-desc">Spicy and sour Thai soup with thin egg noodles</div>
+                            <button class="add-btn" data-id="424" data-name="TomYam You Mee" data-price="9.00">
+                                <i class="fas fa-plus"></i> Add to Cart
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="cart-footer">
-                <div class="cart-total">
-                    <div class="total-label">Total:</div>
-                    <div class="total-amount" id="cartTotal">RM 0.00</div>
-                </div>
-                <button class="checkout-btn" id="checkoutBtn">
-                    <i class="fas fa-paper-plane"></i> Submit Order
-                </button>
+            
+            <div class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="cart-count">0</div>
             </div>
+            
+            <div class="cart-sidebar" id="cartSidebar">
+                <div class="cart-header">
+                    <div class="cart-title"><i class="fas fa-shopping-cart"></i> Your Order</div>
+                    <button class="close-cart"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="cart-body">
+                    <div class="table-info">
+                        <div class="table-label">Table Number:</div>
+                        <div class="table-number" id="cartTableNumber">-</div>
+                    </div>
+                    <div class="cart-items" id="cartItems">
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-basket"></i>
+                            <h3>Your cart is empty</h3>
+                            <p>Add items from the menu to get started</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cart-footer">
+                    <div class="cart-total">
+                        <div class="total-label">Total:</div>
+                        <div class="total-amount" id="cartTotal">RM 0.00</div>
+                    </div>
+                    <button class="checkout-btn" id="checkoutBtn">
+                        <i class="fas fa-paper-plane"></i> Submit Order
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overlay" id="overlay"></div>
+            <div class="notification" id="notification"></div>
         </div>
         
-        <div class="overlay" id="overlay"></div>
-        <div class="notification" id="notification"></div>
-        
-        <div class="scanner-container" id="scannerContainer">
-            <div class="scanner-header">
-                <div class="scanner-title">Scan Table Barcode</div>
-                <button class="scanner-close" id="scannerClose">
-                    <i class="fas fa-times"></i>
-                </button>
+        <!-- POS System Section -->
+        <div class="pos-section">
+            <div class="section-header">
+                <h2><i class="fas fa-cash-register"></i> Restaurant POS System</h2>
             </div>
-            <video class="scanner-video" id="scannerVideo" playsinline></video>
-            <div class="scanner-overlay"></div>
-            <div class="scanner-instructions">
-                Point your camera at the QR code or barcode on your table. The scanner will automatically detect your table number.
+            
+            <div class="pos-table-display">
+                <h2 class="section-title"><i class="fas fa-list"></i> Pending Orders</h2>
+                <div class="orders-list" id="ordersList">
+                    <div class="empty-cart">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No pending orders</h3>
+                        <p>Customer orders will appear here</p>
+                    </div>
+                </div>
+                
+                <div class="sync-status">
+                    <div class="sync-indicator" id="syncIndicator"></div>
+                    <div id="syncStatus">Syncing with customer orders...</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Enhanced Order System with Mobile Support
-        let cart = [];
+        // Customer Menu State
+        let customerCart = [];
         let isOnline = navigator.onLine;
-        let scannerActive = false;
-        let menuData = []; // Store the loaded menu items
-        let categories = []; // Store the loaded categories
-        let currentCategory = ''; // Keep track of the currently selected category
-
+        
+        // POS System State
+        let pendingOrders = [];
+        
         // Initialize the application
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Set table number from URL if available
-            const urlParams = new URLSearchParams(window.location.search);
-            const tableNumber = urlParams.get('table');
-            if (tableNumber) {
-                document.getElementById('tableNumber').value = tableNumber;
-                document.getElementById('cartTableNumber').textContent = tableNumber;
-                showNotification(`Table ${tableNumber} set from URL`);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize customer menu
+            initCustomerMenu();
+            
+            // Initialize POS system
+            initPOSSystem();
+            
+            // Set up network status detection
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+        });
+        
+        // Initialize Customer Menu
+        function initCustomerMenu() {
+            // Load cart from localStorage if available
+            const savedCart = localStorage.getItem('customerCart');
+            if (savedCart) {
+                customerCart = JSON.parse(savedCart);
+                updateCart();
             }
             
-            // Load and render menu initially
-            loadMenuData();
+            // Set up table input
+            const tableInput = document.getElementById('tableNumber');
+            tableInput.addEventListener('input', () => {
+                document.getElementById('cartTableNumber').textContent = 
+                    tableInput.value || '-';
+            });
             
-            // Set up cart and UI
-            updateCart();
+            // Set up category switching
+            document.querySelectorAll('.category').forEach(category => {
+                category.addEventListener('click', () => {
+                    document.querySelectorAll('.category').forEach(c => c.classList.remove('active'));
+                    category.classList.add('active');
+                    
+                    document.querySelectorAll('.menu-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(category.getAttribute('data-category')).classList.add('active');
+                });
+            });
             
             // Set up cart toggle
             document.querySelector('.cart-icon').addEventListener('click', () => {
@@ -962,161 +1068,20 @@
                 document.getElementById('overlay').classList.remove('active');
             });
             
-            // Set up barcode scanner
-            document.getElementById('scanBarcodeBtn').addEventListener('click', startBarcodeScanner);
-            document.getElementById('scannerClose').addEventListener('click', stopBarcodeScanner);
-            
-            // Set up table number input
-            document.getElementById('tableNumber').addEventListener('input', function() {
-                document.getElementById('cartTableNumber').textContent = this.value || '-';
-            });
-
-            // Listen for storage changes from other tabs
-            window.addEventListener('storage', (event) => {
-                if (event.key === 'menu_updated') {
-                    console.log('Menu update detected in localStorage, reloading menu...');
-                    loadMenuData(); // Reload menu
-                }
-            });
-        });
-
-        // Function to load menu data from localStorage
-        function loadMenuData() {
-            try {
-                const savedMenu = localStorage.getItem('menu'); // Get menu from localStorage
-                if (savedMenu) {
-                    menuData = JSON.parse(savedMenu);
-                } else {
-                    // Fallback to sample data if no menu is found in localStorage
-                    menuData = [
-                        { code: '509', name: '椰浆饭 + 蛋', nameEn: 'Nasi Lemak Egg', price: 4.00, category: 'Rice', image: 'https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak' },
-                        { code: '510', name: '椰浆饭香肠 + 蛋', nameEn: 'Nasi Lemak HotDog Egg', price: 5.00, category: 'Rice', image: 'https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog' },
-                        { code: '511', name: '椰浆饭鱼柳 + 蛋', nameEn: 'Nasi Lemak FishWillow Egg', price: 7.00, category: 'Rice', image: 'https://placehold.co/150x150/f0f0f0/333?text=Nasi+Fish' },
-                        { code: '512', name: '椰浆饭鸡腿 + 蛋', nameEn: 'Nasi Lemak Chicken Leg Egg', price: 8.50, category: 'Rice', image: 'https://placehold.co/150x150/f0f0f0/333?text=Nasi+Chicken' },
-                        { code: '411', name: '清汤面粉糕', nameEn: 'Soup Mee Hun Kueh', price: 8.00, category: 'Noodles', image: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80' },
-                        { code: '412', name: '东炎面粉糕', nameEn: 'Tom Yam Mee Hun Kueh', price: 8.00, category: 'Tom Yam', image: 'https://images.unsplash.com/photo-1630002384811-70a68b0a7a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80' },
-                        { code: '417', name: '干捞面粉糕', nameEn: 'Dry Mee Hun Kueh', price: 8.00, category: 'Noodles', image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80' },
-                        { code: '611', name: '薯条（小Small）', nameEn: 'French Fries Small', price: 7.00, category: 'Snacks', image: 'https://images.unsplash.com/photo-1607532941433-fd543345d7a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80' },
-                        { code: '612', name: '薯条（大Big）', nameEn: 'French Fries Big', price: 10.00, category: 'Snacks', image: 'https://images.unsplash.com/photo-1607532941433-fd543345d7a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80' },
-                        { code: '101', name: '原味奶茶', nameEn: 'Original Milk Tea', price: 9.00, category: 'Milk Tea', description: 'Cold RM9.00, Hot RM5.00', image: 'https://images.unsplash.com/photo-1542826727-463e26f6345d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80' },
-                        { code: 'B01', name: '蛋', nameEn: 'Egg', price: 1.50, category: 'Add Ons', image: 'https://images.unsplash.com/photo-1582294119865-c711204d13f0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80' }
-                    ];
-                }
-                categories = [...new Set(menuData.map(item => item.category))]; // Extract unique categories
-                renderCategories();
-                renderMenuItems(currentCategory || categories[0]); // Render initial category or first one
-            } catch (e) {
-                console.error('Error loading menu:', e);
-                showNotification('Failed to load menu. Please refresh.', 'error');
-            }
-        }
-
-        // Render categories dynamically
-        function renderCategories() {
-            const categoriesContainer = document.getElementById('categoriesContainer');
-            categoriesContainer.innerHTML = ''; // Clear existing categories
-
-            const allCategoryBtn = document.createElement('div');
-            allCategoryBtn.className = 'category active';
-            allCategoryBtn.dataset.category = 'all';
-            allCategoryBtn.innerHTML = '<i class="fas fa-layer-group"></i> All';
-            allCategoryBtn.addEventListener('click', () => switchCategory('all'));
-            categoriesContainer.appendChild(allCategoryBtn);
-
-            categories.forEach(category => {
-                const categoryElement = document.createElement('div');
-                categoryElement.className = 'category';
-                categoryElement.dataset.category = category;
-                categoryElement.innerHTML = `<i class="fas ${getCategoryIcon(category)}"></i> ${category}`;
-                categoryElement.addEventListener('click', () => switchCategory(category));
-                categoriesContainer.appendChild(categoryElement);
-            });
-
-            // Set the active class on the initial category
-            if (currentCategory) {
-                const activeCatElement = categoriesContainer.querySelector(`.category[data-category="${currentCategory}"]`);
-                if (activeCatElement) {
-                    categoriesContainer.querySelector('.category.active').classList.remove('active');
-                    activeCatElement.classList.add('active');
-                }
-            } else if (categories.length > 0) {
-                // Default to 'All' or the first category if 'All' isn't explicitly set
-                switchCategory('all');
-            }
-        }
-
-        // Get appropriate icon for a category
-        function getCategoryIcon(category) {
-            switch (category) {
-                case 'Noodles': return 'fa-bowl-food';
-                case 'Tom Yam': return 'fa-pepper-hot';
-                case 'Rice': return 'fa-utensils';
-                case 'Nasi Lemak': return 'fa-egg';
-                case 'Snacks': return 'fa-cookie-bite';
-                case 'Drinks': return 'fa-glass-water';
-                case 'Milk Tea': return 'fa-coffee';
-                case 'Green Tea': return 'fa-mug-hot';
-                case 'Fruit Juice': return 'fa-lemon';
-                case 'Add Ons': return 'fa-plus-circle';
-                default: return 'fa-utensils';
-            }
-        }
-
-        // Switch active category and re-render menu items
-        function switchCategory(category) {
-            currentCategory = category;
-            document.querySelectorAll('.categories .category').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`.categories .category[data-category="${category}"]`).classList.add('active');
-            renderMenuItems(category);
-        }
-
-        // Render menu items dynamically
-        function renderMenuItems(category) {
-            const menuGrid = document.getElementById('menuGrid');
-            menuGrid.innerHTML = ''; // Clear existing menu items
-
-            const filteredItems = category === 'all' ? menuData : menuData.filter(item => item.category === category);
-
-            if (filteredItems.length === 0) {
-                menuGrid.innerHTML = '<p style="text-align: center; color: #777; padding: 40px;">No items in this category.</p>';
-                return;
-            }
-
-            filteredItems.forEach(item => {
-                const menuItem = document.createElement('div');
-                menuItem.className = 'menu-item';
-                menuItem.innerHTML = `
-                    <div class="item-image" style="background-image: url('${item.image || 'https://placehold.co/600x400?text=No+Image'}')"></div>
-                    <div class="item-content">
-                        <div class="item-id">${item.code}</div>
-                        <div class="item-header">
-                            <span class="item-name">${item.nameEn}<br>${item.name}</span>
-                            <span class="item-price">RM ${item.price.toFixed(2)}</span>
-                        </div>
-                        <div class="item-desc">${item.description || ''}</div>
-                        <button class="add-btn" data-id="${item.code}" data-name="${item.nameEn}" data-price="${item.price}">
-                            <i class="fas fa-plus"></i> Add to Cart
-                        </button>
-                    </div>
-                `;
-                menuGrid.appendChild(menuItem);
-            });
-
-            // Re-attach event listeners for "Add to Cart" buttons
+            // Set up add buttons
             document.querySelectorAll('.add-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     const id = button.getAttribute('data-id');
-                    let name = button.getAttribute('data-name');
-                    let price = parseFloat(button.getAttribute('data-price'));
+                    const name = button.getAttribute('data-name');
+                    const price = parseFloat(button.getAttribute('data-price'));
                     
-                    const existingItemIndex = cart.findIndex(item => item.id === id);
+                    // Check if item already exists in cart
+                    const existingItemIndex = customerCart.findIndex(item => item.id === id);
                     
                     if (existingItemIndex >= 0) {
-                        cart[existingItemIndex].quantity++;
+                        customerCart[existingItemIndex].quantity++;
                     } else {
-                        cart.push({
+                        customerCart.push({
                             id,
                             name,
                             price,
@@ -1125,8 +1090,9 @@
                     }
                     
                     updateCart();
-                    showNotification(`${name} added to cart`);
+                    showNotification(`${name} added to cart`, 'success');
                     
+                    // Animation for feedback
                     const originalText = button.innerHTML;
                     button.innerHTML = '<i class="fas fa-check"></i> Added!';
                     setTimeout(() => {
@@ -1134,117 +1100,31 @@
                     }, 1500);
                 });
             });
+            
+            // Set up checkout button
+            document.getElementById('checkoutBtn').addEventListener('click', submitOrder);
         }
         
-        // Barcode scanner functions
-        function startBarcodeScanner() {
-            scannerActive = true;
-            document.getElementById('scannerContainer').style.display = 'flex';
-            
-            // Check if browser supports camera access
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showNotification('Camera access is not supported in your browser', 'error');
-                stopBarcodeScanner();
-                return;
+        // Initialize POS System
+        function initPOSSystem() {
+            // Load pending orders from localStorage
+            const savedOrders = localStorage.getItem('pendingOrders');
+            if (savedOrders) {
+                pendingOrders = JSON.parse(savedOrders);
+                updateOrdersDisplay();
             }
             
-            // Start the camera
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(function(stream) {
-                const video = document.getElementById('scannerVideo');
-                video.srcObject = stream;
-                video.play();
-                
-                // Simulate barcode detection for demo purposes
-                setTimeout(() => {
-                    if (scannerActive) {
-                        simulateBarcodeDetection();
-                    }
-                }, 2000);
-            })
-            .catch(function(err) {
-                console.error('Camera error:', err);
-                showNotification('Failed to access camera. Please ensure permissions are granted.', 'error');
-                stopBarcodeScanner();
-            });
+            // Start checking for new orders
+            setInterval(checkForNewOrders, 2000);
         }
-        
-        function stopBarcodeScanner() {
-            scannerActive = false;
-            document.getElementById('scannerContainer').style.display = 'none';
-            
-            // Stop the video stream
-            const video = document.getElementById('scannerVideo');
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-            }
-        }
-        
-        // Simulate barcode detection for demo
-        function simulateBarcodeDetection() {
-            if (!scannerActive) return;
-            
-            // Generate a random table number between 1 and 30
-            const tableNumber = Math.floor(Math.random() * 30) + 1;
-            
-            // Set the table number
-            document.getElementById('tableNumber').value = tableNumber;
-            document.getElementById('cartTableNumber').textContent = tableNumber;
-            
-            // Show success message
-            showNotification(`Table ${tableNumber} scanned successfully!`);
-            
-            // Close the scanner after a short delay
-            setTimeout(() => {
-                stopBarcodeScanner();
-            }, 1500);
-        }
-        
-        // Enhanced checkout function
-        document.getElementById('checkoutBtn').addEventListener('click', async () => {
-            if (cart.length === 0) {
-                showNotification('Your cart is empty', 'error');
-                return;
-            }
-            
-            const tableNumber = document.getElementById('tableNumber').value.trim();
-            if (!tableNumber) {
-                showNotification('Please enter a table number', 'error');
-                return;
-            }
-            
-            const order = {
-                id: `CUST-ORD-${Date.now()}`,
-                items: JSON.parse(JSON.stringify(cart)), // Deep copy cart items
-                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-                timestamp: new Date().toISOString(),
-                status: 'pending', // Status for customer-initiated orders
-                table: tableNumber
-            };
-            
-            // Store the customer order in localStorage for POS to pick up
-            localStorage.setItem('customerOrder', JSON.stringify(order));
-            localStorage.setItem('orderUpdated', Date.now().toString()); // Signal to POS
-            
-            showNotification(`Order #${order.id} for Table ${tableNumber} submitted successfully!`, 'success');
-            
-            // Clear cart
-            cart = [];
-            updateCart();
-            
-            // Close cart sidebar
-            document.getElementById('cartSidebar').classList.remove('active');
-            document.getElementById('overlay').classList.remove('active');
-        });
         
         // Update cart display
         function updateCart() {
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalItems = customerCart.reduce((sum, item) => sum + item.quantity, 0);
             document.querySelector('.cart-count').textContent = totalItems;
             
             const cartItems = document.getElementById('cartItems');
-            if (cart.length === 0) {
+            if (customerCart.length === 0) {
                 cartItems.innerHTML = `
                     <div class="empty-cart">
                         <i class="fas fa-shopping-basket"></i>
@@ -1259,7 +1139,7 @@
             cartItems.innerHTML = '';
             let total = 0;
             
-            cart.forEach(item => {
+            customerCart.forEach(item => {
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
                 
@@ -1305,29 +1185,188 @@
             });
             
             document.getElementById('cartTotal').textContent = `RM ${total.toFixed(2)}`;
+            
+            // Save cart to localStorage
+            localStorage.setItem('customerCart', JSON.stringify(customerCart));
         }
         
         // Update cart item quantity
         function updateCartItem(id, action, quantity = 1) {
-            const itemIndex = cart.findIndex(item => item.id === id);
+            const itemIndex = customerCart.findIndex(item => item.id === id);
             
             if (itemIndex === -1) return;
             
             if (action === 'increase') {
-                cart[itemIndex].quantity++;
+                customerCart[itemIndex].quantity++;
             } else if (action === 'decrease') {
-                cart[itemIndex].quantity--;
-                if (cart[itemIndex].quantity <= 0) {
-                    cart.splice(itemIndex, 1);
+                customerCart[itemIndex].quantity--;
+                if (customerCart[itemIndex].quantity <= 0) {
+                    customerCart.splice(itemIndex, 1);
                 }
             } else if (action === 'set') {
-                cart[itemIndex].quantity = quantity;
+                customerCart[itemIndex].quantity = quantity;
                 if (quantity <= 0) {
-                    cart.splice(itemIndex, 1);
+                    customerCart.splice(itemIndex, 1);
                 }
             }
             
             updateCart();
+        }
+        
+        // Submit order
+        function submitOrder() {
+            if (customerCart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+            
+            const tableNumber = document.getElementById('tableNumber').value.trim();
+            if (!tableNumber) {
+                showNotification('Please enter a table number', 'error');
+                return;
+            }
+            
+            const order = {
+                id: `ORD-${Date.now()}`,
+                table: tableNumber,
+                items: [...customerCart],
+                total: customerCart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+            
+            // Save order to localStorage for POS
+            saveOrderToPOS(order);
+            
+            // Clear cart
+            customerCart = [];
+            updateCart();
+            document.getElementById('tableNumber').value = '';
+            document.getElementById('cartTableNumber').textContent = '-';
+            
+            // Close cart sidebar
+            document.getElementById('cartSidebar').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            
+            showNotification('Order submitted successfully!', 'success');
+        }
+        
+        // Save order to POS system
+        function saveOrderToPOS(order) {
+            // Get existing orders or initialize empty array
+            let orders = JSON.parse(localStorage.getItem('pendingOrders')) || [];
+            
+            // Add new order
+            orders.push(order);
+            
+            // Save back to localStorage
+            localStorage.setItem('pendingOrders', JSON.stringify(orders));
+            
+            // Also set a flag to indicate new order
+            localStorage.setItem('newOrder', Date.now().toString());
+        }
+        
+        // Check for new orders (POS System)
+        function checkForNewOrders() {
+            // Check if there's a new order flag
+            if (localStorage.getItem('newOrder')) {
+                // Load pending orders
+                const savedOrders = localStorage.getItem('pendingOrders');
+                if (savedOrders) {
+                    pendingOrders = JSON.parse(savedOrders);
+                    updateOrdersDisplay();
+                }
+                
+                // Clear the flag
+                localStorage.removeItem('newOrder');
+            }
+            
+            // Update sync status
+            updateSyncStatus();
+        }
+        
+        // Update orders display (POS System)
+        function updateOrdersDisplay() {
+            const ordersList = document.getElementById('ordersList');
+            
+            if (pendingOrders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No pending orders</h3>
+                        <p>Customer orders will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            ordersList.innerHTML = '';
+            
+            pendingOrders.forEach(order => {
+                const orderElement = document.createElement('div');
+                orderElement.className = 'order-card';
+                orderElement.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-id">Order #${order.id.substring(0, 8)}</div>
+                        <div class="order-table">Table ${order.table}</div>
+                    </div>
+                    <div class="order-time">${new Date(order.timestamp).toLocaleString()}</div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <div class="order-item-name">${item.name}</div>
+                                <div class="order-item-qty">${item.quantity}x</div>
+                                <div class="order-item-price">RM ${(item.price * item.quantity).toFixed(2)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-total">
+                        <span>Total:</span>
+                        <span>RM ${order.total.toFixed(2)}</span>
+                    </div>
+                    <div class="order-actions">
+                        <button class="order-action-btn process-btn" data-id="${order.id}">
+                            <i class="fas fa-check-circle"></i> Process Order
+                        </button>
+                        <button class="order-action-btn cancel-btn" data-id="${order.id}">
+                            <i class="fas fa-times-circle"></i> Cancel
+                        </button>
+                    </div>
+                `;
+                
+                ordersList.appendChild(orderElement);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.process-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const orderId = btn.getAttribute('data-id');
+                    processOrder(orderId);
+                });
+            });
+            
+            document.querySelectorAll('.cancel-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const orderId = btn.getAttribute('data-id');
+                    cancelOrder(orderId);
+                });
+            });
+        }
+        
+        // Process an order (POS System)
+        function processOrder(orderId) {
+            pendingOrders = pendingOrders.filter(order => order.id !== orderId);
+            localStorage.setItem('pendingOrders', JSON.stringify(pendingOrders));
+            updateOrdersDisplay();
+            showNotification('Order processed successfully!', 'success');
+        }
+        
+        // Cancel an order (POS System)
+        function cancelOrder(orderId) {
+            pendingOrders = pendingOrders.filter(order => order.id !== orderId);
+            localStorage.setItem('pendingOrders', JSON.stringify(pendingOrders));
+            updateOrdersDisplay();
+            showNotification('Order canceled', 'warning');
         }
         
         // Show notification
@@ -1340,6 +1379,27 @@
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 3000);
+        }
+        
+        // Update network status
+        function updateOnlineStatus() {
+            isOnline = navigator.onLine;
+            document.getElementById('offlineStatus').style.display = isOnline ? 'none' : 'block';
+            updateSyncStatus();
+        }
+        
+        // Update sync status display
+        function updateSyncStatus() {
+            const syncIndicator = document.getElementById('syncIndicator');
+            const syncStatus = document.getElementById('syncStatus');
+            
+            if (isOnline) {
+                syncIndicator.className = 'sync-indicator';
+                syncStatus.textContent = 'Syncing with customer orders...';
+            } else {
+                syncIndicator.className = 'sync-indicator offline';
+                syncStatus.textContent = 'Offline - Orders will sync when connection returns';
+            }
         }
     </script>
 </body>
