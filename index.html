@@ -1,5 +1,558 @@
+
 <!DOCTYPE html>
 <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Menu</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 10px;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            gap: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .category {
+            padding: 8px 15px;
+            background-color: var(--light-color);
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .category.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .menu-section {
+            display: none;
+        }
+        
+        .menu-section.active {
+            display: block;
+        }
+        
+        .menu-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--dark-color);
+        }
+        
+        .item-price {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .item-desc {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .item-options {
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .drink-option {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 0.9em;
+        }
+        
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        
+        .add-btn:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .cart-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .cart-icon:hover {
+            transform: scale(1.1);
+            background-color: var(--accent-color);
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .cart-sidebar.active {
+            right: 0;
+        }
+        
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: color 0.3s ease;
+        }
+        
+        .close-cart:hover {
+            color: var(--accent-color);
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .cart-item-price {
+            color: var(--accent-color);
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .cart-item-qty {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .qty-btn:hover {
+            background-color: var(--light-color);
+        }
+        
+        .qty-btn.minus {
+            color: var(--danger-color);
+        }
+        
+        .qty-btn.plus {
+            color: var(--success-color);
+        }
+        
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            margin: 0 5px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .cart-item-total {
+            font-weight: 600;
+            color: var(--dark-color);
+            align-self: center;
+        }
+        
+        .cart-total {
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 1.3em;
+            text-align: right;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        
+        .checkout-btn:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning-color);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
+        .table-selection {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .table-selection label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .table-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+        }
+        
+        .offline-status {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background-color: var(--warning-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            z-index: 100;
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                font-size: 1.3em;
+                padding: 12px;
+            }
+            
+            .menu-item {
+                padding: 12px;
+            }
+            
+            .item-name, .item-price {
+                font-size: 1em;
+            }
+            
+            .cart-sidebar {
+                width: 90%;
+            }
+            
+            .cart-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
+            }
+            
+            .cart-count {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7em;
+            }
+            
+            .add-btn {
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            Restaurant Menu
+        </div>
+        
+        <div class="offline-status" id="offlineStatus">
+            Offline - Orders will sync when connection returns
+        </div>
+        
+        <div class="table-selection">
+            <label for="tableNumber">Table Number:</label>
+            <input type="number" id="tableNumber" class="table-input" placeholder="Enter your table number" min="1" max="30" readonly>
+        </div>
+        
+        <div class="categories">
+            <div class="category active" data-category="noodles">Noodles</div>
+            <div class="category" data-category="tomyam">Tom Yam</div>
+            <div class="category" data-category="rice">Rice Meals</div>
+            <div class="category" data-category="nasi-lemak">Nasi Lemak</div>
+            <div class="category" data-category="snacks">Snacks</div>
+            <div class="category" data-category="drinks">Drinks</div>
+        </div>
+        
+        <!-- Noodles Section -->
+        <div class="menu-section active" id="noodles">
+            <div class="menu-item">
+                <div class="item-header">
+                    <span class="item-name">411- Soup Mee Hun Kueh</span>
+                    <span class="item-price">RM 8.00</span>
+                </div>
+                <div class="item-desc">清汤面粉糕</div>
+                <button class="add-btn" data-id="411" data-name="Soup Mee Hun Kueh" data-price="8.00">Add</button>
+            </div>
+            
+            <div class="menu-item">
+                <div class="item-header">
+                    <span class="item-name">417- Dry Mee Hun Kueh</span>
+                    <span class="item-price">RM 8.00</span>
+                </div>
+                <div class="item-desc">干捞面粉糕</div>
+                <button class="add-btn" data-id="417" data-name="Dry Mee Hun Kueh" data-price="8.00">Add</button>
+            </div>
+            
+            <div class="menu-item">
+                <div class="item-header">
+                    <span class="item-name">412- Soup Pan Mee</span>
+                    <span class="item-price">RM 8.00</span>
+                </div>
+                <div class="item-desc">清汤板面</div>
+                <button class="add-btn" data-id="412" data-name="Soup Pan Mee" data-price="8.00">Add</button>
+            </div>
+            
+            <div class="menu-item">
+                <div class="item-header">
+                    <span class="item-name">418- Dry Pan Mee</span>
+                    <span class="item-price">RM 8.00</span>
+                </div>
+                <div class="item-desc">干捞板面</div>
+                <button class="add-btn" data-id="418" data-name="Dry Pan Mee" data-price="8.00">Add</button>
+            </div>
+        </div>
+        
+        <!-- Other Sections (Tom Yam, Rice Meals, Nasi Lemak, etc.) -->
+
+        <script>
+            // Function to get table number from URL
+            function getTableNumberFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('table');
+            }
+
+            // On page load, capture table number from URL and update input field
+            window.onload = function() {
+                const tableNumber = getTableNumberFromURL();
+                if (tableNumber) {
+                    document.getElementById("tableNumber").value = tableNumber;
+                } else {
+                    console.log("No table number found in the URL.");
+                }
+            };
+
+            // Set up category switching
+            document.querySelectorAll('.category').forEach(category => {
+                category.addEventListener('click', () => {
+                    document.querySelectorAll('.category').forEach(c => c.classList.remove('active'));
+                    category.classList.add('active');
+                    
+                    document.querySelectorAll('.menu-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(category.getAttribute('data-category')).classList.add('active');
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -516,21 +1069,7 @@
          <!-- Other Sections (Tom Yam, Rice Meals, Nasi Lemak, etc.) -->
 
         <script>
-            // Function to get table number from URL
-            function getTableNumberFromURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('table');
-            }
-
-            // On page load, capture table number from URL and update input field
-            window.onload = function() {
-                const tableNumber = getTableNumberFromURL();
-                if (tableNumber) {
-                    document.getElementById("tableNumber").value = tableNumber;
-                } else {
-                    console.log("No table number found in the URL.");
-                }
-            };
+            
         <!-- Tom Yam Section -->
         <div class="menu-section" id="tomyam">
             <div class="menu-item">
@@ -1067,3 +1606,4 @@
     </script>
 </body>
 </html>
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	 
