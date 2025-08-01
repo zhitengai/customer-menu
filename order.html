@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,6 +20,7 @@
       --unpaid-color: #f8d7da;
       --selected-unpaid-color: #f5c6cb;
       --merged-color: #d4edff;
+      --wechat-color: #09bb07;
     }
 
     * {
@@ -46,29 +48,76 @@
       grid-area: header;
       background: var(--primary-color);
       color: white;
-      padding: 10px 20px;
+      padding: 10px 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       z-index: 10;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
-    .header-left { display: flex; align-items: center; gap: 15px; }
+    .header-left { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px;
+      flex-wrap: wrap;
+    }
     .logo { font-size: 1.3rem; font-weight: bold; }
-    .order-info { display: flex; gap: 10px; align-items: center; }
-    .order-type { display: flex; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; }
-    .order-type-btn { padding: 6px 12px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+    .order-info { 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+      flex-wrap: wrap;
+    }
+    .order-type { 
+      display: flex; 
+      background: rgba(255,255,255,0.1); 
+      border-radius: 20px; 
+      overflow: hidden; 
+      flex-wrap: wrap;
+    }
+    .order-type-btn { 
+      padding: 6px 10px; 
+      cursor: pointer; 
+      transition: all 0.3s; 
+      font-size: 0.85rem; 
+      white-space: nowrap;
+    }
     .order-type-btn.selected { background: var(--secondary-color); font-weight: bold; }
-    .table-number { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
-    .table-buttons { display: flex; flex-wrap: wrap; gap: 8px; max-width: 400px; margin-left: 10px; }
+    .table-number { 
+      display: flex; 
+      align-items: center; 
+      gap: 5px; 
+      font-size: 0.9rem; 
+      white-space: nowrap;
+    }
+    .table-buttons { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 8px; 
+      max-width: 400px;
+      margin-left: 5px;
+      overflow-x: auto;
+    }
 
     .table-btn {
-      width: 55px; height: 55px; border-radius: 12px; border: 2px solid #ddd;
-      background: white; color: var(--dark-color); display: flex;
-      align-items: center; justify-content: center; cursor: pointer;
-      font-size: 1.2rem; font-weight: bold; transition: all 0.2s;
+      width: 50px; 
+      height: 50px; 
+      border-radius: 12px; 
+      border: 2px solid #ddd;
+      background: white; 
+      color: var(--dark-color); 
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer;
+      font-size: 1.1rem; 
+      font-weight: bold; 
+      transition: all 0.2s;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      flex-shrink: 0;
     }
     .table-btn:hover { background: var(--light-color); transform: translateY(-1px); }
     .table-btn.selected { background: var(--secondary-color); color: white; border-color: var(--secondary-color); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
@@ -76,23 +125,28 @@
     .table-btn.unpaid::after { content: '●'; position: absolute; top: 5px; right: 5px; font-size: 0.8em; color: var(--accent-color); }
     .table-btn.merged { background: var(--merged-color); border: 2px dashed var(--secondary-color); }
     .table-btn.unpaid.selected { background: var(--selected-unpaid-color); border-color: var(--accent-color); color: var(--dark-color); }
-    .datetime { font-size: 0.85rem; opacity: 0.8; }
+    .datetime { 
+      font-size: 0.85rem; 
+      opacity: 0.8; 
+      white-space: nowrap;
+    }
     
     /* Language Selector */
     .language-selector {
       position: relative;
-      margin-left: 15px;
+      margin-left: 10px;
     }
     .language-btn {
       background: rgba(255,255,255,0.1);
       border: none;
       color: white;
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 4px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 5px;
+      font-size: 0.9rem;
     }
     .language-btn i {
       font-size: 0.8em;
@@ -118,6 +172,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 0.9rem;
     }
     .language-option:hover {
       background: var(--light-color);
@@ -128,44 +183,198 @@
       object-fit: cover;
     }
 
-    .products-section { grid-area: products; display: flex; flex-direction: column; background: white; border-right: 1px solid #ddd; overflow: hidden; }
-    .category-tabs { display: flex; background: var(--light-color); border-bottom: 1px solid #ddd; overflow-x: auto; padding: 0 10px; }
-    .category-tab { padding: 10px 15px; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.3s; font-size: 0.9rem; }
+    .products-section { 
+      grid-area: products; 
+      display: flex; 
+      flex-direction: column; 
+      background: white; 
+      border-right: 1px solid #ddd; 
+      overflow: hidden; 
+    }
+    .category-tabs { 
+      display: flex; 
+      background: var(--light-color); 
+      border-bottom: 1px solid #ddd; 
+      overflow-x: auto; 
+      padding: 0 8px; 
+      scrollbar-width: thin;
+    }
+    .category-tab { 
+      padding: 10px 12px; 
+      cursor: pointer; 
+      white-space: nowrap; 
+      border-bottom: 3px solid transparent; 
+      transition: all 0.3s; 
+      font-size: 0.85rem; 
+      flex-shrink: 0;
+    }
     .category-tab.selected { background: white; border-bottom: 3px solid var(--secondary-color); font-weight: bold; }
-    .products-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; padding: 10px; overflow-y: auto; }
+    .products-grid { 
+      flex: 1; 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+      gap: 10px; 
+      padding: 10px; 
+      overflow-y: auto; 
+    }
     
     .product-card {
-      background: white; border-radius: 6px; overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;
-      transition: all 0.2s; display: flex; flex-direction: column;
-      border: 1px solid #eee; height: 130px;
+      background: white; 
+      border-radius: 6px; 
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+      cursor: pointer;
+      transition: all 0.2s; 
+      display: flex; 
+      flex-direction: column;
+      border: 1px solid #eee; 
+      height: 120px;
     }
     .product-card:hover { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
-    .product-image { width: 100%; height: 70px; object-fit: cover; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.7rem; }
-    .product-details { padding: 8px; flex: 1; display: flex; flex-direction: column; }
-    .product-name { font-weight: bold; margin-bottom: 3px; font-size: 0.8rem; line-height: 1.2; }
-    .product-price { color: var(--accent-color); font-weight: bold; margin-top: auto; font-size: 0.85rem; }
+    .product-image { 
+      width: 100%; 
+      height: 65px; 
+      object-fit: cover; 
+      background: #f5f5f5; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #999; 
+      font-size: 0.7rem; 
+    }
+    .product-details { 
+      padding: 6px; 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+    }
+    .product-name { 
+      font-weight: bold; 
+      margin-bottom: 2px; 
+      font-size: 0.75rem; 
+      line-height: 1.2; 
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .product-price { 
+      color: var(--accent-color); 
+      font-weight: bold; 
+      margin-top: auto; 
+      font-size: 0.8rem; 
+    }
 
-    .order-section { grid-area: order; display: flex; flex-direction: column; background: white; border-left: 1px solid #ddd; }
-    .order-header { padding: 12px 15px; border-bottom: 1px solid #ddd; font-weight: bold; font-size: 1rem; background: var(--light-color); }
-    .order-items { flex: 1; overflow-y: auto; padding: 10px; }
-    .order-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; margin-bottom: 6px; background: #f9f9f9; border-radius: 4px; font-size: 0.9rem; }
-    .order-item-info { flex: 1; min-width: 0; margin-right: 10px; }
-    .order-item-name { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .order-item-qty { color: #777; font-size: 0.8rem; }
-    .order-item-price { font-weight: bold; min-width: 70px; text-align: right; padding-left: 5px; }
-    .order-item-actions { display: flex; align-items: center; gap: 4px; margin-left: 5px; }
-    .qty-btn { width: 26px; height: 26px; border: none; border-radius: 50%; background: var(--secondary-color); color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: background-color 0.2s; }
+    .order-section { 
+      grid-area: order; 
+      display: flex; 
+      flex-direction: column; 
+      background: white; 
+      border-left: 1px solid #ddd; 
+    }
+    .order-header { 
+      padding: 12px 15px; 
+      border-bottom: 1px solid #ddd; 
+      font-weight: bold; 
+      font-size: 1rem; 
+      background: var(--light-color); 
+    }
+    .order-items { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 10px; 
+    }
+    .order-item { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 8px 10px; 
+      margin-bottom: 6px; 
+      background: #f9f9f9; 
+      border-radius: 4px; 
+      font-size: 0.85rem; 
+    }
+    .order-item-info { 
+      flex: 1; 
+      min-width: 0; 
+      margin-right: 8px; 
+    }
+    .order-item-name { 
+      font-weight: bold; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      font-size: 0.9rem;
+    }
+    .order-item-qty { 
+      color: #777; 
+      font-size: 0.75rem; 
+    }
+    .order-item-price { 
+      font-weight: bold; 
+      min-width: 60px; 
+      text-align: right; 
+      padding-left: 5px; 
+      font-size: 0.9rem;
+    }
+    .order-item-actions { 
+      display: flex; 
+      align-items: center; 
+      gap: 4px; 
+      margin-left: 5px; 
+    }
+    .qty-btn { 
+      width: 24px; 
+      height: 24px; 
+      border: none; 
+      border-radius: 50%; 
+      background: var(--secondary-color); 
+      color: white; 
+      font-weight: bold; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 0.85rem; 
+      transition: background-color 0.2s; 
+    }
     .qty-btn:hover { opacity: 0.9; }
     .qty-btn.remove { background: var(--accent-color); }
 
-    .order-summary { padding: 12px 15px; border-top: 1px solid #ddd; background: var(--light-color); font-size: 0.95rem; }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
-    .summary-total { font-weight: bold; font-size: 1.1rem; color: var(--primary-color); }
+    .order-summary { 
+      padding: 10px 15px; 
+      border-top: 1px solid #ddd; 
+      background: var(--light-color); 
+      font-size: 0.9rem; 
+    }
+    .summary-row { 
+      display: flex; 
+      justify-content: space-between; 
+      margin-bottom: 5px; 
+    }
+    .summary-total { 
+      font-weight: bold; 
+      font-size: 1rem; 
+      color: var(--primary-color); 
+    }
 
-    .action-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 15px; }
+    .action-buttons { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 8px; 
+      padding: 10px 15px; 
+    }
     .action-buttons .btn-payment { grid-column: 1 / -1; }
-    .btn { padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+    .btn { 
+      padding: 10px; 
+      border: none; 
+      border-radius: 4px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: all 0.3s; 
+      font-size: 0.85rem; 
+      white-space: nowrap;
+    }
     .btn-primary { background: var(--secondary-color); color: white; }
     .btn-primary:hover { background: #2980b9; }
     .btn-success { background: var(--success-color); color: white; }
@@ -176,6 +385,8 @@
     .btn-danger:hover { background: #c0392b; }
     .btn-info { background: var(--info-color); color: white; }
     .btn-info:hover { background: #2980b9; }
+    .btn-wechat { background: var(--wechat-color); color: white; }
+    .btn-wechat:hover { background: #08aa06; }
 
     footer {
       grid-area: footer;
@@ -207,7 +418,7 @@
     }
     .modal-content {
       background: white;
-      padding: 25px;
+      padding: 20px;
       border-radius: 8px;
       width: 450px;
       max-width: 90%;
@@ -220,9 +431,9 @@
       opacity: 1;
     }
     .modal-title {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       font-weight: bold;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       color: var(--primary-color);
       text-align: center;
     }
@@ -230,7 +441,7 @@
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      margin-top: 25px;
+      margin-top: 20px;
     }
 
     .payment-methods {
@@ -246,7 +457,7 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
     .payment-method.selected {
       border-color: var(--secondary-color);
@@ -329,11 +540,11 @@
     }
 
     .form-group {
-      margin-bottom: 18px;
+      margin-bottom: 15px;
     }
     .form-group label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       font-weight: bold;
       font-size: 0.95rem;
     }
@@ -467,6 +678,72 @@
     .notification-toast.info {
       background-color: var(--info-color);
     }
+    
+    /* WeChat Scan Button */
+    .scan-btn {
+      background: var(--wechat-color);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      border: none;
+      transition: background 0.3s;
+    }
+    .scan-btn:hover {
+      background: #08aa06;
+    }
+    
+    /* QR Code Scanner */
+    .scanner-container {
+      width: 100%;
+      height: 300px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .scanner-placeholder {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+    }
+    .scanner-placeholder i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: var(--wechat-color);
+    }
+    .scanner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 2px dashed var(--wechat-color);
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+    .scanner-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: var(--wechat-color);
+      top: 50%;
+      animation: scanLine 2s infinite linear;
+    }
+    
+    @keyframes scanLine {
+      0% { top: 10%; }
+      100% { top: 90%; }
+    }
 
     @media (max-width: 1200px) {
         body {
@@ -481,6 +758,7 @@
           font-size: 1.1rem;
         }
     }
+    
     @media (max-width: 768px) {
       body {
         grid-template-rows: auto auto 1fr auto;
@@ -506,21 +784,99 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+        width: 100%;
       }
       .order-info {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
+        width: 100%;
       }
       .table-buttons {
         max-width: 100%;
         justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 5px;
       }
       .action-buttons {
         grid-template-columns: 1fr 1fr 1fr;
       }
       .action-buttons .btn-payment {
         grid-column: span 3;
+      }
+      .datetime {
+        margin-top: 5px;
+        width: 100%;
+        text-align: right;
+      }
+      .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+      .product-card {
+        height: 110px;
+      }
+      .product-image {
+        height: 55px;
+      }
+      .scan-btn {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+      }
+      .language-btn {
+        padding: 6px 8px;
+      }
+      .modal-content {
+        padding: 15px;
+      }
+      footer {
+        position: sticky;
+        bottom: 0;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .action-buttons {
+        grid-template-columns: 1fr 1fr;
+      }
+      .action-buttons .btn-payment {
+        grid-column: span 2;
+      }
+      .product-card {
+        height: 100px;
+      }
+      .product-image {
+        height: 50px;
+      }
+      .order-type-btn {
+        padding: 5px 8px;
+        font-size: 0.8rem;
+      }
+      .table-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+      }
+      .order-item {
+        padding: 6px 8px;
+      }
+      .order-item-name {
+        font-size: 0.85rem;
+      }
+      .order-item-price {
+        min-width: 50px;
+      }
+      .qty-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.8rem;
+      }
+      .btn {
+        padding: 8px;
+        font-size: 0.8rem;
+      }
+      .scan-btn {
+        padding: 5px 8px;
+        font-size: 0.8rem;
       }
     }
   </style>
@@ -542,31 +898,37 @@
         </div>
       </div>
     </div>
-    <div class="datetime" id="datetime"></div>
-    <div class="language-selector">
-      <button class="language-btn" id="languageBtn">
-        <img src="https://flagcdn.com/w20/gb.png" class="language-flag" id="currentFlag">
-        <span id="currentLanguage">English</span>
-        <i class="fas fa-chevron-down"></i>
+    
+    <div class="header-right">
+      <button class="scan-btn" id="scanPaymentBtn">
+        <i class="fas fa-qrcode"></i> WeChat Scan
       </button>
-      <div class="language-dropdown" id="languageDropdown">
-        <div class="language-option" data-lang="en">
-          <img src="https://flagcdn.com/w20/gb.png" class="language-flag">
-          <span>English</span>
-        </div>
-        <div class="language-option" data-lang="zh-CN">
-          <img src="https://flagcdn.com/w20/cn.png" class="language-flag">
-          <span>简体中文 (Simplified Chinese)</span>
-        </div>
-        <div class="language-option" data-lang="zh-TW">
-          <img src="https://flagcdn.com/w20/tw.png" class="language-flag">
-          <span>繁體中文 (Traditional Chinese)</span>
-        </div>
-        <div class="language-option" data-lang="ms">
-          <img src="https://flagcdn.com/w20/my.png" class="language-flag">
-          <span>Bahasa Melayu (Malaysia)</span>
+      <div class="language-selector">
+        <button class="language-btn" id="languageBtn">
+          <img src="https://flagcdn.com/w20/gb.png" class="language-flag" id="currentFlag">
+          <span id="currentLanguage">English</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="language-dropdown" id="languageDropdown">
+          <div class="language-option" data-lang="en">
+            <img src="https://flagcdn.com/w20/gb.png" class="language-flag">
+            <span>English</span>
+          </div>
+          <div class="language-option" data-lang="zh-CN">
+            <img src="https://flagcdn.com/w20/cn.png" class="language-flag">
+            <span>简体中文 (Simplified Chinese)</span>
+          </div>
+          <div class="language-option" data-lang="zh-TW">
+            <img src="https://flagcdn.com/w20/tw.png" class="language-flag">
+            <span>繁體中文 (Traditional Chinese)</span>
+          </div>
+          <div class="language-option" data-lang="ms">
+            <img src="https://flagcdn.com/w20/my.png" class="language-flag">
+            <span>Bahasa Melayu (Malaysia)</span>
+          </div>
         </div>
       </div>
+      <div class="datetime" id="datetime"></div>
     </div>
   </header>
 
@@ -750,6 +1112,30 @@
       </div>
     </div>
   </div>
+  
+  <!-- WeChat Scan Modal -->
+  <div class="modal" id="scanPaymentModal">
+    <div class="modal-content">
+      <div class="modal-title">WeChat Scan Payment</div>
+      <div class="scanner-container">
+        <div class="scanner-placeholder">
+          <i class="fab fa-weixin"></i>
+          <p>Scan QR code to update table payment status</p>
+        </div>
+        <div class="scanner-overlay">
+          <div class="scanner-line"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="scannedOrderId">Or enter Order ID manually:</label>
+        <input type="text" id="scannedOrderId" placeholder="Enter Order ID">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="cancelScan">Cancel</button>
+        <button class="btn btn-wechat" id="confirmScan">Confirm Payment</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -763,6 +1149,7 @@
         table: "Table:",
         currentOrder: "Current Order",
         selectTable: "(Select Table)",
+        scanPayment: "WeChat Scan",
         
         // Buttons
         clear: "Clear",
@@ -830,6 +1217,12 @@
         salesReport: "Daily Sales Report",
         printReport: "Print",
         
+        // WeChat Scan
+        scanPayment: "Scan Payment",
+        paymentScanned: "Payment scanned successfully! Table {table} marked as paid.",
+        scanError: "Order not found. Please try again.",
+        paymentUpdated: "Payment status updated for Table {table}",
+        
         // Notifications
         emptyOrder: "Cannot save an empty order.",
         selectTable: "Please select a table to save the order.",
@@ -859,6 +1252,7 @@
         table: "桌号:",
         currentOrder: "当前订单",
         selectTable: "(选择桌号)",
+        scanPayment: "微信扫码",
         
         // Buttons
         clear: "清空",
@@ -926,6 +1320,12 @@
         salesReport: "每日销售报告",
         printReport: "打印",
         
+        // WeChat Scan
+        scanPayment: "扫码支付",
+        paymentScanned: "扫码支付成功! 餐桌{table}已标记为已付款.",
+        scanError: "未找到订单，请重试.",
+        paymentUpdated: "餐桌{table}支付状态已更新",
+        
         // Notifications
         emptyOrder: "无法保存空订单。",
         selectTable: "请选择餐桌保存订单。",
@@ -947,198 +1347,6 @@
         reprintSent: "收据{orderId}已发送到打印机。",
         orderNotFoundReprint: "未找到订单。",
         orderReceived: "收到{table}号桌的新订单"
-      },
-      "zh-TW": {
-        // Header
-        dineIn: "內用",
-        takeAway: "外帶",
-        table: "桌號:",
-        currentOrder: "當前訂單",
-        selectTable: "(選擇桌號)",
-        
-        // Buttons
-        clear: "清空",
-        voidOrder: "作廢訂單",
-        updateOrder: "更新訂單",
-        mergeTables: "合併餐桌",
-        reprint: "重印",
-        endDay: "結束營業 (F1)",
-        processPayment: "處理付款",
-        
-        // Order Summary
-        subtotal: "小計:",
-        tax: "消費稅 (0%):",
-        serviceCharge: "服務費 (0%):",
-        total: "總計:",
-        
-        // Payment Modal
-        paymentTitle: "處理付款",
-        totalDue: "應付總額:",
-        cash: "現金",
-        tng: "Touch N Go",
-        duitnow: "DuitNow",
-        visa: "Visa",
-        mastercard: "Mastercard",
-        amountTendered: "支付金額:",
-        change: "找零:",
-        cancel: "取消",
-        completePayment: "完成付款",
-        
-        // Manager Modal
-        managerAccess: "管理員權限 (F2)",
-        username: "用戶名:",
-        password: "密碼:",
-        login: "登錄",
-        
-        // Void Order Modal
-        voidOrder: "作廢訂單",
-        orderId: "訂單編號:",
-        reason: "原因:",
-        managerPassword: "管理員密碼:",
-        confirmVoid: "作廢訂單",
-        
-        // Day Start Modal
-        dayStart: "開始營業 / 輸入起始現金",
-        startAmount: "起始現金金額 (RM):",
-        startDay: "開始營業",
-        
-        // Merge Tables Modal
-        mergeTables: "合併餐桌",
-        mergeDesc: "選擇2-3個未付款餐桌合併為一個賬單:",
-        targetTable: "合併到餐桌:",
-        confirmMerge: "合併餐桌",
-        
-        // Reprint Modal
-        reprint: "重印收據",
-        reprintOrderId: "訂單編號:",
-        confirmReprint: "重印",
-        
-        // Customer Receipt Modal
-        paymentSuccess: "付款成功 - 顧客收據",
-        printReceipt: "列印",
-        close: "關閉",
-        
-        // Sales Report
-        salesReport: "每日銷售報告",
-        printReport: "列印",
-        
-        // Notifications
-        emptyOrder: "無法保存空訂單。",
-        selectTable: "請選擇餐桌保存訂單。",
-        orderSaved: "餐桌{table}的訂單已保存!",
-        paymentMethodRequired: "請選擇付款方式。",
-        insufficientAmount: "支付金額不足。",
-        paymentSuccess: "付款成功! 找零: RM {change}",
-        managerRequired: "需要管理員登錄。",
-        invalidCredentials: "用戶名或密碼錯誤。",
-        managerLoginSuccess: "管理員登錄成功!",
-        voidSuccess: "訂單{orderId}已作廢。",
-        orderNotFound: "未找到訂單\"{orderId}\"或已作廢。",
-        dayStarted: "營業開始，起始現金RM {amount}",
-        invalidStartAmount: "請輸入有效的起始金額。",
-        mergeSuccess: "餐桌已合併到{table}號桌。",
-        selectTablesToMerge: "請至少選擇2個餐桌。",
-        selectTargetTable: "請選擇目標餐桌。",
-        maxTablesMerge: "最多可合併3個餐桌。",
-        reprintSent: "收據{orderId}已發送到打印機。",
-        orderNotFoundReprint: "未找到訂單。",
-        orderReceived: "收到{table}號桌的新訂單"
-      },
-      ms: {
-        // Header
-        dineIn: "MAKAN DI TEMPAT",
-        takeAway: "BAWA BALIK",
-        table: "Meja:",
-        currentOrder: "Pesanan Semasa",
-        selectTable: "(Pilih Meja)",
-        
-        // Buttons
-        clear: "Kosongkan",
-        voidOrder: "Batalkan Pesanan",
-        updateOrder: "Kemaskini Pesanan",
-        mergeTables: "Gabung Meja",
-        reprint: "Cetak Semula",
-        endDay: "Tutup Hari (F1)",
-        processPayment: "Proses Pembayaran",
-        
-        // Order Summary
-        subtotal: "Subjumlah:",
-        tax: "SST (0%):",
-        serviceCharge: "Caj Perkhidmatan (0%):",
-        total: "Jumlah:",
-        
-        // Payment Modal
-        paymentTitle: "Proses Pembayaran",
-        totalDue: "Jumlah Terhutang:",
-        cash: "Tunai",
-        tng: "Touch N Go",
-        duitnow: "DuitNow",
-        visa: "Visa",
-        mastercard: "Mastercard",
-        amountTendered: "Jumlah Dibayar:",
-        change: "Baki:",
-        cancel: "Batal",
-        completePayment: "Selesai Pembayaran",
-        
-        // Manager Modal
-        managerAccess: "Akses Pengurus (F2)",
-        username: "Nama Pengguna:",
-        password: "Kata Laluan:",
-        login: "Log Masuk",
-        
-        // Void Order Modal
-        voidOrder: "Batalkan Pesanan",
-        orderId: "ID Pesanan:",
-        reason: "Sebab:",
-        managerPassword: "Kata Laluan Pengurus:",
-        confirmVoid: "Batalkan Pesanan",
-        
-        // Day Start Modal
-        dayStart: "Mulakan Hari / Masukkan Wang Tunai Awal",
-        startAmount: "Jumlah Wang Tunai Awal (RM):",
-        startDay: "Mulakan Hari",
-        
-        // Merge Tables Modal
-        mergeTables: "Gabung Meja",
-        mergeDesc: "Pilih 2 atau 3 meja yang belum dibayar untuk digabungkan:",
-        targetTable: "Gabung ke Meja:",
-        confirmMerge: "Gabung Meja",
-        
-        // Reprint Modal
-        reprint: "Cetak Semula Resit",
-        reprintOrderId: "ID Pesanan:",
-        confirmReprint: "Cetak Semula",
-        
-        // Customer Receipt Modal
-        paymentSuccess: "Pembayaran Berjaya - Resit Pelanggan",
-        printReceipt: "Cetak",
-        close: "Tutup",
-        
-        // Sales Report
-        salesReport: "Laporan Jualan Harian",
-        printReport: "Cetak",
-        
-        // Notifications
-        emptyOrder: "Tidak boleh menyimpan pesanan kosong.",
-        selectTable: "Sila pilih meja untuk menyimpan pesanan.",
-        orderSaved: "Pesanan untuk Meja {table} telah disimpan!",
-        paymentMethodRequired: "Sila pilih kaedah pembayaran.",
-        insufficientAmount: "Jumlah pembayaran tidak mencukupi.",
-        paymentSuccess: "Pembayaran berjaya! Baki: RM {change}",
-        managerRequired: "Log masuk pengurus diperlukan.",
-        invalidCredentials: "Nama pengguna atau kata laluan tidak sah.",
-        managerLoginSuccess: "Log masuk pengurus berjaya!",
-        voidSuccess: "Pesanan {orderId} telah dibatalkan.",
-        orderNotFound: "ID Pesanan \"{orderId}\" tidak dijumpai atau telah dibatalkan.",
-        dayStarted: "Hari bermula dengan RM {amount}",
-        invalidStartAmount: "Sila masukkan jumlah permulaan yang sah.",
-        mergeSuccess: "Meja digabungkan ke Meja {table}.",
-        selectTablesToMerge: "Sila pilih sekurang-kurangnya 2 meja.",
-        selectTargetTable: "Sila pilih meja sasaran.",
-        maxTablesMerge: "Maksimum 3 meja boleh digabungkan.",
-        reprintSent: "Resit {orderId} dihantar ke pencetak.",
-        orderNotFoundReprint: "Pesanan tidak dijumpai.",
-        orderReceived: "Pesanan baru diterima untuk Meja {table}"
       }
     };
 
@@ -1154,6 +1362,7 @@
       getEl('btnTakeAway').textContent = lang.takeAway;
       document.querySelector('#tableNumberGroup span').textContent = lang.table;
       getEl('currentOrderTitle').textContent = lang.currentOrder;
+      getEl('scanPaymentBtn').innerHTML = `<i class="fas fa-qrcode"></i> ${lang.scanPayment}`;
       
       // Buttons
       getEl('clearOrder').textContent = lang.clear;
@@ -1224,7 +1433,8 @@
       
       // Sales Report
       getEl('salesReportTitle').textContent = lang.salesReport;
-      getEl('printReport').textContent = lang.printReport;
+      getEl('printSalesReport').textContent = lang.printReport;
+      getEl('closeSalesReport').textContent = lang.close;
       
       // Update current language display
       getEl('currentLanguage').textContent = {
@@ -1292,6 +1502,7 @@
         reprintReceiptBtn: getEl('reprintReceipt'),
         endDayReportBtn: getEl('endDayReport'),
         voidOrderBtn: getEl('voidOrderBtn'),
+        scanPaymentBtn: getEl('scanPaymentBtn'),
         // Modals
         cashierModal: getEl('cashierModal'),
         salesReportModal: getEl('salesReportModal'),
@@ -1301,6 +1512,7 @@
         mergeTablesModal: getEl('mergeTablesModal'),
         reprintModal: getEl('reprintModal'),
         customerReceiptModal: getEl('customerReceiptModal'),
+        scanPaymentModal: getEl('scanPaymentModal'),
         salesReportContent: getEl('salesReportContent'),
         salesSummary: getEl('salesSummary'),
         // Language elements
@@ -1334,7 +1546,7 @@
         setInterval(updateDateTime, 1000);
 
         loadStateFromStorage();
-        setupMenuSync(); // Initialize menu synchronization
+        setupMenuSync();
         setupEventListeners();
         
         renderTableButtons();
@@ -1343,7 +1555,6 @@
         updateOrderDisplay();
         updateLanguage();
         
-        // Add this line to start checking for customer orders
         checkForCustomerOrders();
 
         if (!state.dayStartData) {
@@ -1352,104 +1563,77 @@
     }
 
     // --- CUSTOMER ORDER SYNC ---
-    function processCustomerOrder(order) {
-        // Convert customer order items to POS format
-        const posItems = order.items.map(item => {
-            // Find the full product details from the POS's loaded menu to ensure consistency
-            const productDetail = state.products.find(p => p.id === item.id);
-            return {
-                id: item.id,
-                nameEn: productDetail ? productDetail.nameEn : item.name, // Use POS's English name or customer's name
-                nameCn: productDetail ? productDetail.nameCn : '', // Use POS's Chinese name or empty
-                price: item.price,
-                category: productDetail ? productDetail.category : 'Customer Order', // Use POS's category or default
-                printer: productDetail ? productDetail.printer : 'KITCHEN', // Use POS's printer or default
-                quantity: item.quantity
-            };
-        });
-        
-        // Add to main orders array
-        state.allOrders.push({
-            id: order.id,
-            type: 'Dine In', // Assuming customer orders are always dine-in
-            table: order.table,
-            items: posItems,
-            total: order.total,
-            status: 'unpaid',
-            timestamp: order.timestamp,
-            source: 'customer' // Mark as from customer menu
-        });
-        
-        // Save updated orders
-        saveStateToStorage();
-        
-        // Remove the customer order from localStorage
-        localStorage.removeItem('customerOrder');
-        
-        // Update UI
-        renderTableButtons();
-        
-        // Show notification
-        const lang = translations[currentLanguage];
-        showNotification(lang.orderReceived.replace('{table}', order.table), 'success');
-        
-        // Print to kitchen
-        printToKitchen(posItems, order.table);
-    }
-
     function checkForCustomerOrders() {
-        // Check for customer orders every 2 seconds
         setInterval(() => {
             const customerOrder = localStorage.getItem('customerOrder');
             if (customerOrder) {
                 try {
                     const order = JSON.parse(customerOrder);
-                    processCustomerOrder(order);
+                    
+                    const posItems = order.items.map(item => ({
+                        id: item.id,
+                        nameEn: item.name,
+                        nameCn: '',
+                        price: item.price,
+                        category: 'Customer Order',
+                        printer: 'KITCHEN',
+                        quantity: item.quantity
+                    }));
+                    
+                    state.allOrders.push({
+                        id: order.id,
+                        type: 'Dine In',
+                        table: order.table,
+                        items: posItems,
+                        total: order.total,
+                        status: 'unpaid',
+                        timestamp: order.timestamp,
+                        source: 'customer'
+                    });
+                    
+                    saveStateToStorage();
+                    localStorage.removeItem('customerOrder');
+                    renderTableButtons();
+                    
+                    const lang = translations[currentLanguage];
+                    showNotification(lang.orderReceived.replace('{table}', order.table), 'success');
+                    printToKitchen(posItems, order.table);
+                    
                 } catch (e) {
-                    console.error('Error processing customer order from polling:', e);
+                    console.error('Error processing customer order:', e);
                 }
             }
-        }, 2000); // Check every 2 seconds
+        }, 2000);
     }
 
     // --- MENU SYNC SYSTEM ---
     function setupMenuSync() {
-      // Load initial menu
       loadMenuData();
-      
-      // Listen for storage changes from other tabs for menu updates
       window.addEventListener('storage', (event) => {
-        // Check specifically for 'menu_updated' key from item.html
-        if (event.key === 'menu_updated') {
-          console.log('Menu update detected from item.html, reloading menu...');
-          loadMenuData();
-          renderCategories();
-          renderProducts();
-        } else if (event.key === 'customerOrder') { // Listen for customer orders via storage event as well
-            const customerOrder = localStorage.getItem('customerOrder');
-            if (customerOrder) {
-                try {
-                    const order = JSON.parse(customerOrder);
-                    processCustomerOrder(order); // Process immediately if detected via storage event
-                } catch (e) {
-                    console.error('Error parsing customer order from storage event:', e);
-                }
+        if (event.key === 'orderUpdated') {
+          const customerOrder = localStorage.getItem('customerOrder');
+          if (customerOrder) {
+            try {
+              const order = JSON.parse(customerOrder);
+              const lang = translations[currentLanguage];
+              showNotification(lang.orderReceived.replace('{table}', order.table), 'success');
+            } catch (e) {
+              console.error('Error processing customer order from storage:', e);
             }
+          }
         }
       });
       
-      // Fallback polling for menu updates (secondary sync for robustness)
       let lastMenuUpdate = localStorage.getItem('menu_updated') || 0;
       setInterval(() => {
         const currentUpdate = localStorage.getItem('menu_updated') || 0;
         if (currentUpdate > lastMenuUpdate) {
           lastMenuUpdate = currentUpdate;
-          console.log('Menu update detected via polling, reloading menu...');
           loadMenuData();
           renderCategories();
           renderProducts();
         }
-      }, 2000); // Check every 2 seconds
+      }, 2000);
     }
 
     // --- STATE MANAGEMENT ---
@@ -1467,11 +1651,10 @@
             if (parsedDayStart.date === today) {
                 state.dayStartData = parsedDayStart;
             } else {
-                localStorage.removeItem('dayStartData'); // Expired
+                localStorage.removeItem('dayStartData');
             }
         }
         
-        // Load saved language preference
         const savedLanguage = localStorage.getItem('posLanguage');
         if (savedLanguage && translations[savedLanguage]) {
             currentLanguage = savedLanguage;
@@ -1516,24 +1699,23 @@
       state.products = menuData.map(item => ({
         id: item.code || item.id,
         nameEn: item.nameEn || item.name || 'Unnamed Item',
-        nameCn: item.name || '', // Assuming 'name' in item.html is Chinese name if nameEn is present
+        nameCn: item.nameCn || '',
         price: parseFloat(item.price) || 0,
         category: item.category || 'Uncategorized',
-        printer: item.printer || 'KITCHEN', // Default printer if not specified
+        printer: item.printer || 'KITCHEN',
         image: item.image || 'https://placehold.co/150x150/f0f0f0/333?text=No+Image'
       }));
       state.categories = [...new Set(state.products.map(p => p.category))];
     } else {
-      // Default items with bilingual support
       state.products = [
-        { id: '509', nameEn: "Nasi Lemak Egg", nameCn: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
-        { id: '510', nameEn: "Nasi Lemak HotDog Egg", nameCn: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
-        { id: '411', nameEn: "Soup Mee Hun Kueh", nameCn: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
-        { id: '611', nameEn: "French Fries", nameCn: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
-        { id: '612', nameEn: "Chicken Nuggets (6pcs)", nameCn: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
-        { id: '101', nameEn: "Iced Lemon Tea", nameCn: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
-        { id: '102', nameEn: "Coke", nameCn: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
-        { id: 'B01', nameEn: "Extra Egg", nameCn: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
+        { id: 1, nameEn: "Nasi Lemak Egg", nameCn: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
+        { id: 2, nameEn: "Nasi Lemak HotDog Egg", nameCn: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
+        { id: 3, nameEn: "Soup Mee Hun Kulin", nameCn: "古林米粉汤", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
+        { id: 4, nameEn: "French Fries", nameCn: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
+        { id: 5, nameEn: "Chicken Nuggets (6pcs)", nameCn: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
+        { id: 6, nameEn: "Iced Lemon Tea", nameCn: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
+        { id: 7, nameEn: "Coke", nameCn: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
+        { id: 8, nameEn: "Extra Egg", nameCn: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
       ];
       state.categories = [...new Set(state.products.map(p => p.category))];
       localStorage.setItem('menu', JSON.stringify(state.products));
@@ -1570,11 +1752,7 @@
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
-                <img src="${product.image}" alt="${product.nameEn}" class="product-image" onerror="this.onerror=null;this.src='https://placehold.co/150x150?text=Img+Error';">
-                <div class="product-details">
-                    <div class="product-name">${product.nameEn} <br><span style="font-size: 14px; color: #777;">${product.nameCn}</span></div>
-                    <div class="product-price">RM ${product.price.toFixed(2)}</div>
-                </div>`;
+                <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://placehold.co/150x150?text=Img+Error';">`;
             card.addEventListener('click', () => addProductToOrder(product));
             DOM.productsGrid.appendChild(card);
         });
@@ -1743,7 +1921,7 @@
         let existingOrder = state.allOrders.find(o => o.id === state.currentOrderId);
         let itemsToPrint = [];
 
-        if (existingOrder) { // Updating an existing order
+        if (existingOrder) {
             const oldItemsMap = new Map(existingOrder.items.map(item => [item.id, item.quantity]));
             const newItemsMap = new Map(state.currentOrderItems.map(item => [item.id, item.quantity]));
             
@@ -1758,7 +1936,7 @@
             existingOrder.items = JSON.parse(JSON.stringify(state.currentOrderItems));
             existingOrder.total = state.currentOrderTotal;
             existingOrder.timestamp = new Date().toISOString();
-        } else { // Creating a new order
+        } else {
             const newOrder = {
                 id: `ORD-${Date.now()}`,
                 type: state.orderType,
@@ -1770,13 +1948,11 @@
             };
             state.allOrders.push(newOrder);
             state.currentOrderId = newOrder.id;
-            itemsToPrint = newOrder.items; // Print all items for a new order
+            itemsToPrint = newOrder.items;
         }
         
         if (itemsToPrint.length > 0) {
             printToKitchen(itemsToPrint, state.selectedTable || 'Take Away');
-        } else {
-            showNotification('Order updated locally. No new items to send to kitchen.', 'info');
         }
 
         saveStateToStorage();
@@ -1825,7 +2001,7 @@
         }
 
         let orderToPay = state.allOrders.find(o => o.id === state.currentOrderId);
-        if (!orderToPay) { // Handle case for walk-in payments not held before
+        if (!orderToPay) {
             orderToPay = {
                 id: `ORD-${Date.now()}`,
                 type: state.orderType,
@@ -1844,19 +2020,20 @@
         orderToPay.changeGiven = Math.max(0, tendered - state.currentOrderTotal);
         orderToPay.paymentTimestamp = new Date().toISOString();
         
-        // --- FIX: Clean up merged tables ---
+        // FIX: Properly handle merged tables
         if (orderToPay.mergedFrom) {
             const targetTable = orderToPay.table;
-            // The tables that were merged into the target table
             const sourceTables = orderToPay.mergedFrom.filter(t => t !== targetTable);
             
             // Remove the merged status from the target table
             delete state.mergedTables[targetTable];
             
-            // Mark the source orders as fully resolved (optional, but good practice)
+            // Mark all source orders as paid_merged
             state.allOrders.forEach(o => {
-                if (o.mergedTo === targetTable) {
+                if (sourceTables.includes(o.table) && o.mergedTo === targetTable) {
                     o.status = 'paid_merged';
+                    o.paymentMethod = orderToPay.paymentMethod;
+                    o.paymentTimestamp = new Date().toISOString();
                 }
             });
         }
@@ -1865,22 +2042,71 @@
         hideModal(DOM.cashierModal);
         showNotification(lang.paymentSuccess.replace('{change}', orderToPay.changeGiven.toFixed(2)), 'success');
         
-        // --- FIX: Show customer receipt ---
         showCustomerReceipt(orderToPay);
 
         clearOrder(true);
         renderTableButtons();
     }
+    
+    // --- WECHAT SCAN FUNCTIONALITY ---
+    function openScanModal() {
+        showModal(DOM.scanPaymentModal);
+        getEl('scannedOrderId').value = '';
+    }
+    
+    function confirmScanPayment() {
+        const lang = translations[currentLanguage];
+        const orderId = getEl('scannedOrderId').value.trim();
+        
+        if (!orderId) {
+            showNotification(lang.scanError, 'error');
+            return;
+        }
+        
+        const order = state.allOrders.find(o => o.id === orderId && o.status === 'unpaid');
+        if (order) {
+            order.status = 'paid';
+            order.paymentMethod = 'WeChat';
+            order.paymentTimestamp = new Date().toISOString();
+            
+            saveStateToStorage();
+            renderTableButtons();
+            
+            hideModal(DOM.scanPaymentModal);
+            showNotification(lang.paymentScanned.replace('{table}', order.table), 'success');
+            
+            // Remove unpaid indicator from table
+            const tableBtn = querySel(`.table-btn[data-table="${order.table}"]`);
+            if (tableBtn) {
+                tableBtn.classList.remove('unpaid');
+            }
+        } else {
+            showNotification(lang.scanError, 'error');
+        }
+    }
+    
+    function simulateQRScan() {
+        const unpaidOrders = state.allOrders.filter(o => o.status === 'unpaid');
+        if (unpaidOrders.length === 0) {
+            showNotification("No unpaid orders available", 'info');
+            return;
+        }
+        
+        // Pick a random unpaid order
+        const randomOrder = unpaidOrders[Math.floor(Math.random() * unpaidOrders.length)];
+        getEl('scannedOrderId').value = randomOrder.id;
+        confirmScanPayment();
+    }
 
     // --- PRINTING & RECEIPTS ---
     function printToKitchen(items, tableIdentifier) {
-        const printJobs = {}; // Group items by printer
+        const printJobs = {};
         items.forEach(item => {
-            const printerKey = item.printer || 'KITCHEN'; // Default to KITCHEN
+            const printerKey = item.printer || 'KITCHEN';
             if (!printJobs[printerKey]) {
                 printJobs[printerKey] = [];
             }
-            printJobs[printerKey].push({ name: item.nameEn, quantity: item.quantity }); // Use nameEn for kitchen print
+            printJobs[printerKey].push({ name: item.name, quantity: item.quantity });
         });
 
         console.log(`--- KITCHEN ORDER TICKET ---`);
@@ -1907,7 +2133,7 @@
         order.items.forEach(item => {
             itemsHTML += `
             <div class="receipt-item">
-                <div class="receipt-item-name">${item.quantity}x ${item.nameEn}</div>
+                <div class="receipt-item-name">${item.quantity}x ${item.name}</div>
                 <div class="receipt-item-total">${(item.price * item.quantity).toFixed(2)}</div>
             </div>`;
         });
@@ -1930,8 +2156,8 @@
             <div class="receipt-divider"></div>
             <div class="receipt-summary">
                 <div class="receipt-summary-row"><span>Subtotal:</span> <span>${subtotal.toFixed(2)}</span></div>
-                <div class="receipt-summary-row"><span>SST (${(CONFIG.SST_RATE*100).toFixed(0)}%):</span> <span>${tax.toFixed(2)}</span></div>
-                <div class="receipt-summary-row"><span>Service (${(CONFIG.SERVICE_CHARGE_RATE*100).toFixed(0)}%):</span> <span>${serviceCharge.toFixed(2)}</span></div>
+                <div class="receipt-summary-row"><span>SST (${CONFIG.SST_RATE*100}%):</span> <span>${tax.toFixed(2)}</span></div>
+                <div class="receipt-summary-row"><span>Service (${CONFIG.SERVICE_CHARGE_RATE*100}%):</span> <span>${serviceCharge.toFixed(2)}</span></div>
                 <div class="receipt-divider"></div>
                 <div class="receipt-summary-row receipt-total"><span>TOTAL:</span> <span>RM ${order.total.toFixed(2)}</span></div>
                 ${type === 'customer' ? `
@@ -1980,7 +2206,6 @@
         const orderId = getEl('reprintOrderId').value.trim();
         const order = state.allOrders.find(o => o.id === orderId);
         if (order) {
-            // In a real app, this would call a hardware print function
             console.log("--- REPRINTING RECEIPT ---", order);
             showNotification(lang.reprintSent.replace('{orderId}', orderId), 'info');
             hideModal(DOM.reprintModal);
@@ -2104,7 +2329,7 @@
         hideModal(DOM.mergeTablesModal);
         showNotification(lang.mergeSuccess.replace('{table}', targetTableNum), 'success');
 
-        selectTable(targetTableNum); // Automatically select and load the new merged order
+        selectTable(targetTableNum);
         renderTableButtons();
     }
     
@@ -2135,7 +2360,6 @@
             renderTableButtons();
             showNotification(lang.voidSuccess.replace('{orderId}', orderToVoidId), 'success');
             hideModal(DOM.voidOrderModal);
-            // Clear inputs
             getEl('voidOrderId').value = '';
             getEl('voidReason').value = '';
             getEl('voidManagerPassword').value = '';
@@ -2200,8 +2424,8 @@
             salesForToday.forEach(order => {
                 totalCollection += order.total;
                 const itemsList = order.items.map(item => {
-                    totalItemsSold[item.nameEn] = (totalItemsSold[item.nameEn] || 0) + item.quantity;
-                    return `${item.nameEn} x${item.quantity}`;
+                    totalItemsSold[item.name] = (totalItemsSold[item.name] || 0) + item.quantity;
+                    return `${item.name} x${item.quantity}`;
                 }).join('<br>');
                 reportHtml += `<tr><td>${order.id}</td><td>${new Date(order.paymentTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td><td>${order.type}</td><td>${order.table || '-'}</td><td>${itemsList}</td><td>RM ${order.total.toFixed(2)}</td><td>${order.paymentMethod}</td></tr>`;
             });
@@ -2256,12 +2480,13 @@
         DOM.reprintReceiptBtn.addEventListener('click', openReprintModal);
         DOM.endDayReportBtn.addEventListener('click', generateSalesReport);
         DOM.voidOrderBtn.addEventListener('click', () => showModal(DOM.voidOrderModal));
+        DOM.scanPaymentBtn.addEventListener('click', openScanModal);
 
         // Order Item Actions
         DOM.orderItems.addEventListener('click', (e) => {
             const button = e.target.closest('.qty-btn');
             if (button) {
-                const id = button.dataset.id; // Use string ID
+                const id = parseInt(button.dataset.id);
                 const action = button.dataset.action;
                 updateOrderItemQuantity(id, action);
             }
@@ -2292,7 +2517,7 @@
         // Modals - Generic Close/Cancel
         querySelAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
-                if (e.target === modal) { // Click on backdrop
+                if (e.target === modal) {
                     hideModal(modal);
                 }
             });
@@ -2308,6 +2533,7 @@
         getEl('cancelMerge').addEventListener('click', () => hideModal(DOM.mergeTablesModal));
         getEl('cancelReprint').addEventListener('click', () => hideModal(DOM.reprintModal));
         getEl('closeCustomerReceipt').addEventListener('click', () => hideModal(DOM.customerReceiptModal));
+        getEl('cancelScan').addEventListener('click', () => hideModal(DOM.scanPaymentModal));
 
         // Modal - Confirm Actions
         getEl('completePayment').addEventListener('click', completePayment);
@@ -2315,6 +2541,7 @@
         getEl('confirmMerge').addEventListener('click', mergeTables);
         getEl('confirmVoid').addEventListener('click', voidOrder);
         getEl('confirmReprint').addEventListener('click', reprintReceipt);
+        getEl('confirmScan').addEventListener('click', confirmScanPayment);
         getEl('reprintOrderId').addEventListener('input', previewReceiptForReprint);
         
         // Cashier Modal Logic
@@ -2354,6 +2581,8 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F1') { e.preventDefault(); generateSalesReport(); }
             if (e.key === 'F2') { e.preventDefault(); showModal(DOM.managerModal); }
+            if (e.key === 'F8') { e.preventDefault(); openScanModal(); }
+            if (e.key === 'F9') { e.preventDefault(); simulateQRScan(); }
         });
     }
 
