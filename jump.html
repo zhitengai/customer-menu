@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Table QR Code Generator (Jump Link)</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .qr-container {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 180px;
+    }
+
+    .qr-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media print {
+      .no-print {
+        display: none;
+      }
+      .qr-container {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Restaurant QR Codes for Tables 1–20</h1>
+  <p class="no-print">Scan with WeChat, Chrome, or Safari. This uses a jump link to improve POS compatibility.</p>
+  <button class="no-print" onclick="window.print()">🖨️ Print All QR Codes</button>
+
+  <div id="qr-codes-container"></div>
+
+  <script>
+    const jumpBaseUrl = 'https://zhitengai.github.io/jump.html'; // Your jump.html hosting URL
+    const container = document.getElementById('qr-codes-container');
+
+    for (let i = 1; i <= 20; i++) {
+      const redirectUrl = `${jumpBaseUrl}?table=${i}`;
+
+      const qrDiv = document.createElement('div');
+      qrDiv.className = 'qr-container';
+
+      const title = document.createElement('div');
+      title.className = 'qr-title';
+      title.textContent = `Table ${i}`;
+      qrDiv.appendChild(title);
+
+      const qrCodeDiv = document.createElement('div');
+      qrCodeDiv.id = `qr-code-${i}`;
+      qrDiv.appendChild(qrCodeDiv);
+
+      new QRCode(qrCodeDiv, {
+        text: redirectUrl,
+        width: 150,
+        height: 150,
+        colorDark: "#2c3e50",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      container.appendChild(qrDiv);
+
+      // Page break every 6 tables
+      if (i % 6 === 0 && i !== 20) {
+        const pageBreak = document.createElement('div');
+        pageBreak.className = 'page-break';
+        container.appendChild(pageBreak);
+      }
+    }
+  </script>
+
+</body>
+</html>
