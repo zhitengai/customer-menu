@@ -380,9 +380,9 @@
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            display: flex; /* Make it a flex container */
-            flex-direction: column; /* Stack items vertically */
-            gap: 10px; /* Space between items */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
         .table-selection label {
@@ -392,20 +392,20 @@
             color: var(--dark-color);
         }
         
-        .table-input-group { /* New style for input and button grouping */
+        .table-input-group {
             display: flex;
             gap: 10px;
         }
 
         .table-input {
-            flex: 1; /* Allow input to grow and shrink */
+            flex: 1;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 1em;
         }
 
-        .barcode-btn { /* Style for the new scan button */
+        .barcode-btn {
             background-color: var(--secondary-color);
             color: white;
             border: none;
@@ -414,7 +414,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: background-color 0.3s ease;
-            display: flex; /* Align icon and text */
+            display: flex;
             align-items: center;
             gap: 8px;
         }
@@ -455,7 +455,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            display: none; /* Hidden by default */
+            display: none;
         }
         
         .scanner-header {
@@ -517,6 +517,135 @@
             box-shadow: 0 0 0 10000px rgba(0,0,0,0.7);
         }
 
+        /* Printer Modal Styles */
+        .printer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+
+        .printer-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+
+        .printer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .printer-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .printer-close {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .printer-close:hover {
+            color: var(--accent-color);
+        }
+
+        .printer-receipt {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .printer-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .printer-btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .print-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .print-btn:hover {
+            background-color: #1a2530;
+        }
+
+        .copy-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .close-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .close-btn:hover {
+            background-color: #7f8c8d;
+        }
+
+        .test-print-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .test-print-btn:hover {
+            background-color: #e67e22;
+        }
+
         @media (max-width: 480px) {
             .header {
                 font-size: 1.3em;
@@ -552,7 +681,7 @@
             }
 
             .table-input-group {
-                flex-direction: column; /* Stack input and button on small screens */
+                flex-direction: column;
             }
         }
     </style>
@@ -791,7 +920,8 @@
                 <div class="cart-title">Your Order</div>
                 <button class="close-cart">&times;</button>
             </div>
-            <div class="table-info"> <div class="table-label">Table Number:</div>
+            <div class="table-info"> 
+                <div class="table-label">Table Number:</div>
                 <div class="table-number" id="cartTableNumber">-</div>
             </div>
             <div class="cart-items" id="cartItems">
@@ -799,6 +929,9 @@
             </div>
             <div class="cart-total" id="cartTotal">Total: RM 0.00</div>
             <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+            <button class="test-print-btn" id="testPrintBtn">
+                <i class="fas fa-print"></i> Test Kitchen Print
+            </button>
         </div>
         
         <div class="overlay" id="overlay"></div>
@@ -814,6 +947,28 @@
             <video class="scanner-video" id="scannerVideo" playsinline></video>
             <div class="scanner-overlay"></div>
         </div>
+        
+        <!-- Printer Test Modal -->
+        <div class="printer-modal" id="printerModal">
+            <div class="printer-content">
+                <div class="printer-header">
+                    <div class="printer-title">Kitchen Printer Test</div>
+                    <button class="printer-close" id="printerClose">&times;</button>
+                </div>
+                <div class="printer-receipt" id="printerReceipt"></div>
+                <div class="printer-actions">
+                    <button class="printer-btn copy-btn" id="copyReceiptBtn">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button class="printer-btn print-btn" id="printReceiptBtn">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button class="printer-btn close-btn" id="closePrinterBtn">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -821,7 +976,9 @@
         let cart = [];
         let db;
         let isOnline = navigator.onLine;
-        let scannerActive = false; // Track scanner state
+        let scannerActive = false;
+        let mediaStream = null;
+        let scanInterval = null;
 
         // Initialize IndexedDB
         async function initDB() {
@@ -891,8 +1048,6 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await initDB();
             updateOnlineStatus();
-            
-            // Initialize cart and UI
             updateCart();
             
             // Set up category switching
@@ -924,7 +1079,7 @@
                 document.getElementById('overlay').classList.remove('active');
             });
 
-            // Update cart table number when manual input changes
+            // Update cart table number
             document.getElementById('tableNumber').addEventListener('input', function() {
                 document.getElementById('cartTableNumber').textContent = this.value || '-';
             });
@@ -933,7 +1088,7 @@
             document.getElementById('scanBarcodeBtn').addEventListener('click', startBarcodeScanner);
             document.getElementById('scannerClose').addEventListener('click', stopBarcodeScanner);
 
-            // Pre-fill table number if present in URL (e.g., from QR code link)
+            // Pre-fill table number from URL
             const urlParams = new URLSearchParams(window.location.search);
             const tableFromUrl = urlParams.get('table');
             if (tableFromUrl) {
@@ -941,6 +1096,13 @@
                 document.getElementById('cartTableNumber').textContent = tableFromUrl;
                 showNotification(`Table ${tableFromUrl} detected from QR!`);
             }
+            
+            // Set up printer test button
+            document.getElementById('testPrintBtn').addEventListener('click', showPrinterTest);
+            document.getElementById('printerClose').addEventListener('click', closePrinterModal);
+            document.getElementById('closePrinterBtn').addEventListener('click', closePrinterModal);
+            document.getElementById('copyReceiptBtn').addEventListener('click', copyReceiptToClipboard);
+            document.getElementById('printReceiptBtn').addEventListener('click', printReceipt);
         });
         
         // Enhanced checkout function
@@ -967,16 +1129,12 @@
             };
             
             try {
-                // Triple persistence method
-                // 1. LocalStorage (for active tabs)
                 localStorage.setItem('customerOrder', JSON.stringify(order));
-                localStorage.setItem('orderUpdated', Date.now()); // Add this line
+                localStorage.setItem('orderUpdated', Date.now());
                 localStorage.setItem('orderTimestamp', Date.now().toString());
                 
-                // 2. IndexedDB (for reliability)
                 await saveOrderToDB(order);
                 
-                // 3. Server sync (if available)
                 if (isOnline) {
                     await sendOrderToServer(order);
                 } else {
@@ -984,19 +1142,16 @@
                     showNotification('Order saved offline. Will sync when connection returns', 'warning');
                 }
                 
-                // Clear cart
                 cart = [];
                 updateCart();
                 showNotification(`Order #${order.id.substring(0, 8)} sent!`, 'success');
                 
-                // Close cart sidebar
                 document.getElementById('cartSidebar').classList.remove('active');
                 document.getElementById('overlay').classList.remove('active');
             } catch (error) {
                 console.error('Order submission failed:', error);
                 showNotification('Failed to send order. Trying offline save...', 'error');
                 
-                // Fallback to offline save
                 try {
                     await saveOfflineOrder(order);
                     showNotification('Order saved offline. Will sync later', 'warning');
@@ -1016,14 +1171,12 @@
         
         // Mock server communication
         async function sendOrderToServer(order) {
-            // Replace with actual API call
             return new Promise((resolve, reject) => {
                 if (!isOnline) {
                     reject(new Error('Offline'));
                     return;
                 }
                 
-                // Simulate network request
                 setTimeout(() => {
                     console.log('Order sent to server:', order);
                     resolve(true);
@@ -1068,7 +1221,6 @@
                 cartItems.appendChild(cartItem);
             });
             
-            // Add event listeners to quantity controls
             document.querySelectorAll('.qty-btn.minus').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id = btn.getAttribute('data-id');
@@ -1144,7 +1296,6 @@
                 let name = button.getAttribute('data-name');
                 let price = parseFloat(button.getAttribute('data-price'));
                 
-                // Special handling for drinks with options
                 const drinkOption = button.closest('.menu-item')?.querySelector('.drink-option');
                 if (drinkOption) {
                     const option = drinkOption.options[drinkOption.selectedIndex];
@@ -1157,7 +1308,6 @@
                     }
                 }
                 
-                // Check if item already exists in cart
                 const existingItemIndex = cart.findIndex(item => 
                     item.id === id && 
                     item.name === name && 
@@ -1178,7 +1328,6 @@
                 updateCart();
                 showNotification(`${name} added to cart`);
                 
-                // Animation for feedback
                 button.textContent = 'Added!';
                 setTimeout(() => {
                     button.textContent = 'Add';
@@ -1186,32 +1335,26 @@
             });
         });
 
-        // Barcode scanner functions (simplified for demo, needs actual library like html5-qrcode for real scanning)
-        let mediaStream; // To hold the camera stream
-        let scanInterval; // To hold the interval for simulating scans
-
+        // Barcode scanner functions
         async function startBarcodeScanner() {
             scannerActive = true;
             document.getElementById('scannerContainer').style.display = 'flex';
             
             try {
-                // Request camera access
                 mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 const video = document.getElementById('scannerVideo');
                 video.srcObject = mediaStream;
                 video.play();
 
-                // In a real application, you would integrate a QR/barcode scanning library here
-                // For demonstration, we'll simulate a scan after a delay
                 scanInterval = setTimeout(() => {
                     if (scannerActive) {
                         simulateBarcodeDetection();
                     }
-                }, 2000); // Simulate scan after 2 seconds
+                }, 2000);
             } catch (err) {
                 console.error('Camera access error:', err);
                 showNotification('Failed to access camera. Please ensure permissions are granted and try again.', 'error');
-                stopBarcodeScanner(); // Close scanner on error
+                stopBarcodeScanner();
             }
         }
         
@@ -1219,34 +1362,155 @@
             scannerActive = false;
             document.getElementById('scannerContainer').style.display = 'none';
             
-            // Stop all video tracks
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
                 mediaStream = null;
             }
-            // Clear any pending simulated scans
             if (scanInterval) {
                 clearTimeout(scanInterval);
             }
         }
         
-        // Simulate barcode detection for demo purposes
         function simulateBarcodeDetection() {
             if (!scannerActive) return;
             
-            // Generate a random table number between 1 and 30
             const scannedTableNumber = Math.floor(Math.random() * 30) + 1;
-            
-            // Set the table number in the input and cart display
             document.getElementById('tableNumber').value = scannedTableNumber;
             document.getElementById('cartTableNumber').textContent = scannedTableNumber;
-            
             showNotification(`Table ${scannedTableNumber} scanned successfully!`);
             
-            // Close the scanner after a short delay
             setTimeout(() => {
                 stopBarcodeScanner();
             }, 1000);
+        }
+        
+        // ===================
+        // PRINTER TEST FEATURE
+        // ===================
+        
+        // Show printer test modal
+        function showPrinterTest() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+            
+            const tableNumber = document.getElementById('tableNumber').value.trim();
+            if (!tableNumber) {
+                showNotification('Please enter a table number', 'error');
+                return;
+            }
+            
+            const receipt = generatePrinterReceipt(tableNumber);
+            document.getElementById('printerReceipt').textContent = receipt;
+            document.getElementById('printerModal').style.display = 'flex';
+            document.getElementById('overlay').classList.add('active');
+        }
+        
+        // Close printer modal
+        function closePrinterModal() {
+            document.getElementById('printerModal').style.display = 'none';
+            document.getElementById('overlay').classList.remove('active');
+        }
+        
+        // Generate printer receipt
+        function generatePrinterReceipt(tableNumber) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const dateString = now.toLocaleDateString();
+            const orderId = `#${Math.floor(1000 + Math.random() * 9000)}`;
+            
+            let receipt = `================================\n`;
+            receipt += `        RESTAURANT NAME\n`;
+            receipt += `================================\n`;
+            receipt += `Table: ${tableNumber}\n`;
+            receipt += `Date: ${dateString} ${timeString}\n`;
+            receipt += `Order ID: ${orderId}\n`;
+            receipt += `--------------------------------\n`;
+            receipt += `Qty  Item                     Price\n`;
+            receipt += `--------------------------------\n`;
+            
+            cart.forEach(item => {
+                const quantity = item.quantity.toString().padEnd(4);
+                const name = item.name.substring(0, 24).padEnd(24);
+                const price = `RM ${(item.price * item.quantity).toFixed(2)}`;
+                receipt += `${quantity}${name}${price}\n`;
+            });
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.06;
+            const serviceCharge = subtotal * 0.10;
+            const total = subtotal + tax + serviceCharge;
+            
+            receipt += `--------------------------------\n`;
+            receipt += `Subtotal:             RM ${subtotal.toFixed(2)}\n`;
+            receipt += `Tax (6%):             RM ${tax.toFixed(2)}\n`;
+            receipt += `Service Charge (10%): RM ${serviceCharge.toFixed(2)}\n`;
+            receipt += `--------------------------------\n`;
+            receipt += `TOTAL:                RM ${total.toFixed(2)}\n`;
+            receipt += `================================\n`;
+            receipt += `      THANK YOU FOR ORDERING!\n`;
+            receipt += `================================\n`;
+            
+            return receipt;
+        }
+        
+        // Copy receipt to clipboard
+        function copyReceiptToClipboard() {
+            const receipt = document.getElementById('printerReceipt').textContent;
+            navigator.clipboard.writeText(receipt)
+                .then(() => {
+                    showNotification('Receipt copied to clipboard!');
+                })
+                .catch(err => {
+                    showNotification('Failed to copy receipt', 'error');
+                    console.error('Copy failed:', err);
+                });
+        }
+        
+        // Print receipt
+        function printReceipt() {
+            const receipt = document.getElementById('printerReceipt').textContent;
+            const printWindow = window.open('', '_blank');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Kitchen Receipt</title>
+                    <style>
+                        body { 
+                            font-family: 'Courier New', monospace; 
+                            padding: 20px;
+                        }
+                        .receipt {
+                            white-space: pre-wrap;
+                            font-size: 14px;
+                            line-height: 1.4;
+                        }
+                        @media print {
+                            body { 
+                                margin: 0;
+                                padding: 10mm;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt">${receipt}</div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() {
+                                window.close();
+                            }, 500);
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
         }
     </script>
 </body>
