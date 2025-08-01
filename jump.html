@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+    .notice {
+      font-size: 18px;
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Loading Menu...</h2>
+  <p>If you are not redirected in a few seconds, <a id="manualLink" href="#">click here</a>.</p>
+  <p class="notice" id="warning" style="display:none;">
+    ⚠️ Your device's browser is not supported. Please scan using WeChat or Chrome.
+  </p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get('table') || 'unknown';
+    const targetUrl = `https://zhitengai.github.io/customer-menu/?table=${table}`;
+
+    // Function to detect limited/scanner browsers
+    function isLimitedBrowser() {
+      const ua = navigator.userAgent.toLowerCase();
+      return (
+        ua.includes('wenxi') ||
+        (ua.includes('android') && !ua.includes('chrome') && !ua.includes('firefox'))
+      );
+    }
+
+    if (isLimitedBrowser()) {
+      document.getElementById('warning').style.display = 'block';
+    }
+
+    // Auto redirect after short delay
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 1000);
+
+    // Set manual link
+    document.getElementById('manualLink').href = targetUrl;
+  </script>
+</body>
+</html>
