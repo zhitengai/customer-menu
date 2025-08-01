@@ -514,7 +514,18 @@
       }
       .table-buttons {
         max-width: 100%;
-        justify-content: flex-start;
+        overflow-x: auto;
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        display: flex;
+        padding-bottom: 5px;
+      }
+      .table-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.1rem;
+        flex: 0 0 auto;
+        margin: 0 5px;
       }
       .action-buttons {
         grid-template-columns: 1fr 1fr 1fr;
@@ -1327,6 +1338,7 @@
         lastPrintedOrder: null,
         tablesToMergeSelection: [],
         mergedTables: {},
+        lastOrderUpdate: 0
     };
 
     // --- INITIALIZATION ---
@@ -1335,7 +1347,7 @@
         setInterval(updateDateTime, 1000);
 
         loadStateFromStorage();
-        setupMenuSync(); // Initialize menu synchronization
+        loadMenuData();
         setupEventListeners();
         
         renderTableButtons();
@@ -1344,8 +1356,11 @@
         updateOrderDisplay();
         updateLanguage();
         
-        // Add this line to start checking for customer orders
+        // Start checking for customer orders
         checkForCustomerOrders();
+        
+        // Listen for storage events from customer menu
+        window.addEventListener('storage', handleStorageEvent);
 
         if (!state.dayStartData) {
             setTimeout(() => showModal(DOM.dayStartModal), 500);
@@ -1356,82 +1371,107 @@
     function checkForCustomerOrders() {
         // Check for customer orders every 2 seconds
         setInterval(() => {
-            const customerOrder = localStorage.getItem('customerOrder');
-            if (customerOrder) {
-                try {
-                    const order = JSON.parse(customerOrder);
-                    
-                    // Convert customer order items to POS format
-                    const posItems = order.items.map(item => ({
-                        id: item.id,
-                        nameEn: item.name,
-                        nameCn: '', // Can be enhanced to include Chinese names
-                        price: item.price,
-                        category: 'Customer Order', // Default category
-                        printer: 'KITCHEN', // Default printer
-                        quantity: item.quantity
-                    }));
-                    
-                    // Add to main orders array
-                    state.allOrders.push({
-                        id: order.id,
-                        type: 'Dine In',
-                        table: order.table,
-                        items: posItems,
-                        total: order.total,
-                        status: 'unpaid',
-                        timestamp: order.timestamp,
-                        source: 'customer' // Mark as from customer menu
-                    });
-                    
-                    // Save updated orders
-                    saveStateToStorage();
-                    
-                    // Remove the customer order
-                    localStorage.removeItem('customerOrder');
-                    
-                    // Update UI
-                    renderTableButtons();
-                    
-                    // Show notification
-                    const lang = translations[currentLanguage];
-                    showNotification(lang.orderReceived.replace('{table}', order.table), 'success');
-                    
-                    // Print to kitchen
-                    printToKitchen(posItems, order.table);
-                    
-                } catch (e) {
-                    console.error('Error processing customer order:', e);
-                }
+            const orderUpdated = localStorage.getItem('orderUpdated');
+            if (orderUpdated) {
+                const customerOrder = localStorage.getItem('customerOrder');
+                if (customerOrder) processCustomerOrder(customerOrder);
             }
-        }, 2000); // Check every 2 seconds
+        }, 2000);
+    }
+    
+    function handleStorageEvent(event) {
+        if (event.key === 'orderUpdated') {
+            const customerOrder = localStorage.getItem('customerOrder');
+            if (customerOrder) processCustomerOrder(customerOrder);
+        }
+    }
+    
+    function processCustomerOrder(customerOrder) {
+        try {
+            const order = JSON.parse(customerOrder);
+            
+            // Skip if we've already processed this order
+            const orderTimestamp = new Date(order.timestamp).getTime();
+            if (orderTimestamp <= state.lastOrderUpdate) return;
+            
+            // Convert customer order items to POS format
+            const posItems = order.items.map(item => ({
+                id: item.id,
+                nameEn: item.name,
+                nameCn: '',
+                price: item.price,
+                category: 'Customer Order',
+                printer: 'KITCHEN',
+                quantity: item.quantity
+            }));
+            
+            // Add to main orders array
+            state.allOrders.push({
+                id: order.id,
+                type: 'Dine In',
+                table: order.table,
+                items: posItems,
+                total: order.total,
+                status: 'unpaid',
+                timestamp: order.timestamp,
+                source: 'customer'
+            });
+            
+            // Update last processed timestamp
+            state.lastOrderUpdate = orderTimestamp;
+            
+            // Save updated orders
+            saveStateToStorage();
+            
+            // Update UI
+            renderTableButtons();
+            
+            // Show notification
+            const lang = translations[currentLanguage];
+            showNotification(lang.orderReceived.replace('{table}', order.table), 'success');
+            
+            // Print to kitchen
+            printToKitchen(posItems, order.table);
+            
+        } catch (e) {
+            console.error('Error processing customer order:', e);
+        }
     }
 
     // --- MENU SYNC SYSTEM ---
-    function setupMenuSync() {
-      // Load initial menu
-      loadMenuData();
-      
-      // Listen for storage changes from other tabs
-    // Modify the checkForCustomerOrders to listen for storage events
-window.addEventListener('storage', (event) => {
-  if (event.key === 'orderUpdated') {
-    const customerOrder = localStorage.getItem('customerOrder');
-    if (customerOrder) processCustomerOrder(customerOrder);
-  }
-});
-      
-      // Fallback polling for browsers that don't fire storage events properly
-      let lastMenuUpdate = localStorage.getItem('menu_updated') || 0;
-      setInterval(() => {
-        const currentUpdate = localStorage.getItem('menu_updated') || 0;
-        if (currentUpdate > lastMenuUpdate) {
-          lastMenuUpdate = currentUpdate;
-          loadMenuData();
-          renderCategories();
-          renderProducts();
+    function loadMenuData() {
+      try {
+        const savedMenu = localStorage.getItem('menu');
+        if (savedMenu) {
+          const menuData = JSON.parse(savedMenu);
+          state.products = menuData.map(item => ({
+            id: item.code || item.id,
+            nameEn: item.nameEn || item.name || 'Unnamed Item',
+            nameCn: item.nameCn || '',
+            price: parseFloat(item.price) || 0,
+            category: item.category || 'Uncategorized',
+            printer: item.printer || 'KITCHEN',
+            image: item.image || 'https://placehold.co/150x150/f0f0f0/333?text=No+Image'
+          }));
+          state.categories = [...new Set(state.products.map(p => p.category))];
+        } else {
+          // Default items with bilingual support
+          state.products = [
+            { id: 1, nameEn: "Nasi Lemak Egg", nameCn: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
+            { id: 2, nameEn: "Nasi Lemak HotDog Egg", nameCn: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
+            { id: 3, nameEn: "Soup Mee Hun Kulin", nameCn: "古林米粉汤", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
+            { id: 4, nameEn: "French Fries", nameCn: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
+            { id: 5, nameEn: "Chicken Nuggets (6pcs)", nameCn: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
+            { id: 6, nameEn: "Iced Lemon Tea", nameCn: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
+            { id: 7, nameEn: "Coke", nameCn: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
+            { id: 8, nameEn: "Extra Egg", nameCn: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
+          ];
+          state.categories = [...new Set(state.products.map(p => p.category))];
+          localStorage.setItem('menu', JSON.stringify(state.products));
         }
-      }, 2000); // Check every 2 seconds
+      } catch (e) {
+        console.error('Error loading menu:', e);
+      }
     }
 
     // --- STATE MANAGEMENT ---
@@ -1490,41 +1530,6 @@ window.addEventListener('storage', (event) => {
     }
 
     // --- MENU & ORDER LOGIC ---
-   function loadMenuData() {
-  try {
-    const savedMenu = localStorage.getItem('menu');
-    if (savedMenu) {
-      const menuData = JSON.parse(savedMenu);
-      state.products = menuData.map(item => ({
-        id: item.code || item.id,
-        nameEn: item.nameEn || item.name || 'Unnamed Item',
-        nameCn: item.nameCn || '',
-        price: parseFloat(item.price) || 0,
-        category: item.category || 'Uncategorized',
-        printer: item.printer || 'KITCHEN',
-        image: item.image || 'https://placehold.co/150x150/f0f0f0/333?text=No+Image'
-      }));
-      state.categories = [...new Set(state.products.map(p => p.category))];
-    } else {
-      // Default items with bilingual support
-      state.products = [
-        { id: 1, nameEn: "Nasi Lemak Egg", nameCn: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
-        { id: 2, nameEn: "Nasi Lemak HotDog Egg", nameCn: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
-        { id: 3, nameEn: "Soup Mee Hun Kulin", nameCn: "古林米粉汤", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
-        { id: 4, nameEn: "French Fries", nameCn: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
-        { id: 5, nameEn: "Chicken Nuggets (6pcs)", nameCn: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
-        { id: 6, nameEn: "Iced Lemon Tea", nameCn: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
-        { id: 7, nameEn: "Coke", nameCn: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
-        { id: 8, nameEn: "Extra Egg", nameCn: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
-      ];
-      state.categories = [...new Set(state.products.map(p => p.category))];
-      localStorage.setItem('menu', JSON.stringify(state.products));
-    }
-  } catch (e) {
-    console.error('Error loading menu:', e);
-  }
-}
-
     function renderCategories() {
         DOM.categoryTabs.innerHTML = '';
         state.categories.forEach(category => {
@@ -1552,7 +1557,7 @@ window.addEventListener('storage', (event) => {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
-                <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://placehold.co/150x150?text=Img+Error';">
+                <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://placehold.co/150x150?text=Img+Error';">>
                 <div class="product-details">
                     <div class="product-name">${product.nameEn} <br><span style="font-size: 14px; color: #777;">${product.nameCn}</span></div>
                     <div class="product-price">RM ${product.price.toFixed(2)}</div>
