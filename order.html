@@ -3,10 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Cache control meta tags -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>Restaurant POS System - Professional</title>
   <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -64,23 +60,15 @@
     .order-type { display: flex; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; }
     .order-type-btn { padding: 6px 12px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
     .order-type-btn.selected { background: var(--secondary-color); font-weight: bold; }
-    .table-number { display: flex; align-items: center; gap: 50px; font-size: 0.9rem; }
-    .table-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-left: 10px; }
-
+    .table-number { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+    
+    /* MODIFIED: Bigger and better looking tables */
+    .table-buttons { display: flex; flex-wrap: wrap; gap: 8px; max-width: 500px; margin-left: 10px; }
     .table-btn {
-      width: 70px; /* Increased size */
-      height: 70px; /* Increased size */
-      border-radius: 12px;
-      border: 2px solid #ddd;
-      background: white;
-      color: var(--dark-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.4rem; /* Larger font */
-      font-weight: bold;
-      transition: all 0.2s;
+      width: 70px; height: 70px; border-radius: 15px; border: 2px solid #ddd;
+      background: white; color: var(--dark-color); display: flex;
+      align-items: center; justify-content: center; cursor: pointer;
+      font-size: 1.4rem; font-weight: bold; transition: all 0.2s;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .table-btn:hover { background: var(--light-color); transform: translateY(-1px); }
@@ -159,9 +147,19 @@
     .product-name { font-weight: bold; margin-bottom: 3px; font-size: 0.8rem; line-height: 1.2; }
     .product-price { color: var(--accent-color); font-weight: bold; margin-top: auto; font-size: 0.85rem; }
 
-    .order-section { grid-area: order; display: flex; flex-direction: column; background: white; border-left: 1px solid #ddd; }
+    .order-section { 
+      grid-area: order; 
+      display: flex; 
+      flex-direction: column; 
+      background: white; 
+      border-left: 1px solid #ddd;
+    }
     .order-header { padding: 12px 15px; border-bottom: 1px solid #ddd; font-weight: bold; font-size: 1rem; background: var(--light-color); }
-    .order-items { flex: 1; overflow-y: auto; padding: 10px; }
+    .order-items { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 10px;
+    }
     .order-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; margin-bottom: 6px; background: #f9f9f9; border-radius: 4px; font-size: 0.9rem; }
     .order-item-info { flex: 1; min-width: 0; margin-right: 10px; }
     .order-item-name { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -176,7 +174,16 @@
     .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
     .summary-total { font-weight: bold; font-size: 1.1rem; color: var(--primary-color); }
 
-    .action-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 15px; }
+    .action-buttons { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 8px; 
+      padding: 10px 15px; 
+      position: sticky;
+      bottom: 0;
+      background: white;
+      border-top: 1px solid #ddd;
+    }
     .action-buttons .btn-payment { grid-column: 1 / -1; }
     .btn { padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
     .btn-primary { background: var(--secondary-color); color: white; }
@@ -489,11 +496,12 @@
           max-width: 300px;
         }
         .table-btn {
-          width: 60px;
-          height: 60px;
-          font-size: 1.2rem;
+          width: 50px;
+          height: 50px;
+          font-size: 1.1rem;
         }
     }
+    /* MODIFIED: Mobile responsiveness for bigger tables */
     @media (max-width: 768px) {
       body {
         grid-template-rows: auto auto 1fr auto;
@@ -528,6 +536,14 @@
       .table-buttons {
         max-width: 100%;
         justify-content: flex-start;
+        /* ADJUSTED: Smaller table buttons for mobile */
+        width: 100%;
+        gap: 5px;
+      }
+      .table-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
       }
       .action-buttons {
         grid-template-columns: 1fr 1fr 1fr;
@@ -626,7 +642,6 @@
     Restaurant POS System &copy; 2024 | Version 4.0 Professional
   </footer>
 
-  <!-- MODALS -->
   <div class="modal" id="cashierModal">
     <div class="modal-content">
       <div class="modal-title" id="paymentModalTitle">Process Payment</div>
@@ -758,8 +773,8 @@
       <div class="modal-title" id="customerReceiptTitle">Payment Successful - Customer Receipt</div>
       <div class="receipt-content" id="customerReceiptContent"></div>
       <div class="modal-actions">
-        <button class="btn btn-primary" id="printCustomerReceipt">Print</button>
-        <button class="btn btn-warning" id="closeCustomerReceipt">Close</button>
+        <button class="btn btn-primary" id="printCustomerReceipt"></button>
+        <button class="btn btn-warning" id="closeCustomerReceipt"></button>
       </div>
     </div>
   </div>
@@ -1155,109 +1170,175 @@
       }
     };
 
-    // Current language (default to English)
-    let currentLanguage = 'en';
+    // Current language (default to Chinese Simplified)
+    let currentLanguage = 'zh-CN';
     
     // Function to update UI with current language
     function updateLanguage() {
       const lang = translations[currentLanguage];
       
       // Header
-      getEl('btnDineIn').textContent = lang.dineIn;
-      getEl('btnTakeAway').textContent = lang.takeAway;
-      document.querySelector('#tableNumberGroup span').textContent = lang.table;
-      getEl('currentOrderTitle').textContent = lang.currentOrder;
+      const btnDineIn = getEl('btnDineIn');
+      if (btnDineIn) btnDineIn.textContent = lang.dineIn;
+      const btnTakeAway = getEl('btnTakeAway');
+      if (btnTakeAway) btnTakeAway.textContent = lang.takeAway;
+      const tableNumberSpan = document.querySelector('#tableNumberGroup span');
+      if (tableNumberSpan) tableNumberSpan.textContent = lang.table;
+      const currentOrderTitle = getEl('currentOrderTitle');
+      if (currentOrderTitle) currentOrderTitle.textContent = lang.currentOrder;
       
       // Buttons
-      getEl('clearOrder').textContent = lang.clear;
-      getEl('voidOrderBtn').textContent = lang.voidOrder;
-      getEl('holdOrder').textContent = lang.updateOrder;
-      getEl('mergeTables').textContent = lang.mergeTables;
-      getEl('reprintReceipt').textContent = lang.reprint;
-      getEl('endDayReport').textContent = lang.endDay;
-      getEl('processPayment').textContent = lang.processPayment;
+      const clearOrderBtn = getEl('clearOrder');
+      if (clearOrderBtn) clearOrderBtn.textContent = lang.clear;
+      const voidOrderBtn = getEl('voidOrderBtn');
+      if (voidOrderBtn) voidOrderBtn.textContent = lang.voidOrder;
+      const holdOrderBtn = getEl('holdOrder');
+      if (holdOrderBtn) holdOrderBtn.textContent = lang.updateOrder;
+      const mergeTablesBtn = getEl('mergeTables');
+      if (mergeTablesBtn) mergeTablesBtn.textContent = lang.mergeTables;
+      const reprintReceiptBtn = getEl('reprintReceipt');
+      if (reprintReceiptBtn) reprintReceiptBtn.textContent = lang.reprint;
+      const endDayReportBtn = getEl('endDayReport');
+      if (endDayReportBtn) endDayReportBtn.textContent = lang.endDay;
+      const processPaymentBtn = getEl('processPayment');
+      if (processPaymentBtn) processPaymentBtn.textContent = lang.processPayment;
       
       // Order Summary
-      getEl('subtotalLabel').textContent = lang.subtotal;
-      getEl('taxLabel').textContent = lang.tax;
-      getEl('serviceChargeLabel').textContent = lang.serviceCharge;
-      getEl('totalLabel').textContent = lang.total;
+      const subtotalLabel = getEl('subtotalLabel');
+      if (subtotalLabel) subtotalLabel.textContent = lang.subtotal;
+      const taxLabel = getEl('taxLabel');
+      if (taxLabel) taxLabel.textContent = lang.tax;
+      const serviceChargeLabel = getEl('serviceChargeLabel');
+      if (serviceChargeLabel) serviceChargeLabel.textContent = lang.serviceCharge;
+      const totalLabel = getEl('totalLabel');
+      if (totalLabel) totalLabel.textContent = lang.total;
       
       // Payment Modal
-      getEl('paymentModalTitle').textContent = lang.paymentTitle;
-      getEl('totalDueLabel').textContent = lang.totalDue;
-      getEl('cashLabel').textContent = lang.cash;
-      getEl('tngLabel').textContent = lang.tng;
-      getEl('duitnowLabel').textContent = lang.duitnow;
-      getEl('visaLabel').textContent = lang.visa;
-      getEl('mastercardLabel').textContent = lang.mastercard;
-      getEl('amountTenderedLabel').textContent = lang.amountTendered;
-      getEl('changeLabel').textContent = lang.change;
-      getEl('cancelPayment').textContent = lang.cancel;
-      getEl('completePayment').textContent = lang.completePayment;
+      const paymentModalTitle = getEl('paymentModalTitle');
+      if (paymentModalTitle) paymentModalTitle.textContent = lang.paymentTitle;
+      const totalDueLabel = getEl('totalDueLabel');
+      if (totalDueLabel) totalDueLabel.textContent = lang.totalDue;
+      const cashLabel = getEl('cashLabel');
+      if (cashLabel) cashLabel.textContent = lang.cash;
+      const tngLabel = getEl('tngLabel');
+      if (tngLabel) tngLabel.textContent = lang.tng;
+      const duitnowLabel = getEl('duitnowLabel');
+      if (duitnowLabel) duitnowLabel.textContent = lang.duitnow;
+      const visaLabel = getEl('visaLabel');
+      if (visaLabel) visaLabel.textContent = lang.visa;
+      const mastercardLabel = getEl('mastercardLabel');
+      if (mastercardLabel) mastercardLabel.textContent = lang.mastercard;
+      const amountTenderedLabel = getEl('amountTenderedLabel');
+      if (amountTenderedLabel) amountTenderedLabel.textContent = lang.amountTendered;
+      const changeLabel = getEl('changeLabel');
+      if (changeLabel) changeLabel.textContent = lang.change;
+      const cancelPaymentBtn = getEl('cancelPayment');
+      if (cancelPaymentBtn) cancelPaymentBtn.textContent = lang.cancel;
+      const completePaymentBtn = getEl('completePayment');
+      if (completePaymentBtn) completePaymentBtn.textContent = lang.completePayment;
       
       // Manager Modal
-      getEl('managerModalTitle').textContent = lang.managerAccess;
-      getEl('usernameLabel').textContent = lang.username;
-      getEl('passwordLabel').textContent = lang.password;
-      getEl('loginManager').textContent = lang.login;
-      getEl('cancelManager').textContent = lang.cancel;
+      const managerModalTitle = getEl('managerModalTitle');
+      if (managerModalTitle) managerModalTitle.textContent = lang.managerAccess;
+      const usernameLabel = getEl('usernameLabel');
+      if (usernameLabel) usernameLabel.textContent = lang.username;
+      const passwordLabel = getEl('passwordLabel');
+      if (passwordLabel) passwordLabel.textContent = lang.password;
+      const loginManagerBtn = getEl('loginManager');
+      if (loginManagerBtn) loginManagerBtn.textContent = lang.login;
+      const cancelManagerBtn = getEl('cancelManager');
+      if (cancelManagerBtn) cancelManagerBtn.textContent = lang.cancel;
       
       // Void Order Modal
-      getEl('voidOrderTitle').textContent = lang.voidOrder;
-      getEl('orderIdLabel').textContent = lang.orderId;
-      getEl('reasonLabel').textContent = lang.reason;
-      getEl('managerPassLabel').textContent = lang.managerPassword;
-      getEl('confirmVoid').textContent = lang.confirmVoid;
-      getEl('cancelVoid').textContent = lang.cancel;
+      const voidOrderTitle = getEl('voidOrderTitle');
+      if (voidOrderTitle) voidOrderTitle.textContent = lang.voidOrder;
+      const orderIdLabel = getEl('orderIdLabel');
+      if (orderIdLabel) orderIdLabel.textContent = lang.orderId;
+      const reasonLabel = getEl('reasonLabel');
+      if (reasonLabel) reasonLabel.textContent = lang.reason;
+      const managerPassLabel = getEl('managerPassLabel');
+      if (managerPassLabel) managerPassLabel.textContent = lang.managerPassword;
+      const confirmVoidBtn = getEl('confirmVoid');
+      if (confirmVoidBtn) confirmVoidBtn.textContent = lang.confirmVoid;
+      const cancelVoidBtn = getEl('cancelVoid');
+      if (cancelVoidBtn) cancelVoidBtn.textContent = lang.cancel;
       
       // Day Start Modal
-      getEl('dayStartTitle').textContent = lang.dayStart;
-      getEl('startAmountLabel').textContent = lang.startAmount;
-      getEl('confirmDayStart').textContent = lang.startDay;
-      getEl('cancelDayStart').textContent = lang.cancel;
+      const dayStartTitle = getEl('dayStartTitle');
+      if (dayStartTitle) dayStartTitle.textContent = lang.dayStart;
+      const startAmountLabel = getEl('startAmountLabel');
+      if (startAmountLabel) startAmountLabel.textContent = lang.startAmount;
+      const confirmDayStartBtn = getEl('confirmDayStart');
+      if (confirmDayStartBtn) confirmDayStartBtn.textContent = lang.startDay;
+      const cancelDayStartBtn = getEl('cancelDayStart');
+      if (cancelDayStartBtn) cancelDayStartBtn.textContent = lang.cancel;
       
       // Merge Tables Modal
-      getEl('mergeTablesTitle').textContent = lang.mergeTables;
-      getEl('mergeTablesDesc').textContent = lang.mergeDesc;
-      getEl('targetTableLabel').textContent = lang.targetTable;
-      getEl('confirmMerge').textContent = lang.confirmMerge;
-      getEl('cancelMerge').textContent = lang.cancel;
+      const mergeTablesTitle = getEl('mergeTablesTitle');
+      if (mergeTablesTitle) mergeTablesTitle.textContent = lang.mergeTables;
+      const mergeTablesDesc = getEl('mergeTablesDesc');
+      if (mergeTablesDesc) mergeTablesDesc.textContent = lang.mergeDesc;
+      const targetTableLabel = getEl('targetTableLabel');
+      if (targetTableLabel) targetTableLabel.textContent = lang.targetTable;
+      const confirmMergeBtn = getEl('confirmMerge');
+      if (confirmMergeBtn) confirmMergeBtn.textContent = lang.confirmMerge;
+      const cancelMergeBtn = getEl('cancelMerge');
+      if (cancelMergeBtn) cancelMergeBtn.textContent = lang.cancel;
       
       // Reprint Modal
-      getEl('reprintTitle').textContent = lang.reprint;
-      getEl('reprintOrderIdLabel').textContent = lang.reprintOrderId;
-      getEl('confirmReprint').textContent = lang.confirmReprint;
-      getEl('cancelReprint').textContent = lang.cancel;
-      
+      const reprintTitle = getEl('reprintTitle');
+      if (reprintTitle) reprintTitle.textContent = lang.reprint;
+      const reprintOrderIdLabel = getEl('reprintOrderIdLabel');
+      if (reprintOrderIdLabel) reprintOrderIdLabel.textContent = lang.reprintOrderId;
+      const confirmReprintBtn = getEl('confirmReprint');
+      if (confirmReprintBtn) confirmReprintBtn.textContent = lang.confirmReprint;
+      const cancelReprintBtn = getEl('cancelReprint');
+      if (cancelReprintBtn) cancelReprintBtn.textContent = lang.cancel;
+
       // Customer Receipt Modal
-      getEl('customerReceiptTitle').textContent = lang.paymentSuccess;
-      getEl('printCustomerReceipt').textContent = lang.printReceipt;
-      getEl('closeCustomerReceipt').textContent = lang.close;
+      const customerReceiptTitle = getEl('customerReceiptTitle');
+      if (customerReceiptTitle) customerReceiptTitle.textContent = lang.paymentSuccess;
+      const printCustomerReceiptBtn = getEl('printCustomerReceipt');
+      if (printCustomerReceiptBtn) printCustomerReceiptBtn.textContent = lang.printReceipt;
+      const closeCustomerReceiptBtn = getEl('closeCustomerReceipt');
+      if (closeCustomerReceiptBtn) closeCustomerReceiptBtn.textContent = lang.close;
       
       // Sales Report
-      getEl('salesReportTitle').textContent = lang.salesReport;
-      getEl('printReport').textContent = lang.printReport;
+      const salesReportTitle = getEl('salesReportTitle');
+      if (salesReportTitle) salesReportTitle.textContent = lang.salesReport;
+      const printSalesReportBtn = getEl('printSalesReport');
+      if (printSalesReportBtn) printSalesReportBtn.textContent = lang.printReport;
+      const closeSalesReportBtn = getEl('closeSalesReport');
+      if (closeSalesReportBtn) closeSalesReportBtn.textContent = lang.close;
       
       // Update current language display
-      getEl('currentLanguage').textContent = {
-        'en': 'English',
-        'zh-CN': '简体中文',
-        'zh-TW': '繁體中文',
-        'ms': 'Bahasa Melayu'
-      }[currentLanguage];
+      const currentLanguageSpan = getEl('currentLanguage');
+      if (currentLanguageSpan) {
+        currentLanguageSpan.textContent = {
+          'en': 'English',
+          'zh-CN': '简体中文',
+          'zh-TW': '繁體中文',
+          'ms': 'Bahasa Melayu'
+        }[currentLanguage];
+      }
       
       // Update flag
-      getEl('currentFlag').src = {
-        'en': 'https://flagcdn.com/w20/gb.png',
-        'zh-CN': 'https://flagcdn.com/w20/cn.png',
-        'zh-TW': 'https://flagcdn.com/w20/tw.png',
-        'ms': 'https://flagcdn.com/w20/my.png'
-      }[currentLanguage];
+      const currentFlagImg = getEl('currentFlag');
+      if (currentFlagImg) {
+        currentFlagImg.src = {
+          'en': 'https://flagcdn.com/w20/gb.png',
+          'zh-CN': 'https://flagcdn.com/w20/cn.png',
+          'zh-TW': 'https://flagcdn.com/w20/tw.png',
+          'ms': 'https://flagcdn.com/w20/my.png'
+        }[currentLanguage];
+      }
       
       // Update table display if empty
-      if (!state.selectedTable && state.orderType === 'Dine In') {
-        getEl('currentTableDisplay').textContent = lang.selectTable;
+      const currentTableDisplay = getEl('currentTableDisplay');
+      if (currentTableDisplay) {
+        if (!state.selectedTable && state.orderType === 'Dine In') {
+          currentTableDisplay.textContent = lang.selectTable;
+        }
       }
     }
     
@@ -1320,7 +1401,9 @@
         languageBtn: getEl('languageBtn'),
         languageDropdown: getEl('languageDropdown'),
         currentLanguage: getEl('currentLanguage'),
-        currentFlag: getEl('currentFlag')
+        currentFlag: getEl('currentFlag'),
+        printSalesReportBtn: getEl('printSalesReport'),
+        closeSalesReportBtn: getEl('closeSalesReport')
     };
 
     // --- APPLICATION STATE ---
@@ -1347,7 +1430,8 @@
         setInterval(updateDateTime, 1000);
 
         loadStateFromStorage();
-        setupMenuSync(); // Initialize menu synchronization
+        autoClearCache();
+        setupMenuSync();
         setupEventListeners();
         
         renderTableButtons();
@@ -1356,94 +1440,138 @@
         updateOrderDisplay();
         updateLanguage();
         
-        // Add this line to start checking for customer orders
         checkForCustomerOrders();
 
         if (!state.dayStartData) {
             setTimeout(() => showModal(DOM.dayStartModal), 500);
         }
     }
-
+    
     // --- CUSTOMER ORDER SYNC ---
     function processCustomerOrder(order) {
-        // Convert customer order items to POS format
-        const posItems = order.items.map(item => {
-            // Find the full product details from the POS's loaded menu to ensure consistency
-            const productDetail = state.products.find(p => p.id === item.id);
-            return {
-                id: item.id,
-                nameEn: productDetail ? productDetail.nameEn : item.name, // Use POS's English name or customer's name
-                nameCn: productDetail ? productDetail.nameCn : '', // Use POS's Chinese name or empty
-                price: item.price,
-                category: productDetail ? productDetail.category : 'Customer Order', // Use POS's category or default
-                printer: productDetail ? productDetail.printer : 'KITCHEN', // Use POS's printer or default
-                quantity: item.quantity
+        const existingOrderIndex = state.allOrders.findIndex(o => 
+            o.table === order.table && o.status === 'unpaid'
+        );
+
+        const newItemsToPrint = [];
+
+        if (existingOrderIndex > -1) {
+            const existingOrder = state.allOrders[existingOrderIndex];
+            
+            order.items.forEach(customerItem => {
+                const existingItemIndex = existingOrder.items.findIndex(posItem => posItem.id === customerItem.id);
+                
+                if (existingItemIndex > -1) {
+                    const oldQty = existingOrder.items[existingItemIndex].quantity;
+                    const newQty = customerItem.quantity;
+                    if (newQty > oldQty) {
+                         const productDetail = state.products.find(p => p.id === customerItem.id);
+                         newItemsToPrint.push({
+                            ...productDetail,
+                            quantity: newQty - oldQty
+                         });
+                         existingOrder.items[existingItemIndex].quantity = newQty;
+                    }
+                } else {
+                    const productDetail = state.products.find(p => p.id === customerItem.id);
+                    existingOrder.items.push({
+                        id: customerItem.id,
+                        nameEn: productDetail ? productDetail.nameEn : customerItem.name,
+                        nameCn: productDetail ? productDetail.nameCn : '',
+                        price: customerItem.price,
+                        category: productDetail ? productDetail.category : 'Customer Order',
+                        printer: productDetail ? productDetail.printer : 'KITCHEN',
+                        quantity: customerItem.quantity
+                    });
+                    newItemsToPrint.push({
+                        ...productDetail,
+                        quantity: customerItem.quantity
+                    });
+                }
+            });
+
+            existingOrder.total = existingOrder.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            existingOrder.timestamp = new Date().toISOString();
+            
+        } else {
+            const posItems = order.items.map(item => {
+                const productDetail = state.products.find(p => p.id === item.id);
+                return {
+                    id: item.id,
+                    nameEn: productDetail ? productDetail.nameEn : item.name,
+                    nameCn: productDetail ? productDetail.nameCn : '',
+                    price: item.price,
+                    category: productDetail ? productDetail.category : 'Customer Order',
+                    printer: productDetail ? productDetail.printer : 'KITCHEN',
+                    quantity: item.quantity
+                };
+            });
+            
+            const newOrder = {
+                id: `ORD-${Date.now()}-${order.table}`,
+                type: 'Dine In',
+                table: order.table,
+                items: posItems,
+                total: order.total,
+                status: 'unpaid',
+                timestamp: order.timestamp,
+                source: 'customer'
             };
-        });
-        
-        // Add to main orders array
-        state.allOrders.push({
-            id: order.id,
-            type: 'Dine In', // Assuming customer orders are always dine-in
-            table: order.table,
-            items: posItems,
-            total: order.total,
-            status: 'unpaid',
-            timestamp: order.timestamp,
-            source: 'customer' // Mark as from customer menu
-        });
-        
-        // Save updated orders
+            state.allOrders.push(newOrder);
+            newItemsToPrint = newOrder.items;
+        }
+
         saveStateToStorage();
         
-        // Remove the customer order from localStorage
         localStorage.removeItem('customerOrder');
         
-        // Update UI
+        if (state.selectedTable === order.table) {
+            loadOrderForTable(order.table);
+        }
+        
         renderTableButtons();
         
-        // Show notification
         const lang = translations[currentLanguage];
         showNotification(lang.orderReceived.replace('{table}', order.table), 'success');
         
-        // Print to kitchen
-        printToKitchen(posItems, order.table);
+        if (newItemsToPrint.length > 0) {
+            printToKitchen(newItemsToPrint, order.table);
+        }
     }
-
+    
     function checkForCustomerOrders() {
-        // Check for customer orders every 2 seconds
         setInterval(() => {
             const customerOrder = localStorage.getItem('customerOrder');
             if (customerOrder) {
                 try {
                     const order = JSON.parse(customerOrder);
-                    processCustomerOrder(order);
+                    if (order.id) {
+                        processCustomerOrder(order);
+                    }
                 } catch (e) {
                     console.error('Error processing customer order from polling:', e);
                 }
             }
-        }, 2000); // Check every 2 seconds
+        }, 1000);
     }
 
     // --- MENU SYNC SYSTEM ---
     function setupMenuSync() {
-      // Load initial menu
       loadMenuData();
       
-      // Listen for storage changes from other tabs for menu updates
       window.addEventListener('storage', (event) => {
-        // Check specifically for 'menu_updated' key from item.html
         if (event.key === 'menu_updated') {
           console.log('Menu update detected from item.html, reloading menu...');
           loadMenuData();
           renderCategories();
           renderProducts();
-        } else if (event.key === 'customerOrder') { // Listen for customer orders via storage event as well
+          updateLanguage(); 
+        } else if (event.key === 'customerOrder') {
             const customerOrder = localStorage.getItem('customerOrder');
             if (customerOrder) {
                 try {
                     const order = JSON.parse(customerOrder);
-                    processCustomerOrder(order); // Process immediately if detected via storage event
+                    processCustomerOrder(order);
                 } catch (e) {
                     console.error('Error parsing customer order from storage event:', e);
                 }
@@ -1451,7 +1579,6 @@
         }
       });
       
-      // Fallback polling for menu updates (secondary sync for robustness)
       let lastMenuUpdate = localStorage.getItem('menu_updated') || 0;
       setInterval(() => {
         const currentUpdate = localStorage.getItem('menu_updated') || 0;
@@ -1461,8 +1588,43 @@
           loadMenuData();
           renderCategories();
           renderProducts();
+          updateLanguage();
         }
-      }, 2000); // Check every 2 seconds
+      }, 2000);
+    }
+    
+    // --- CACHE MANAGEMENT ---
+    function autoClearCache() {
+        const lastClearDate = localStorage.getItem('lastClearCacheDate');
+        const today = new Date().toISOString().split('T')[0];
+        
+        if (lastClearDate !== today) {
+            console.log('Running daily cache clear...');
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+            const ordersToKeep = state.allOrders.filter(order => {
+                const orderDate = new Date(order.timestamp);
+                return orderDate >= sevenDaysAgo;
+            });
+            state.allOrders = ordersToKeep;
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('menu_backup_')) {
+                    const backupDateStr = key.substring('menu_backup_'.length);
+                    const backupDate = new Date(backupDateStr);
+                    if (backupDate < sevenDaysAgo) {
+                        localStorage.removeItem(key);
+                        i--;
+                    }
+                }
+            }
+            
+            saveStateToStorage();
+            localStorage.setItem('lastClearCacheDate', today);
+            console.log('Old orders and backups cleared.');
+        }
     }
 
     // --- STATE MANAGEMENT ---
@@ -1480,11 +1642,10 @@
             if (parsedDayStart.date === today) {
                 state.dayStartData = parsedDayStart;
             } else {
-                localStorage.removeItem('dayStartData'); // Expired
+                localStorage.removeItem('dayStartData');
             }
         }
         
-        // Load saved language preference
         const savedLanguage = localStorage.getItem('posLanguage');
         if (savedLanguage && translations[savedLanguage]) {
             currentLanguage = savedLanguage;
@@ -1499,65 +1660,68 @@
     
     // --- UI & NOTIFICATIONS ---
     function showNotification(message, type = 'info', duration = 3000) {
-        DOM.notificationToast.textContent = message;
-        DOM.notificationToast.className = `notification-toast show ${type}`;
+        const toast = DOM.notificationToast;
+        if (!toast) return;
+        toast.textContent = message;
+        toast.className = `notification-toast show ${type}`;
         setTimeout(() => {
-            DOM.notificationToast.classList.remove('show');
+            toast.classList.remove('show');
         }, duration);
     }
 
     function showModal(modalElement) {
-        modalElement.classList.add('active');
+        if (modalElement) modalElement.classList.add('active');
     }
 
     function hideModal(modalElement) {
-        modalElement.classList.remove('active');
+        if (modalElement) modalElement.classList.remove('active');
     }
 
     function updateDateTime() {
         const now = new Date();
         const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-        DOM.datetime.textContent = now.toLocaleDateString('en-US', options);
+        if (DOM.datetime) DOM.datetime.textContent = now.toLocaleDateString('en-US', options);
     }
 
     // --- MENU & ORDER LOGIC ---
-   function loadMenuData() {
-  try {
-    const savedMenu = localStorage.getItem('menu');
-    if (savedMenu) {
-      const menuData = JSON.parse(savedMenu);
-      state.products = menuData.map(item => ({
-        id: item.code || item.id,
-        nameEn: item.nameEn || item.name || 'Unnamed Item',
-        nameCn: item.name || '', // Assuming 'name' in item.html is Chinese name if nameEn is present
-        price: parseFloat(item.price) || 0,
-        category: item.category || 'Uncategorized',
-        printer: item.printer || 'KITCHEN', // Default printer if not specified
-        image: item.image || 'https://placehold.co/150x150/f0f0f0/333?text=No+Image'
-      }));
-      state.categories = [...new Set(state.products.map(p => p.category))];
-    } else {
-      // Default items with bilingual support
-      state.products = [
-        { id: '509', nameEn: "Nasi Lemak Egg", nameCn: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
-        { id: '510', nameEn: "Nasi Lemak HotDog Egg", nameCn: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
-        { id: '411', nameEn: "Soup Mee Hun Kueh", nameCn: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
-        { id: '611', nameEn: "French Fries", nameCn: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
-        { id: '612', nameEn: "Chicken Nuggets (6pcs)", nameCn: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
-        { id: '101', nameEn: "Iced Lemon Tea", nameCn: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
-        { id: '102', nameEn: "Coke", nameCn: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
-        { id: 'B01', nameEn: "Extra Egg", nameCn: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
-      ];
-      state.categories = [...new Set(state.products.map(p => p.category))];
-      localStorage.setItem('menu', JSON.stringify(state.products));
+    function loadMenuData() {
+        try {
+            const savedMenu = localStorage.getItem('menu');
+            if (savedMenu) {
+                const menuData = JSON.parse(savedMenu);
+                state.products = menuData.map(item => ({
+                    id: item.code || item.id,
+                    nameEn: item.nameEn || item.name || 'Unnamed Item',
+                    nameCn: item.name || '',
+                    price: parseFloat(item.price) || 0,
+                    category: item.category || 'Uncategorized',
+                    printer: item.printer || 'KITCHEN',
+                    image: item.image || 'https://placehold.co/150x150/f0f0f0/333?text=No+Image'
+                }));
+                state.categories = [...new Set(state.products.map(p => p.category))];
+            } else {
+                state.products = [
+                    { id: '509', nameEn: "Nasi Lemak Egg", nameCn: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
+                    { id: '510', nameEn: "Nasi Lemak HotDog Egg", nameCn: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
+                    { id: '411', nameEn: "Soup Mee Hun Kueh", nameCn: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
+                    { id: '611', nameEn: "French Fries", nameCn: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
+                    { id: '612', nameEn: "Chicken Nuggets (6pcs)", nameCn: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
+                    { id: '101', nameEn: "Iced Lemon Tea", nameCn: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
+                    { id: '102', nameEn: "Coke", nameCn: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
+                    { id: 'B01', nameEn: "Extra Egg", nameCn: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
+                ];
+                state.categories = [...new Set(state.products.map(p => p.category))];
+                localStorage.setItem('menu', JSON.stringify(state.products));
+            }
+        } catch (e) {
+            console.error('Error loading menu:', e);
+        }
     }
-  } catch (e) {
-    console.error('Error loading menu:', e);
-  }
-}
 
     function renderCategories() {
-        DOM.categoryTabs.innerHTML = '';
+        const categoryTabs = DOM.categoryTabs;
+        if (!categoryTabs) return;
+        categoryTabs.innerHTML = '';
         state.categories.forEach(category => {
             const tab = document.createElement('div');
             tab.className = 'category-tab';
@@ -1568,16 +1732,19 @@
                 tab.classList.add('selected');
                 renderProducts(category);
             });
-            DOM.categoryTabs.appendChild(tab);
+            categoryTabs.appendChild(tab);
         });
         if (state.categories.length > 0) {
-            DOM.categoryTabs.querySelector('.category-tab').classList.add('selected');
+            const firstTab = categoryTabs.querySelector('.category-tab');
+            if (firstTab) firstTab.classList.add('selected');
             renderProducts(state.categories[0]);
         }
     }
 
     function renderProducts(category = state.categories[0]) {
-        DOM.productsGrid.innerHTML = '';
+        const productsGrid = DOM.productsGrid;
+        if (!productsGrid) return;
+        productsGrid.innerHTML = '';
         const filteredProducts = state.products.filter(p => !category || p.category === category);
         filteredProducts.forEach(product => {
             const card = document.createElement('div');
@@ -1589,7 +1756,7 @@
                     <div class="product-price">RM ${product.price.toFixed(2)}</div>
                 </div>`;
             card.addEventListener('click', () => addProductToOrder(product));
-            DOM.productsGrid.appendChild(card);
+            productsGrid.appendChild(card);
         });
     }
 
@@ -1622,10 +1789,12 @@
     }
 
     function updateOrderDisplay() {
-        DOM.orderItems.innerHTML = '';
+        const orderItems = DOM.orderItems;
+        if (!orderItems) return;
+        orderItems.innerHTML = '';
         if (state.currentOrderItems.length === 0) {
             const lang = translations[currentLanguage];
-            DOM.orderItems.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">' + lang.emptyOrder + '</p>';
+            orderItems.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">' + lang.emptyOrder + '</p>';
         } else {
             state.currentOrderItems.forEach(item => {
                 const itemElement = document.createElement('div');
@@ -1641,7 +1810,7 @@
                         <button class="qty-btn" data-action="increase" data-id="${item.id}">+</button>
                         <button class="qty-btn remove" data-action="remove" data-id="${item.id}">x</button>
                     </div>`;
-                DOM.orderItems.appendChild(itemElement);
+                orderItems.appendChild(itemElement);
             });
         }
         updateOrderSummary();
@@ -1653,13 +1822,14 @@
         let serviceCharge = subtotal * CONFIG.SERVICE_CHARGE_RATE;
         state.currentOrderTotal = subtotal + tax + serviceCharge;
 
-        DOM.subtotal.textContent = `RM ${subtotal.toFixed(2)}`;
-        DOM.tax.textContent = `RM ${tax.toFixed(2)}`;
-        DOM.serviceCharge.textContent = `RM ${serviceCharge.toFixed(2)}`;
-        DOM.total.textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
+        if (DOM.subtotal) DOM.subtotal.textContent = `RM ${subtotal.toFixed(2)}`;
+        if (DOM.tax) DOM.tax.textContent = `RM ${tax.toFixed(2)}`;
+        if (DOM.serviceCharge) DOM.serviceCharge.textContent = `RM ${serviceCharge.toFixed(2)}`;
+        if (DOM.total) DOM.total.textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
 
-        if (DOM.cashierModal.classList.contains('active')) {
-            getEl('paymentModalTotal').textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
+        if (DOM.cashierModal && DOM.cashierModal.classList.contains('active')) {
+            const paymentModalTotal = getEl('paymentModalTotal');
+            if (paymentModalTotal) paymentModalTotal.textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
             calculateChange();
         }
     }
@@ -1669,7 +1839,8 @@
         state.currentOrderId = null;
         if (clearTableSelection) {
             state.selectedTable = null;
-            DOM.currentTableDisplay.textContent = translations[currentLanguage].selectTable || '(Select Table)';
+            const currentTableDisplay = DOM.currentTableDisplay;
+            if (currentTableDisplay) currentTableDisplay.textContent = translations[currentLanguage].selectTable || '(Select Table)';
             querySelAll('.table-btn.selected').forEach(b => b.classList.remove('selected'));
         }
         updateOrderDisplay();
@@ -1677,10 +1848,12 @@
 
     // --- TABLE & ORDER TYPE LOGIC ---
     function renderTableButtons() {
-        DOM.tableButtons.innerHTML = '';
+        const tableButtons = DOM.tableButtons;
+        if (!tableButtons) return;
+        tableButtons.innerHTML = '';
         const unpaidTables = new Set(state.allOrders.filter(o => o.status === 'unpaid').map(o => o.table));
         
-        // Changed to only show tables 1-14
+        // MODIFIED: Changed loop to render tables 1-14
         for (let i = 1; i <= 14; i++) {
             const btn = document.createElement('button');
             btn.className = 'table-btn';
@@ -1695,7 +1868,7 @@
             if (state.selectedTable === i) btn.classList.add('selected');
 
             btn.addEventListener('click', () => selectTable(i));
-            DOM.tableButtons.appendChild(btn);
+            tableButtons.appendChild(btn);
         }
     }
     
@@ -1707,24 +1880,31 @@
             clearOrder(false);
         }
         querySelAll('.table-btn.selected').forEach(b => b.classList.remove('selected'));
-        querySel(`.table-btn[data-table="${tableNum}"]`).classList.add('selected');
+        const selectedBtn = querySel(`.table-btn[data-table="${tableNum}"]`);
+        if (selectedBtn) selectedBtn.classList.add('selected');
         state.selectedTable = tableNum;
         loadOrderForTable(tableNum);
-        DOM.currentTableDisplay.textContent = `(${translations[currentLanguage].table || 'Table'} ${state.selectedTable})`;
+        if (DOM.currentTableDisplay) DOM.currentTableDisplay.textContent = `(${translations[currentLanguage].table || 'Table'} ${state.selectedTable})`;
     }
 
     function setOrderType(type) {
         state.orderType = type;
+        const btnDineIn = DOM.btnDineIn;
+        const btnTakeAway = DOM.btnTakeAway;
         if (type === 'Dine In') {
-            DOM.btnDineIn.classList.add('selected');
-            DOM.btnTakeAway.classList.remove('selected');
-            DOM.currentTableDisplay.textContent = state.selectedTable ? 
-                `(${translations[currentLanguage].table || 'Table'} ${state.selectedTable})` : 
-                `(${translations[currentLanguage].selectTable || 'Select Table'})`;
+            if (btnDineIn) btnDineIn.classList.add('selected');
+            if (btnTakeAway) btnTakeAway.classList.remove('selected');
+            const currentTableDisplay = DOM.currentTableDisplay;
+            if (currentTableDisplay) {
+              currentTableDisplay.textContent = state.selectedTable ? 
+                  `(${translations[currentLanguage].table || 'Table'} ${state.selectedTable})` : 
+                  `(${translations[currentLanguage].selectTable || 'Select Table'})`;
+            }
         } else {
-            DOM.btnTakeAway.classList.add('selected');
-            DOM.btnDineIn.classList.remove('selected');
-            DOM.currentTableDisplay.textContent = `(${translations[currentLanguage].takeAway || 'Take Away'})`;
+            if (btnTakeAway) btnTakeAway.classList.add('selected');
+            if (btnDineIn) btnDineIn.classList.remove('selected');
+            const currentTableDisplay = DOM.currentTableDisplay;
+            if (currentTableDisplay) currentTableDisplay.textContent = `(${translations[currentLanguage].takeAway || 'Take Away'})`;
             clearOrder(true);
         }
     }
@@ -1757,7 +1937,7 @@
         let existingOrder = state.allOrders.find(o => o.id === state.currentOrderId);
         let itemsToPrint = [];
 
-        if (existingOrder) { // Updating an existing order
+        if (existingOrder) {
             const oldItemsMap = new Map(existingOrder.items.map(item => [item.id, item.quantity]));
             const newItemsMap = new Map(state.currentOrderItems.map(item => [item.id, item.quantity]));
             
@@ -1772,7 +1952,7 @@
             existingOrder.items = JSON.parse(JSON.stringify(state.currentOrderItems));
             existingOrder.total = state.currentOrderTotal;
             existingOrder.timestamp = new Date().toISOString();
-        } else { // Creating a new order
+        } else {
             const newOrder = {
                 id: `ORD-${Date.now()}`,
                 type: state.orderType,
@@ -1784,7 +1964,7 @@
             };
             state.allOrders.push(newOrder);
             state.currentOrderId = newOrder.id;
-            itemsToPrint = newOrder.items; // Print all items for a new order
+            itemsToPrint = newOrder.items;
         }
         
         if (itemsToPrint.length > 0) {
@@ -1809,20 +1989,28 @@
             showNotification(lang.selectTable, 'error');
             return;
         }
-        getEl('paymentModalTotal').textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
-        getEl('amountInput').value = '';
-        getEl('changeAmount').textContent = 'RM 0.00';
+        const paymentModalTotal = getEl('paymentModalTotal');
+        if (paymentModalTotal) paymentModalTotal.textContent = `RM ${state.currentOrderTotal.toFixed(2)}`;
+        const amountInput = getEl('amountInput');
+        if (amountInput) {
+            amountInput.value = '';
+            amountInput.readOnly = false;
+        }
+        const changeAmount = getEl('changeAmount');
+        if (changeAmount) changeAmount.textContent = 'RM 0.00';
         state.selectedPaymentMethod = null;
         querySelAll('.payment-method').forEach(m => m.classList.remove('selected'));
-        getEl('amountInput').readOnly = false;
         showModal(DOM.cashierModal);
-        getEl('amountInput').focus();
+        if (amountInput) amountInput.focus();
     }
 
     function calculateChange() {
-        const tendered = parseFloat(getEl('amountInput').value) || 0;
+        const amountInput = getEl('amountInput');
+        const changeAmount = getEl('changeAmount');
+        if (!amountInput || !changeAmount) return;
+        const tendered = parseFloat(amountInput.value) || 0;
         const change = tendered - state.currentOrderTotal;
-        getEl('changeAmount').textContent = `RM ${Math.max(0, change).toFixed(2)}`;
+        changeAmount.textContent = `RM ${Math.max(0, change).toFixed(2)}`;
     }
 
     function completePayment() {
@@ -1832,25 +2020,27 @@
             showNotification(lang.paymentMethodRequired, 'error');
             return;
         }
-        const tendered = parseFloat(getEl('amountInput').value);
+        const amountInput = getEl('amountInput');
+        if (!amountInput) return;
+        const tendered = parseFloat(amountInput.value);
         if (isNaN(tendered) || tendered < state.currentOrderTotal) {
             showNotification(lang.insufficientAmount, 'error');
             return;
         }
 
         let orderToPay = state.allOrders.find(o => o.id === state.currentOrderId);
-        if (!orderToPay) { // Handle case for walk-in payments not held before
+        if (!orderToPay) {
             orderToPay = {
                 id: `ORD-${Date.now()}`,
                 type: state.orderType,
                 table: state.selectedTable,
                 items: JSON.parse(JSON.stringify(state.currentOrderItems)),
+                total: state.currentOrderTotal,
                 timestamp: new Date().toISOString(),
             };
             state.allOrders.push(orderToPay);
         }
 
-        // Update order details
         orderToPay.status = 'paid';
         orderToPay.paymentMethod = state.selectedPaymentMethod;
         orderToPay.total = state.currentOrderTotal;
@@ -1858,16 +2048,12 @@
         orderToPay.changeGiven = Math.max(0, tendered - state.currentOrderTotal);
         orderToPay.paymentTimestamp = new Date().toISOString();
         
-        // --- FIX: Clean up merged tables ---
         if (orderToPay.mergedFrom) {
             const targetTable = orderToPay.table;
-            // The tables that were merged into the target table
             const sourceTables = orderToPay.mergedFrom.filter(t => t !== targetTable);
             
-            // Remove the merged status from the target table
             delete state.mergedTables[targetTable];
             
-            // Mark the source orders as fully resolved (optional, but good practice)
             state.allOrders.forEach(o => {
                 if (o.mergedTo === targetTable) {
                     o.status = 'paid_merged';
@@ -1879,7 +2065,6 @@
         hideModal(DOM.cashierModal);
         showNotification(lang.paymentSuccess.replace('{change}', orderToPay.changeGiven.toFixed(2)), 'success');
         
-        // --- FIX: Show customer receipt ---
         showCustomerReceipt(orderToPay);
 
         clearOrder(true);
@@ -1888,13 +2073,13 @@
 
     // --- PRINTING & RECEIPTS ---
     function printToKitchen(items, tableIdentifier) {
-        const printJobs = {}; // Group items by printer
+        const printJobs = {};
         items.forEach(item => {
-            const printerKey = item.printer || 'KITCHEN'; // Default to KITCHEN
+            const printerKey = item.printer || 'KITCHEN';
             if (!printJobs[printerKey]) {
                 printJobs[printerKey] = [];
             }
-            printJobs[printerKey].push({ name: item.nameEn, quantity: item.quantity }); // Use nameEn for kitchen print
+            printJobs[printerKey].push({ name: item.nameEn, quantity: item.quantity });
         });
 
         console.log(`--- KITCHEN ORDER TICKET ---`);
@@ -1914,6 +2099,18 @@
         console.log(`\n--- END OF TICKET ---`);
         showNotification('Order sent to kitchen printers.', 'success');
     }
+    
+    function printReceipt(content) {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            showNotification("Please enable pop-ups to print.", "error");
+            return;
+        }
+        printWindow.document.write(content);
+        printWindow.document.close();
+        printWindow.focus();
+    }
+
 
     function generateReceiptHTML(order, type = 'customer') {
         const receiptDate = new Date(order.paymentTimestamp || order.timestamp);
@@ -1961,49 +2158,71 @@
     }
 
     function showCustomerReceipt(order) {
-        getEl('customerReceiptContent').innerHTML = generateReceiptHTML(order, 'customer');
+        const customerReceiptContent = getEl('customerReceiptContent');
+        if (customerReceiptContent) customerReceiptContent.innerHTML = generateReceiptHTML(order, 'customer');
         state.lastPrintedOrder = order;
         showModal(DOM.customerReceiptModal);
-        
-        // Auto print and close the receipt
-        setTimeout(() => {
-            printCustomerReceipt();
-            setTimeout(() => hideModal(DOM.customerReceiptModal), 1000);
-        }, 500);
+        updateLanguage();
     }
-
+    
     function printCustomerReceipt() {
-        const lang = translations[currentLanguage];
-        if (state.lastPrintedOrder) {
-            // In a real app, this would call a hardware print function
-            console.log("--- PRINTING CUSTOMER RECEIPT ---", state.lastPrintedOrder);
-            showNotification(lang.reprintSent.replace('{orderId}', state.lastPrintedOrder.id), 'info');
-        } else {
-            showNotification(lang.orderNotFoundReprint, 'error');
+      if (state.lastPrintedOrder) {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            showNotification("Please enable pop-ups to print.", "error");
+            return;
         }
+        const content = generateReceiptHTML(state.lastPrintedOrder, 'customer');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Receipt - ${state.lastPrintedOrder.id}</title>
+                <style>
+                    body { font-family: 'Courier New', monospace; padding: 20px; font-size: 14px; line-height: 1.5; width: 80mm; }
+                    .receipt-preview { width: 100%; border: none; padding: 0; }
+                    @media print { body { margin: 0; } }
+                </style>
+            </head>
+            <body>
+                <div class="receipt-preview">${content}</div>
+                <script>
+                    window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+      }
     }
 
     function openReprintModal() {
         const lang = translations[currentLanguage];
         const reprintInput = getEl('reprintOrderId');
-        reprintInput.value = state.lastPrintedOrder ? state.lastPrintedOrder.id : '';
-        if (reprintInput.value) {
+        if (reprintInput) reprintInput.value = state.lastPrintedOrder ? state.lastPrintedOrder.id : '';
+        if (reprintInput && reprintInput.value) {
             previewReceiptForReprint();
         } else {
-            getEl('reprintPreview').innerHTML = `<p>${lang.reprintOrderIdLabel || 'Enter an Order ID'} to preview.</p>`;
+            const reprintPreview = getEl('reprintPreview');
+            if (reprintPreview) reprintPreview.innerHTML = `<p>${lang.reprintOrderIdLabel || 'Enter an Order ID'} to preview.</p>`;
         }
         showModal(DOM.reprintModal);
+        updateLanguage();
     }
     
     function previewReceiptForReprint() {
         const lang = translations[currentLanguage];
-        const orderId = getEl('reprintOrderId').value.trim();
+        const reprintInput = getEl('reprintOrderId');
+        if (!reprintInput) return;
+        const orderId = reprintInput.value.trim();
+        const reprintPreview = getEl('reprintPreview');
         if (!orderId) {
-            getEl('reprintPreview').innerHTML = `<p>${lang.reprintOrderIdLabel || 'Enter an Order ID'} to preview.</p>`;
+            if (reprintPreview) reprintPreview.innerHTML = `<p>${lang.reprintOrderIdLabel || 'Enter an Order ID'} to preview.</p>`;
             return;
         }
         const order = state.allOrders.find(o => o.id === orderId);
-        getEl('reprintPreview').innerHTML = order ? generateReceiptHTML(order, 'customer') : `<p>${lang.orderNotFoundReprint || 'Order not found'}</p>`;
+        if (reprintPreview) reprintPreview.innerHTML = order ? generateReceiptHTML(order, 'customer') : `<p>${lang.orderNotFoundReprint || 'Order not found'}</p>`;
     }
 
     function reprintReceipt() {
@@ -2011,8 +2230,33 @@
         const orderId = getEl('reprintOrderId').value.trim();
         const order = state.allOrders.find(o => o.id === orderId);
         if (order) {
-            // In a real app, this would call a hardware print function
-            console.log("--- REPRINTING RECEIPT ---", order);
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showNotification("Please enable pop-ups to print.", "error");
+                return;
+            }
+            const content = generateReceiptHTML(order, 'customer');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Receipt - ${order.id}</title>
+                    <style>
+                        body { font-family: 'Courier New', monospace; padding: 20px; font-size: 14px; line-height: 1.5; width: 80mm; }
+                        .receipt-preview { width: 100%; border: none; padding: 0; }
+                        @media print { body { margin: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt-preview">${content}</div>
+                    <script>
+                        window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
             showNotification(lang.reprintSent.replace('{orderId}', orderId), 'info');
             hideModal(DOM.reprintModal);
         } else {
@@ -2031,8 +2275,10 @@
         }
         state.tablesToMergeSelection = [];
         const tablesToMergeContainer = getEl('tablesToMerge');
+        if (!tablesToMergeContainer) return;
         tablesToMergeContainer.innerHTML = '';
         const targetTableSelect = getEl('targetTable');
+        if (!targetTableSelect) return;
         targetTableSelect.innerHTML = '';
         
         const unpaidTables = [...new Set(state.allOrders
@@ -2075,6 +2321,7 @@
 
     function updateTargetTableOptions() {
         const targetTableSelect = getEl('targetTable');
+        if (!targetTableSelect) return;
         targetTableSelect.innerHTML = '';
         state.tablesToMergeSelection.forEach(tableNum => {
             const option = document.createElement('option');
@@ -2086,12 +2333,14 @@
 
     function mergeTables() {
         const lang = translations[currentLanguage];
+        const targetTableSelect = getEl('targetTable');
+        if (!targetTableSelect) return;
         
         if (state.tablesToMergeSelection.length < 2) {
             showNotification(lang.selectTablesToMerge, 'error');
             return;
         }
-        const targetTableNum = parseInt(getEl('targetTable').value);
+        const targetTableNum = parseInt(targetTableSelect.value);
         if (!targetTableNum) {
             showNotification(lang.selectTargetTable, 'error');
             return;
@@ -2135,50 +2384,57 @@
         hideModal(DOM.mergeTablesModal);
         showNotification(lang.mergeSuccess.replace('{table}', targetTableNum), 'success');
 
-        selectTable(targetTableNum); // Automatically select and load the new merged order
+        selectTable(targetTableNum);
         renderTableButtons();
     }
     
     function voidOrder() {
         const lang = translations[currentLanguage];
-        const orderToVoidId = getEl('voidOrderId').value.trim();
-        const reason = getEl('voidReason').value.trim();
-        const password = getEl('voidManagerPassword').value;
+        const orderToVoidId = getEl('voidOrderId');
+        const reason = getEl('voidReason');
+        const password = getEl('voidManagerPassword');
 
-        if (!orderToVoidId || !reason) {
-            showNotification(lang.reason + ' ' + (lang.orderId || 'and Order ID') + ' ' + (lang.required || 'are required'), 'error'); 
+        if (!orderToVoidId || !reason || !password) return;
+        
+        const orderToVoidIdValue = orderToVoidId.value.trim();
+        const reasonValue = reason.value.trim();
+        const passwordValue = password.value;
+
+        if (!orderToVoidIdValue || !reasonValue) {
+            showNotification(lang.reason + ' ' + (lang.orderId || 'and Order ID') + ' ' + (lang.required || 'are required'), 'error');
             return;
         }
-        if (password !== CONFIG.MANAGER_PASSWORD) {
-            showNotification(lang.invalidCredentials, 'error'); 
+        if (passwordValue !== CONFIG.MANAGER_PASSWORD) {
+            showNotification(lang.invalidCredentials, 'error');
             return;
         }
 
-        const orderIndex = state.allOrders.findIndex(o => o.id === orderToVoidId && o.status !== 'voided');
+        const orderIndex = state.allOrders.findIndex(o => o.id === orderToVoidIdValue && o.status !== 'voided');
         if (orderIndex !== -1) {
             const order = state.allOrders[orderIndex];
             order.status = 'voided';
             order.voidedBy = CONFIG.MANAGER_USERNAME;
-            order.voidReason = reason;
+            order.voidReason = reasonValue;
             order.voidTimestamp = new Date().toISOString();
             
             saveStateToStorage();
             renderTableButtons();
-            showNotification(lang.voidSuccess.replace('{orderId}', orderToVoidId), 'success');
+            showNotification(lang.voidSuccess.replace('{orderId}', orderToVoidIdValue), 'success');
             hideModal(DOM.voidOrderModal);
-            // Clear inputs
-            getEl('voidOrderId').value = '';
-            getEl('voidReason').value = '';
-            getEl('voidManagerPassword').value = '';
+            orderToVoidId.value = '';
+            reason.value = '';
+            password.value = '';
         } else {
-            showNotification(lang.orderNotFound.replace('{orderId}', orderToVoidId), 'error');
+            showNotification(lang.orderNotFound.replace('{orderId}', orderToVoidIdValue), 'error');
         }
     }
 
     // --- DAY START/END ---
     function startNewDay() {
         const lang = translations[currentLanguage];
-        const amount = parseFloat(getEl('startAmount').value);
+        const amountInput = getEl('startAmount');
+        if (!amountInput) return;
+        const amount = parseFloat(amountInput.value);
         if (isNaN(amount) || amount < 0) {
             showNotification(lang.invalidStartAmount, 'error');
             return;
@@ -2197,15 +2453,15 @@
     function generateSalesReport() {
         const lang = translations[currentLanguage];
         
-        if (!state.dayStartData) {
-            showNotification(lang.dayStartRequired || 'Please start the day first.', 'error');
-            showModal(DOM.dayStartModal);
-            return;
-        }
-
         const unpaidOrders = state.allOrders.filter(o => o.status === 'unpaid');
         if (unpaidOrders.length > 0) {
             showNotification(`Cannot end day! There are ${unpaidOrders.length} unpaid tables.`, 'error');
+            return;
+        }
+
+        if (!state.dayStartData) {
+            showNotification(lang.dayStartRequired || 'Please start the day first.', 'error');
+            showModal(DOM.dayStartModal);
             return;
         }
 
@@ -2213,28 +2469,34 @@
         const salesForToday = state.allOrders.filter(o => o.status === 'paid' && new Date(o.paymentTimestamp).toISOString().split('T')[0] === today);
         const voidedForToday = state.allOrders.filter(o => o.status === 'voided' && new Date(o.voidTimestamp).toISOString().split('T')[0] === today);
 
+        let paymentSummary = {};
+        let totalCollection = 0;
+        
+        salesForToday.forEach(order => {
+            totalCollection += order.total;
+            const method = order.paymentMethod;
+            paymentSummary[method] = (paymentSummary[method] || 0) + order.total;
+        });
+
+        let paymentSummaryHtml = '';
+        for (const method in paymentSummary) {
+            paymentSummaryHtml += `<div class="summary-row"><span>${translations[currentLanguage][method] || method}:</span> <span>RM ${paymentSummary[method].toFixed(2)}</span></div>`;
+        }
+
         let reportHtml = `
             <p><strong>Report Date:</strong> ${today}</p>
             <p><strong>Day Started:</strong> ${new Date(state.dayStartData.startTime).toLocaleTimeString()}</p>
             <p><strong>Starting Cash:</strong> RM ${state.dayStartData.startAmount.toFixed(2)}</p>
             <h3 style="margin-top: 15px;">Paid Orders:</h3>
             <table>
-            <thead><tr><th>ID</th><th>Time</th><th>Type</th><th>Table</th><th>Items</th><th>Total</th><th>Payment</th></tr></thead>
+            <thead><tr><th>ID</th><th>Time</th><th>Type</th><th>Table</th><th>Total</th><th>Payment</th></tr></thead>
             <tbody>`;
 
-        let totalCollection = 0;
-        const totalItemsSold = {};
-
         if (salesForToday.length === 0) {
-            reportHtml += `<tr><td colspan="7" style="text-align: center;">No paid orders for today.</td></tr>`;
+            reportHtml += `<tr><td colspan="6" style="text-align: center;">No paid orders for today.</td></tr>`;
         } else {
             salesForToday.forEach(order => {
-                totalCollection += order.total;
-                const itemsList = order.items.map(item => {
-                    totalItemsSold[item.nameEn] = (totalItemsSold[item.nameEn] || 0) + item.quantity;
-                    return `${item.nameEn} x${item.quantity}`;
-                }).join('<br>');
-                reportHtml += `<tr><td>${order.id}</td><td>${new Date(order.paymentTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td><td>${order.type}</td><td>${order.table || '-'}</td><td>${itemsList}</td><td>RM ${order.total.toFixed(2)}</td><td>${order.paymentMethod}</td></tr>`;
+                reportHtml += `<tr><td>${order.id}</td><td>${new Date(order.paymentTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td><td>${order.type}</td><td>${order.table || '-'}</td><td>RM ${order.total.toFixed(2)}</td><td>${translations[currentLanguage][order.paymentMethod] || order.paymentMethod}</td></tr>`;
             });
         }
         reportHtml += `</tbody></table>`;
@@ -2252,70 +2514,124 @@
             });
         }
         reportHtml += `</tbody></table>`;
-        DOM.salesReportContent.innerHTML = reportHtml;
-
-        let itemsSummaryHtml = '<h4>Menu Item Sales:</h4><ul>';
-        Object.entries(totalItemsSold).sort((a, b) => b[1] - a[1]).forEach(([name, qty]) => {
-            itemsSummaryHtml += `<li>${name}: ${qty} units</li>`;
-        });
-        itemsSummaryHtml += '</ul>';
+        const salesReportContent = DOM.salesReportContent;
+        if (salesReportContent) salesReportContent.innerHTML = reportHtml;
 
         const totalVoidedAmount = voidedForToday.reduce((sum, order) => sum + order.total, 0);
-        DOM.salesSummary.innerHTML = `
-            <div class="summary-row"><span>Total Paid Orders:</span><span>${salesForToday.length}</span></div>
-            <div class="summary-row"><span>Total Voided Orders:</span><span>${voidedForToday.length}</span></div>
-            <div class="summary-row"><span>Gross Collection:</span><span>RM ${totalCollection.toFixed(2)}</span></div>
-            <div class="summary-row"><span>Total Voided Amount:</span><span style="color: var(--accent-color);">- RM ${totalVoidedAmount.toFixed(2)}</span></div>
-            <div class="summary-row summary-total"><span>Cash at Hand (Gross + Start):</span><span>RM ${(totalCollection + state.dayStartData.startAmount).toFixed(2)}</span></div>
-            ${itemsSummaryHtml}
-        `;
+        const salesSummary = DOM.salesSummary;
+        if (salesSummary) {
+          salesSummary.innerHTML = `
+              <div class="summary-row"><span>Total Paid Orders:</span><span>${salesForToday.length}</span></div>
+              <div class="summary-row"><span>Total Voided Orders:</span><span>${voidedForToday.length}</span></div>
+              <div class="summary-row"><span>Total Revenue:</span><span>RM ${totalCollection.toFixed(2)}</span></div>
+              ${paymentSummaryHtml}
+              <div class="summary-row"><span>Total Voided Amount:</span><span style="color: var(--accent-color);">- RM ${totalVoidedAmount.toFixed(2)}</span></div>
+              <div class="summary-row summary-total"><span>Cash at Hand (Start + Cash):</span><span>RM ${(state.dayStartData.startAmount + (paymentSummary['cash'] || 0)).toFixed(2)}</span></div>
+          `;
+        }
+        
+        const printSalesReportBtn = DOM.printSalesReportBtn;
+        if (printSalesReportBtn) printSalesReportBtn.textContent = lang.printReport;
+        const closeSalesReportBtn = DOM.closeSalesReportBtn;
+        if (closeSalesReportBtn) closeSalesReportBtn.textContent = lang.close;
 
         showModal(DOM.salesReportModal);
     }
+    
+    function printSalesReport() {
+        const salesReportContent = getEl('salesReportContent');
+        const salesSummary = getEl('salesSummary');
+        if (!salesReportContent || !salesSummary) return;
+        
+        const printContent = salesReportContent.innerHTML + salesSummary.innerHTML;
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            showNotification("Please enable pop-ups to print.", "error");
+            return;
+        }
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Daily Sales Report</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                    th, td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    h3 { margin-top: 20px; }
+                    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                    .summary-total { font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 1px solid #000; }
+                    ul { list-style: none; padding: 0; }
+                    li { margin-bottom: 5px; }
+                </style>
+            </head>
+            <body>
+                <h1>Daily Sales Report</h1>
+                ${printContent}
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        setTimeout(function() {
+                            window.close();
+                        }, 500);
+                    }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+    }
+
 
     // --- EVENT LISTENERS ---
     function setupEventListeners() {
         // Order Type
-        DOM.btnDineIn.addEventListener('click', () => setOrderType('Dine In'));
-        DOM.btnTakeAway.addEventListener('click', () => setOrderType('Take Away'));
+        if (DOM.btnDineIn) DOM.btnDineIn.addEventListener('click', () => setOrderType('Dine In'));
+        if (DOM.btnTakeAway) DOM.btnTakeAway.addEventListener('click', () => setOrderType('Take Away'));
 
         // Main Actions
-        DOM.clearOrderBtn.addEventListener('click', () => clearOrder(true));
-        DOM.holdOrderBtn.addEventListener('click', holdOrder);
-        DOM.processPaymentBtn.addEventListener('click', openCashierModal);
-        DOM.mergeTablesBtn.addEventListener('click', openMergeTablesModal);
-        DOM.reprintReceiptBtn.addEventListener('click', openReprintModal);
-        DOM.endDayReportBtn.addEventListener('click', generateSalesReport);
-        DOM.voidOrderBtn.addEventListener('click', () => showModal(DOM.voidOrderModal));
+        if (DOM.clearOrderBtn) DOM.clearOrderBtn.addEventListener('click', () => clearOrder(true));
+        if (DOM.holdOrderBtn) DOM.holdOrderBtn.addEventListener('click', holdOrder);
+        if (DOM.processPaymentBtn) DOM.processPaymentBtn.addEventListener('click', openCashierModal);
+        if (DOM.mergeTablesBtn) DOM.mergeTablesBtn.addEventListener('click', openMergeTablesModal);
+        if (DOM.reprintReceiptBtn) DOM.reprintReceiptBtn.addEventListener('click', openReprintModal);
+        if (DOM.endDayReportBtn) DOM.endDayReportBtn.addEventListener('click', generateSalesReport);
+        if (DOM.voidOrderBtn) DOM.voidOrderBtn.addEventListener('click', () => showModal(DOM.voidOrderModal));
 
         // Order Item Actions
-        DOM.orderItems.addEventListener('click', (e) => {
-            const button = e.target.closest('.qty-btn');
-            if (button) {
-                const id = button.dataset.id; // Use string ID
-                const action = button.dataset.action;
-                updateOrderItemQuantity(id, action);
-            }
-        });
+        if (DOM.orderItems) {
+            DOM.orderItems.addEventListener('click', (e) => {
+                const button = e.target.closest('.qty-btn');
+                if (button) {
+                    const id = button.dataset.id;
+                    const action = button.dataset.action;
+                    updateOrderItemQuantity(id, action);
+                }
+            });
+        }
 
         // Language selector
-        DOM.languageBtn.addEventListener('click', () => {
-            DOM.languageDropdown.classList.toggle('show');
-        });
+        if (DOM.languageBtn) {
+          DOM.languageBtn.addEventListener('click', () => {
+              if (DOM.languageDropdown) DOM.languageDropdown.classList.toggle('show');
+          });
+        }
         
-        // Close language dropdown when clicking outside
         document.addEventListener('click', (e) => {
-            if (!DOM.languageBtn.contains(e.target) && !DOM.languageDropdown.contains(e.target)) {
-                DOM.languageDropdown.classList.remove('show');
+            if (DOM.languageBtn && DOM.languageDropdown) {
+              if (!DOM.languageBtn.contains(e.target) && !DOM.languageDropdown.contains(e.target)) {
+                  DOM.languageDropdown.classList.remove('show');
+              }
             }
         });
         
-        // Language selection
         querySelAll('.language-option').forEach(option => {
             option.addEventListener('click', () => {
                 currentLanguage = option.dataset.lang;
                 updateLanguage();
-                DOM.languageDropdown.classList.remove('show');
+                if (DOM.languageDropdown) DOM.languageDropdown.classList.remove('show');
                 saveStateToStorage();
             });
         });
@@ -2323,30 +2639,34 @@
         // Modals - Generic Close/Cancel
         querySelAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
-                if (e.target === modal) { // Click on backdrop
+                if (e.target === modal) {
                     hideModal(modal);
                 }
             });
         });
-        getEl('cancelPayment').addEventListener('click', () => hideModal(DOM.cashierModal));
-        getEl('closeSalesReport').addEventListener('click', () => hideModal(DOM.salesReportModal));
-        getEl('cancelManager').addEventListener('click', () => hideModal(DOM.managerModal));
-        getEl('cancelVoid').addEventListener('click', () => hideModal(DOM.voidOrderModal));
-        getEl('cancelDayStart').addEventListener('click', () => {
-            if (state.dayStartData) hideModal(DOM.dayStartModal);
-            else showNotification(translations[currentLanguage].dayStartRequired || 'You must start the day to use the POS.', 'error');
-        });
-        getEl('cancelMerge').addEventListener('click', () => hideModal(DOM.mergeTablesModal));
-        getEl('cancelReprint').addEventListener('click', () => hideModal(DOM.reprintModal));
-        getEl('closeCustomerReceipt').addEventListener('click', () => hideModal(DOM.customerReceiptModal));
+        if (getEl('cancelPayment')) getEl('cancelPayment').addEventListener('click', () => hideModal(DOM.cashierModal));
+        if (getEl('closeSalesReport')) getEl('closeSalesReport').addEventListener('click', () => hideModal(DOM.salesReportModal));
+        if (getEl('cancelManager')) getEl('cancelManager').addEventListener('click', () => hideModal(DOM.managerModal));
+        if (getEl('cancelVoid')) getEl('cancelVoid').addEventListener('click', () => hideModal(DOM.voidOrderModal));
+        if (getEl('cancelDayStart')) {
+          getEl('cancelDayStart').addEventListener('click', () => {
+              if (state.dayStartData) hideModal(DOM.dayStartModal);
+              else showNotification(translations[currentLanguage].dayStartRequired || 'You must start the day to use the POS.', 'error');
+          });
+        }
+        if (getEl('cancelMerge')) getEl('cancelMerge').addEventListener('click', () => hideModal(DOM.mergeTablesModal));
+        if (getEl('cancelReprint')) getEl('cancelReprint').addEventListener('click', () => hideModal(DOM.reprintModal));
+        if (getEl('closeCustomerReceipt')) getEl('closeCustomerReceipt').addEventListener('click', () => hideModal(DOM.customerReceiptModal));
 
         // Modal - Confirm Actions
-        getEl('completePayment').addEventListener('click', completePayment);
-        getEl('confirmDayStart').addEventListener('click', startNewDay);
-        getEl('confirmMerge').addEventListener('click', mergeTables);
-        getEl('confirmVoid').addEventListener('click', voidOrder);
-        getEl('confirmReprint').addEventListener('click', reprintReceipt);
-        getEl('reprintOrderId').addEventListener('input', previewReceiptForReprint);
+        if (getEl('completePayment')) getEl('completePayment').addEventListener('click', completePayment);
+        if (getEl('confirmDayStart')) getEl('confirmDayStart').addEventListener('click', startNewDay);
+        if (getEl('confirmMerge')) getEl('confirmMerge').addEventListener('click', mergeTables);
+        if (getEl('confirmVoid')) getEl('confirmVoid').addEventListener('click', voidOrder);
+        if (getEl('confirmReprint')) getEl('confirmReprint').addEventListener('click', reprintReceipt);
+        if (getEl('reprintOrderId')) getEl('reprintOrderId').addEventListener('input', previewReceiptForReprint);
+        if (getEl('printSalesReport')) getEl('printSalesReport').addEventListener('click', printSalesReport);
+        if (getEl('printCustomerReceipt')) getEl('printCustomerReceipt').addEventListener('click', printCustomerReceipt);
         
         // Cashier Modal Logic
         querySelAll('.payment-method').forEach(method => {
@@ -2355,34 +2675,40 @@
                 method.classList.add('selected');
                 state.selectedPaymentMethod = method.dataset.method;
                 const amountInput = getEl('amountInput');
-                if (method.dataset.autoAmount === 'true') {
-                    amountInput.value = state.currentOrderTotal.toFixed(2);
-                    amountInput.readOnly = true;
-                } else {
-                    amountInput.readOnly = false;
-                    amountInput.value = '';
-                    amountInput.focus();
+                if (amountInput) {
+                  if (method.dataset.autoAmount === 'true') {
+                      amountInput.value = state.currentOrderTotal.toFixed(2);
+                      amountInput.readOnly = true;
+                  } else {
+                      amountInput.readOnly = false;
+                      amountInput.value = '';
+                      amountInput.focus();
+                  }
                 }
                 calculateChange();
             });
         });
-        getEl('amountInput').addEventListener('input', calculateChange);
+        const amountInput = getEl('amountInput');
+        if (amountInput) amountInput.addEventListener('input', calculateChange);
         
         // Manager Login
-        getEl('loginManager').addEventListener('click', () => {
-            const lang = translations[currentLanguage];
-            if (getEl('managerUsername').value === CONFIG.MANAGER_USERNAME && getEl('managerPassword').value === CONFIG.MANAGER_PASSWORD) {
-                state.isManagerLoggedIn = true;
-                showNotification(lang.managerLoginSuccess, 'success');
-                hideModal(DOM.managerModal);
-                getEl('managerPassword').value = '';
-            } else {
-                showNotification(lang.invalidCredentials, 'error');
-            }
-        });
-
-        // Print Customer Receipt
-        getEl('printCustomerReceipt').addEventListener('click', printCustomerReceipt);
+        const loginManagerBtn = getEl('loginManager');
+        if (loginManagerBtn) {
+          loginManagerBtn.addEventListener('click', () => {
+              const lang = translations[currentLanguage];
+              const managerUsername = getEl('managerUsername');
+              const managerPassword = getEl('managerPassword');
+              if (!managerUsername || !managerPassword) return;
+              if (managerUsername.value === CONFIG.MANAGER_USERNAME && managerPassword.value === CONFIG.MANAGER_PASSWORD) {
+                  state.isManagerLoggedIn = true;
+                  showNotification(lang.managerLoginSuccess, 'success');
+                  hideModal(DOM.managerModal);
+                  managerPassword.value = '';
+              } else {
+                  showNotification(lang.invalidCredentials, 'error');
+              }
+          });
+        }
 
         // Hotkeys
         document.addEventListener('keydown', (e) => {
