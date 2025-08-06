@@ -418,9 +418,9 @@
             <div class="table-selection">
                 <label for="tableNumber" data-translate="tableNumberLabel">Table Number:</label>
                 <div class="table-input-group">
-                    <input type="number" id="tableNumber" class="table-input" data-translate-placeholder="tableNumberPlaceholder" placeholder="Enter your table number" min="1" max="30">
+                    <input type="number" id="tableNumber" class="table-input" data-translate-placeholder="tableNumberPlaceholder" placeholder="输入您的桌号" min="1" max="30">
                     <button class="barcode-btn" id="scanBarcodeBtn">
-                        <i class="fas fa-th-large"></i> <span data-translate="scanBarcodeBtn">Scan QR/Barcode</span>
+                        <i class="fas fa-th-large"></i> <span data-translate="scanBarcodeBtn">扫描二维码/条码</span>
                     </button>
                 </div>
             </div>
@@ -429,24 +429,24 @@
                 </div>
             
             <div id="menuItemsContainer">
-                <p class="empty-cart" data-translate="menuNotAvailable">No menu items available. Please update the menu from the management system.</p>
+                <p class="empty-cart" data-translate="menuNotAvailable">没有可用的菜单项。请从管理系统更新菜单。</p>
             </div>
         </div>
 
         <div class="right-panel" id="cartSidebar">
             <div class="order-panel-header">
-                <div class="title" data-translate="yourOrderTitle">Your Order</div>
+                <div class="title" data-translate="yourOrderTitle">您的订单</div>
             </div>
             <div class="table-info"> 
-                <span data-translate="tableNumberLabel">Table Number:</span> <span id="cartTableNumber">-</span>
+                <span data-translate="tableNumberLabel">桌号:</span> <span id="cartTableNumber">-</span>
             </div>
             <div class="order-panel-items" id="cartItems">
-                <p class="empty-cart" data-translate="cartEmpty">Your cart is empty</p>
+                <p class="empty-cart" data-translate="cartEmpty">您的购物车为空</p>
             </div>
             <div class="order-panel-total">
-                <span data-translate="total">Total:</span> <span id="cartTotal">RM 0.00</span>
+                <span data-translate="total">总计:</span> <span id="cartTotal">RM 0.00</span>
             </div>
-            <button class="checkout-btn" id="checkoutBtn" data-translate="checkoutBtn">Checkout</button>
+            <button class="checkout-btn" id="checkoutBtn" data-translate="checkoutBtn">结账</button>
         </div>
     </div>
     
@@ -455,7 +455,7 @@
     <div class="notification" id="notification"></div>
     <div class="scanner-container" id="scannerContainer">
         <div class="scanner-header">
-            <div class="scanner-title" data-translate="scanBarcodeTitle">Scan Table Barcode</div>
+            <div class="scanner-title" data-translate="scanBarcodeTitle">扫描桌号二维码</div>
             <button class="scanner-close" id="scannerClose"><i class="fas fa-times"></i></button>
         </div>
         <video class="scanner-video" id="scannerVideo" playsinline></video>
@@ -635,23 +635,26 @@
                     menuData = JSON.parse(menuJson).filter(item => 
                         item.code && item.name && item.price > 0 && item.category
                     );
-                } else {
-                    // Fallback data for empty localStorage
-                    menuData = [
-                        { id: '509', nameEn: "Nasi Lemak Egg", name: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
-                        { id: '510', nameEn: "Nasi Lemak HotDog Egg", name: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
-                        { id: '411', nameEn: "Soup Mee Hun Kueh", name: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
-                        { id: '611', nameEn: "French Fries", name: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
-                        { id: '612', nameEn: "Chicken Nuggets (6pcs)", name: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
-                        { id: '101', nameEn: "Iced Lemon Tea", name: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
-                        { id: '102', nameEn: "Coke", name: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
-                        { id: 'B01', nameEn: "Extra Egg", name: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
-                    ];
-                    localStorage.setItem('menu', JSON.stringify(menuData));
                 }
             } catch (e) {
-                console.error('Error handling menu data:', e);
-                menuData = []; // Fallback to an empty array on error
+                console.error('Error handling menu data from localStorage:', e);
+                menuData = []; // Fallback to an empty array on parse error
+            }
+            
+            // If menuData is still empty, populate with the hardcoded fallback
+            if (menuData.length === 0) {
+                menuData = [
+                    { id: '509', nameEn: "Nasi Lemak Egg", name: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
+                    { id: '510', nameEn: "Nasi Lemak HotDog Egg", name: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
+                    { id: '411', nameEn: "Soup Mee Hun Kueh", name: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
+                    { id: '611', nameEn: "French Fries", name: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
+                    { id: '612', nameEn: "Chicken Nuggets (6pcs)", name: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
+                    { id: '101', nameEn: "Iced Lemon Tea", name: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
+                    { id: '102', nameEn: "Coke", name: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
+                    { id: 'B01', nameEn: "Extra Egg", name: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
+                ];
+                // Save this default menu to localStorage so it persists until cleared by the user or browser
+                localStorage.setItem('menu', JSON.stringify(menuData));
             }
             
             if (menuData.length > 0) {
