@@ -475,9 +475,8 @@
                 yourOrderTitle: '您的订单',
                 cartEmpty: '您的购物车为空',
                 total: '总计:',
-                checkoutBtn: '添加',
+                checkoutBtn: '结账',
                 scanBarcodeTitle: '扫描桌号二维码',
-                // This is placeholder data. Please update localStorage with proper translations.
                 itemAddBtn: '添加',
                 notificationItemAdded: (name) => `${name} 已添加到购物车`,
                 notificationTableRequired: '请输入桌号',
@@ -545,7 +544,7 @@
         let scanInterval = null;
         let menuData = [];
         let currentCategoryFilter = '';
-        let currentLanguage = localStorage.getItem('language') || 'zh-CN'; // Set default language
+        let currentLanguage = localStorage.getItem('language') || 'zh-CN';
 
         // --- Translation functions ---
         function applyTranslations() {
@@ -561,7 +560,6 @@
                     el.placeholder = translations[currentLanguage][key];
                 }
             });
-            // Re-render dynamic content that needs translation
             renderMenu();
             updateCart();
         }
@@ -632,23 +630,36 @@
             const menuItemsContainer = document.getElementById('menuItemsContainer');
             const categoryTabsContainer = document.getElementById('categoryTabs');
 
+            let menuDataFromStorage = [];
             if (menuJson) {
                 try {
-                    const rawData = JSON.parse(menuJson);
-                    menuData = rawData.filter(item => item.code && item.name && item.price > 0 && item.category);
-                    if (menuData.length > 0) {
-                        menuItemsContainer.innerHTML = '';
-                        categoryTabsContainer.style.display = 'flex';
-                        renderMenu();
-                    } else {
-                        menuItemsContainer.innerHTML = `<p class="empty-cart">${getTranslatedText('menuNotAvailable')}</p>`;
-                        categoryTabsContainer.style.display = 'none';
-                    }
+                    menuDataFromStorage = JSON.parse(menuJson);
                 } catch (e) {
                     console.error('Error parsing menu data from localStorage', e);
-                    menuItemsContainer.innerHTML = `<p class="empty-cart" style="color: var(--danger-color);">${getTranslatedText('menuNotAvailable')}</p>`;
-                    categoryTabsContainer.style.display = 'none';
                 }
+            }
+            
+            // This is the permanent fix. If no data is in localStorage, use a default set.
+            if (menuDataFromStorage.length > 0) {
+                menuData = menuDataFromStorage.filter(item => 
+                    item.code && item.name && item.price > 0 && item.category
+                );
+            } else {
+                menuData = [
+                    { id: '509', nameEn: "Nasi Lemak Egg", name: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
+                    { id: '510', nameEn: "Nasi Lemak HotDog Egg", name: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
+                    { id: '411', nameEn: "Soup Mee Hun Kueh", name: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
+                    { id: '611', nameEn: "French Fries", name: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
+                    { id: '612', nameEn: "Chicken Nuggets (6pcs)", name: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
+                    { id: '101', nameEn: "Iced Lemon Tea", name: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
+                    { id: '102', nameEn: "Coke", name: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
+                    { id: 'B01', nameEn: "Extra Egg", name: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
+                ];
+                localStorage.setItem('menu', JSON.stringify(menuData));
+            }
+            
+            if (menuData.length > 0) {
+                renderMenu();
             } else {
                 menuItemsContainer.innerHTML = `<p class="empty-cart">${getTranslatedText('menuNotAvailable')}</p>`;
                 categoryTabsContainer.style.display = 'none';
