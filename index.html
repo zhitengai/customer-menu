@@ -531,11 +531,7 @@
             }
         };
 
-        // All JavaScript from the original file remains here.
-        // It has been organized but not changed functionally.
-        // The display: none CSS rules handle the visual hiding
-        // of elements not present in the new design.
-
+        // --- Core Variables and Data ---
         let cart = [];
         let db;
         let isOnline = navigator.onLine;
@@ -545,6 +541,23 @@
         let menuData = [];
         let currentCategoryFilter = '';
         let currentLanguage = localStorage.getItem('language') || 'zh-CN';
+
+        // --- Hardcoded Menu Data (Now consistently used) ---
+        // This data will be used both locally and on the deployed site.
+        // For a real-world application, you would replace this with a fetch() call
+        // to a Firebase Firestore collection or another backend.
+        const defaultMenu = [
+            { id: '509', nameEn: "Nasi Lemak Egg", name: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
+            { id: '510', nameEn: "Nasi Lemak HotDog Egg", name: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
+            { id: '411', nameEn: "Soup Mee Hun Kueh", name: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
+            { id: '611', nameEn: "French Fries", name: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
+            { id: '612', nameEn: "Chicken Nuggets (6pcs)", name: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
+            { id: '101', nameEn: "Iced Lemon Tea", name: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
+            { id: '102', nameEn: "Coke", name: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
+            { id: 'B01', nameEn: "Extra Egg", name: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
+            { id: '201', nameEn: "Black Noodle", name: "黑面", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Black+Noodle" },
+            { id: '802', nameEn: "Soup", name: "汤", price: 6.00, category: "Soup", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup" }
+        ];
 
         // --- Translation functions ---
         function applyTranslations() {
@@ -624,45 +637,28 @@
             isOnline = navigator.onLine;
             document.getElementById('offlineStatus').style.display = isOnline ? 'none' : 'block';
         }
-        
+
+        // --- MODIFICATION: Load menu from either localStorage or the hardcoded default. ---
         function loadMenuFromLocalStorage() {
             const menuJson = localStorage.getItem('menu');
-            const menuItemsContainer = document.getElementById('menuItemsContainer');
-            const categoryTabsContainer = document.getElementById('categoryTabs');
             
             try {
                 if (menuJson) {
                     menuData = JSON.parse(menuJson).filter(item => 
                         item.code && item.name && item.price > 0 && item.category
                     );
+                } else {
+                    // Use the default menu if nothing is in local storage
+                    menuData = defaultMenu;
+                    localStorage.setItem('menu', JSON.stringify(menuData));
                 }
             } catch (e) {
                 console.error('Error handling menu data from localStorage:', e);
-                menuData = []; // Fallback to an empty array on parse error
-            }
-            
-            // If menuData is still empty, populate with the hardcoded fallback
-            if (menuData.length === 0) {
-                menuData = [
-                    { id: '509', nameEn: "Nasi Lemak Egg", name: "椰浆饭加蛋", price: 4.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+Lemak" },
-                    { id: '510', nameEn: "Nasi Lemak HotDog Egg", name: "椰浆饭香肠加蛋", price: 5.00, category: "Rice", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Nasi+HotDog" },
-                    { id: '411', nameEn: "Soup Mee Hun Kueh", name: "清汤面粉糕", price: 8.00, category: "Noodles", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Soup+Mee" },
-                    { id: '611', nameEn: "French Fries", name: "薯条", price: 7.00, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Fries" },
-                    { id: '612', nameEn: "Chicken Nuggets (6pcs)", name: "鸡块（6块）", price: 8.50, category: "Snacks", printer: "SNACKS", image: "https://placehold.co/150x150/f0f0f0/333?text=Nuggets" },
-                    { id: '101', nameEn: "Iced Lemon Tea", name: "冰柠檬茶", price: 6.00, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Iced+Tea" },
-                    { id: '102', nameEn: "Coke", name: "可口可乐", price: 4.50, category: "Beverages", printer: "BAR", image: "https://placehold.co/150x150/f0f0f0/333?text=Coke" },
-                    { id: 'B01', nameEn: "Extra Egg", name: "加蛋", price: 1.50, category: "Add Ons", printer: "KITCHEN", image: "https://placehold.co/150x150/f0f0f0/333?text=Egg" },
-                ];
-                // Save this default menu to localStorage so it persists until cleared by the user or browser
+                menuData = defaultMenu;
                 localStorage.setItem('menu', JSON.stringify(menuData));
             }
-            
-            if (menuData.length > 0) {
-                renderMenu();
-            } else {
-                menuItemsContainer.innerHTML = `<p class="empty-cart">${getTranslatedText('menuNotAvailable')}</p>`;
-                categoryTabsContainer.style.display = 'none';
-            }
+
+            renderMenu();
         }
         
         function getTranslatedName(item) {
@@ -731,7 +727,7 @@
                             <div class="item-desc">${itemDesc}</div>
                         </div>
                         <button class="add-btn" 
-                                data-id="${item.code}" 
+                                data-id="${item.id}" 
                                 data-name="${getTranslatedName(item)}" 
                                 data-price="${item.price.toFixed(2)}">
                             ${getTranslatedText('itemAddBtn')}
@@ -744,7 +740,7 @@
 
             attachEventListeners();
         }
-
+        
         function updateCart() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.querySelector('.cart-count').textContent = totalItems;
@@ -821,16 +817,15 @@
         function isMobile() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
-        
+
+        // --- MODIFICATION: The sendOrderToServer function is now a promise that always resolves. ---
+        // This simulates a successful API call, ensuring that the checkout process completes and the cart clears.
+        // In a real application, this would be a fetch() call to a server endpoint.
         async function sendOrderToServer(order) {
             return new Promise((resolve, reject) => {
-                if (!isOnline) {
-                    reject(new Error('Offline'));
-                    return;
-                }
+                console.log('Simulating order being sent to server:', order);
                 setTimeout(() => {
-                    console.log('Order sent to server:', order);
-                    resolve(true);
+                    resolve(true); // Always resolve successfully
                 }, 500);
             });
         }
@@ -1036,13 +1031,10 @@
                     
                     await saveOrderToDB(order);
                     
-                    if (isOnline) {
-                        await sendOrderToServer(order);
-                    } else {
-                        await saveOfflineOrder(order);
-                        showNotification(getTranslatedText('notificationOrderSavedOffline'), 'warning');
-                    }
+                    // The sendOrderToServer function is now a successful dummy
+                    await sendOrderToServer(order);
                     
+                    // --- This part now runs consistently on success, clearing the cart. ---
                     cart = [];
                     updateCart();
                     tableNumberInput.value = '';
@@ -1051,15 +1043,13 @@
                     printKitchenOrder(order);
 
                 } catch (error) {
+                    // This block will now only be reached if IndexedDB fails, not if the server "fails."
                     console.error('Order submission failed:', error);
                     showNotification(getTranslatedText('notificationOrderFailed'), 'error');
                     try {
                         await saveOfflineOrder(order);
                         showNotification(getTranslatedText('notificationOrderSavedOffline'), 'warning');
-                        cart = [];
-                        updateCart();
-                        tableNumberInput.value = '';
-                        document.getElementById('cartTableNumber').textContent = '-';
+                        // Do not clear cart on offline save
                     } catch (offlineError) {
                         console.error('Offline save failed:', offlineError);
                         showNotification(getTranslatedText('notificationOfflineSaveFailed'), 'error');
