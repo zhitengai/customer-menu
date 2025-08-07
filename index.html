@@ -21,6 +21,7 @@
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
@@ -85,6 +86,7 @@
             flex: 1;
             gap: 20px;
             width: 100%;
+            min-height: 0;
         }
 
         .left-panel {
@@ -92,6 +94,7 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            min-height: 0;
         }
 
         .right-panel {
@@ -103,6 +106,7 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+            min-height: 0;
         }
 
         /* --- Table Selection & Menu Panels --- */
@@ -130,6 +134,7 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 1em;
+            -webkit-appearance: none;
         }
 
         .barcode-btn {
@@ -144,6 +149,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            -webkit-appearance: none;
         }
 
         .barcode-btn:hover {
@@ -164,6 +170,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
+            user-select: none;
         }
         
         .category.active {
@@ -182,6 +189,7 @@
         #menuItemsContainer {
             flex: 1;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* --- Menu Items --- */
@@ -250,6 +258,7 @@
             font-weight: 500;
             transition: background-color 0.3s ease;
             align-self: flex-end;
+            -webkit-appearance: none;
         }
 
         .add-btn:hover {
@@ -281,6 +290,7 @@
             flex-grow: 1;
             overflow-y: auto;
             min-height: 100px;
+            -webkit-overflow-scrolling: touch;
         }
         
         .empty-cart {
@@ -330,6 +340,7 @@
             border-radius: 4px;
             font-weight: bold;
             transition: all 0.3s ease;
+            -webkit-appearance: none;
         }
         
         .qty-btn:hover {
@@ -346,6 +357,7 @@
             border: 1px solid #ddd;
             padding: 5px;
             border-radius: 4px;
+            -webkit-appearance: none;
         }
         
         .cart-item-total {
@@ -375,6 +387,7 @@
             cursor: pointer;
             font-weight: 600;
             transition: background-color 0.3s ease;
+            -webkit-appearance: none;
         }
 
         .checkout-btn:hover {
@@ -400,6 +413,33 @@
             .header {
                 margin-bottom: 10px;
             }
+            
+            /* Improve touch targets */
+            .add-btn, .barcode-btn, .qty-btn, .checkout-btn {
+                padding: 12px 20px;
+                min-height: 44px;
+            }
+            
+            .category {
+                padding: 10px 20px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .scanner-container, .scanner-container * {
+                visibility: visible;
+            }
+            .scanner-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+            }
         }
     </style>
 </head>
@@ -419,7 +459,7 @@
                 <label for="tableNumber" data-translate="tableNumberLabel">Table Number:</label>
                 <div class="table-input-group">
                     <input type="number" id="tableNumber" class="table-input" data-translate-placeholder="tableNumberPlaceholder" placeholder="输入您的桌号" min="1" max="30">
-                    <button class="barcode-btn" id="scanBarcodeBtn">
+                    <button class="barcode-btn" id="scanBarcodeBtn" aria-label="Scan QR/Barcode">
                         <i class="fas fa-th-large"></i> <span data-translate="scanBarcodeBtn">扫描二维码/条码</span>
                     </button>
                 </div>
@@ -456,7 +496,7 @@
     <div class="scanner-container" id="scannerContainer">
         <div class="scanner-header">
             <div class="scanner-title" data-translate="scanBarcodeTitle">扫描桌号二维码</div>
-            <button class="scanner-close" id="scannerClose"><i class="fas fa-times"></i></button>
+            <button class="scanner-close" id="scannerClose" aria-label="Close scanner"><i class="fas fa-times"></i></button>
         </div>
         <video class="scanner-video" id="scannerVideo" playsinline></video>
         <div class="scanner-overlay"></div>
@@ -717,7 +757,7 @@
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'menu-item';
                     
-                    const imageHtml = item.image ? `<img src="${item.image}" alt="${getTranslatedName(item)}" class="item-image">` : '';
+                    const imageHtml = item.image ? `<img loading="lazy" src="${item.image}" alt="${getTranslatedName(item)}" class="item-image">` : '';
                     const itemName = (item.code ? `${item.code}- ` : '') + getTranslatedName(item);
                     const itemDesc = getTranslatedDesc(item);
 
@@ -1078,4 +1118,3 @@
     </script>
 </body>
 </html>
-
